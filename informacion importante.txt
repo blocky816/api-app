@@ -1,0 +1,30 @@
+java -jar crud-0.0.2-SNAPSHOT.jar --spring.config.name=application,jdbc --spring.config.location=///home/administrador/configuracion/application.yml
+
+WZ155YH%a
+WZ155YH%b --openpay  contraseña de usuario postgres en el servidor de fiserv
+
+CREATE USER conekta WITH PASSWORD 'WZ155YH%';
+
+sudo ethtool -K ens160 lro off //liberar la red
+
+KnxXj7ni --cuponera
+
+n4DinbL3 --e-commerce
+
+--crear respaldo de la base de datos
+pg_dump -U postgres -W -h localhost app > app.sql
+
+
+--importar el respaldo de la base de datos
+sudo service postgresql stop
+sudo service postgresql start
+createdb  -U postgres -h localhost app
+ psql -U postgres -W -h localhost app < app.sql
+
+
+1173772
+1173774
+1173777
+1173778
+1173783
+

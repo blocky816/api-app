@@ -1,0 +1,63 @@
+server:
+  port: 8090
+jwt:
+  expiration: 36000
+  secret: secret
+spring:
+  jpa:
+    hibernate:
+      ddl-auto: update
+
+  data:
+    jpa.repositories.enabled: true
+  datasource:
+    initialization-mode: always
+    driverClassName: org.postgresql.Driver
+    url: jdbc:postgresql://localhost:5432/alpha
+    username: postgres
+    password: lalo
+    continueOnError: true
+    
+my:
+  property:
+    s: encriptadoclubalphaprueba
+    nombre: admin
+    nombreUsuario: admin
+    password: F0G6sUwEK38=
+    login: http://localhost:8888/auth/login
+    Token: 77D5BDD4-1FEE-4A47-86A0-1E7D19EE1C74
+    getUsuarios: http://192.168.20.26/ServiciosClubAlpha/api/Usuarios/GetUsuarios
+    GetMovimientosbyId: http://192.168.20.26/ServiciosClubAlpha/api/Movimientos/GetMovimientosbyId
+    agregarMovimientos: http://localhost:8888/alpha/agregarMovimientos
+    addUsers: http://localhost:8888/api/addUsers
+    getPedidoById: http://192.168.20.26/ServiciosClubAlpha/api/Pagos/GetPedidoById
+    agregarPedido: http://localhost:8888/alpha/agregarPedido
+    agregarCliente: http://localhost:8888/alpha/agregarCliente
+    usuarioData: DataFlowClient
+    passwordData: CHaxuvu3
+    urlData: smb://192.168.20.15/DataFlow/Documentos/Ventas/Fotografias/
+    apikey: key_NxYCoiUNoYiE8XskhXri6g
+    apikeyOpenpay: sk_f719cd52eea84f4e8d1b7fe74d4474a0
+    idOpenpay: moyppa8x9tsqurbdrjm9
+    data: jdbc:sqlserver://192.168.20.21;database=DataFlowAlpha
+    userData: sa
+    passData: dVf2SJZwMZ
+    basic: c2tfZjcxOWNkNTJlZWE4NGY0ZThkMWI3ZmU3NGQ0NDc0YTA6
+    ruta: appAlpha.log
+    usuarioCorreo: daniel.garcia@clubalpha.com.mx
+    contrasenaCorreo: farmacia123haloreach
+    receptor: ivan.najera@clubalpha.com.mx
+    copiaOculta: ivan.najera@clubalpha.com.mx
+    copiaOculta2: ivan.najera@clubalpha.com.mx
+    global: jdbc:sqlserver://192.168.20.12;database=globalsoft
+    userGlobal: facturacion
+    passGlobal: WZ155YH%a
+    passFacturama: Basic Y2x1YmFscGhhOmZjYXAxMzIy
+    codigoPostal: 72430
+    name: PUBLICO EN GENERAL
+    rfc: XAXX010101000
+    tipoCFDI: I
+    uso: S01
+    regimenFiscal: 616
+    correoFactura: fernando.nava@clubalpha.com.mx
+    apiFacturama: https://apisandbox.facturama.mx/
