@@ -42,6 +42,7 @@ import org.json.JSONObject;
 
 import javax.imageio.ImageIO;
 import javax.persistence.EntityManager;
+import javax.transaction.Transactional;
 
 import org.json.JSONException;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -66,6 +67,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.tutorial.crud.aopDao.endpoints;
 import com.tutorial.crud.correo.Correo;
 import com.tutorial.crud.dto.ClienteDTOO;
+import com.tutorial.crud.dto.ClienteReferenciado;
 import com.tutorial.crud.dto.ClienteRutina;
 import com.tutorial.crud.dto.DatosFiscalesDTO;
 import com.tutorial.crud.dto.DomiciliacionDatos;
@@ -268,6 +270,9 @@ public class Servicios
 
 	@Autowired
 	private ReferenciaService referenciaService;	
+
+	@Autowired
+	private ClienteDomiciliadoService clienteDomiciliadoService;	
 	
 	@Value("${my.property.nombre}")
 	String nombre;
@@ -2357,7 +2362,7 @@ public class Servicios
 			
 			@GetMapping("/idClienteByMembresia/{idMembresia}")
 			@ResponseBody
-			public ResponseEntity<?> getproductoByClub(@PathVariable("idMembresia") long idMembresia){
+			public ResponseEntity<?> getIdClienteByMembresia(@PathVariable("idMembresia") long idMembresia){
 				Session currentSession = entityManager.unwrap(Session.class);
 			 	Query listaClases;
 			 	listaClases = currentSession.createNativeQuery("select idcliente from cliente where nomembresia="+idMembresia+";");
@@ -2365,6 +2370,40 @@ public class Servicios
 				return new ResponseEntity<>(idcliente, HttpStatus.OK);
 			}
 			
+			@GetMapping("/clienteByMembresia/{idMembresia}")
+			@ResponseBody
+			public ResponseEntity<?> getClienteByMembresia(@PathVariable("idMembresia") String idMembresia){
+				Connection conn = null;
+                ClienteReferenciado to=new ClienteReferenciado();
+			       try {
+			           // Carga el driver de oracle
+			       		DriverManager.registerDriver(new com.microsoft.sqlserver.jdbc.SQLServerDriver());
+			           conn = DriverManager.getConnection(dbURL, userData, passData);
+			           PreparedStatement ps=conn.prepareStatement("EXEC DataFlowAlpha.dbo.GetMiembroById_Pagos ? ");
+			           ps.setString(1, idMembresia);
+			          
+			           ps.execute();
+			           ResultSet rs =ps.executeQuery();
+			           rs.next();
+		                to.setIdCliente(rs.getInt(1));
+	                    to.setMembresia(rs.getString(2));
+	                    to.setNombreCompleto(rs.getString(3)+" "+rs.getString(4)+" "+rs.getString(5));
+			           
+			           
+			         
+			       	conn.close();
+			       } catch (SQLException ex) {
+			           System.out.println("Error: " + ex.getMessage());
+			           ex.printStackTrace();
+			       } finally {
+			           try {
+			           	conn.close();
+			           } catch (SQLException ex) {
+			               System.out.println("Error: " + ex.getMessage());
+			           }
+			       }
+					return new ResponseEntity<>(to, HttpStatus.OK);
+			}
 			@GetMapping("/updateCliente/{horarioId}")
 			@ResponseBody
 		    public String update(@PathVariable("horarioId") int horarioId){
@@ -2685,6 +2724,92 @@ public class Servicios
 			 * metodo addFoto para poder cambiar la ruta de la foto a una foto, en caso de tener un id ya registrado solo se actualizan los valores
 			 * @return objeto Cliente añadido
 			 */
+			
+			@PostMapping("/domiciliarCliente")
+			public ResponseEntity<?> domiciliarCliente(@RequestBody Body body){
+				JSONObject resp=new JSONObject();
+				try {
+					Cliente cliente=clienteService.findById(body.getUsuario());
+					cliente.setToken(body.getToken());
+					cliente.setDomiciliado(true);
+					clienteService.save(cliente);
+					resp.put("respuesta", "domiciliacion exitosa");
+					return new ResponseEntity<>(resp.toString(), HttpStatus.OK);
+					
+				}catch(NullPointerException e){
+					resp.put("respuesta", "id de cliente no valido");
+					return new ResponseEntity<>(resp.toString(), HttpStatus.BAD_REQUEST);
+					
+				}catch(Exception e) {
+					e.printStackTrace();
+					resp.put("respuesta", "ocurrio un error desconocido durante la domiciliacion");
+					return new ResponseEntity<>(resp.toString(), HttpStatus.INTERNAL_SERVER_ERROR);
+				}
+			}
+			
+			@PostMapping("/cargarDomiciliacion")
+			public ResponseEntity<?> cargarDomiciliacion(@RequestBody Body body){
+				JSONObject resp=new JSONObject();
+				configuracion o;
+				String body2;
+				try {
+					Cliente cliente=clienteService.findById(body.getUsuario());
+					if(!cliente.isCargoDomiciliacion()) {
+						body2 = "{\r\n"
+								+ "\"IDCliente\":"+cliente.getIdCliente()+",  \r\n"
+								+ "\"IDClub\":"+cliente.getClub().getIdClub()+",   \r\n"
+								+ "\"Cantidad\":1, \r\n"
+								+ "\"IDProductoServicio\":"+body.getProducto()+",  \r\n"
+								+ "\"Observaciones\":\"\" ,   \r\n"
+								+ "\"DescuentoPorciento\":0,  \r\n"
+								+ "\"FechaInicio\":\""+new java.sql.Date(new Date().getTime())+" 00:00:00\", \r\n"
+								+ "\"FechaFin\":\""+new java.sql.Date(new Date().getTime())+" 00:00:00\",  \r\n"
+								+ "\"CobroProporcional\":0, \r\n"
+								+ "\"Token\":\"77D5BDD4-1FEE-4A47-86A0-1E7D19EE1C74\"  \r\n"
+								+ "}";
+						o = configuracionService.findByServiceName("RegistraOV").get();
+						try {
+					    	System.out.println(e.conectaApiClubPOST(body2,o.getEndpointAlpha()));							
+						}catch(Exception e) {
+							
+						}
+						
+						cliente.setCargoDomiciliacion(true);
+						clienteService.save(cliente);
+					}o = configuracionService.findByServiceName("getPedido").get();
+					body2 = "{\r\n"
+							+ "\"IdCliente\":"+cliente.getIdCliente()+",\r\n"
+							+ "\"Token\":\"77D5BDD4-1FEE-4A47-86A0-1E7D19EE1C74\"\r\n"
+							+ "}";
+					double importe=0;
+					try {
+				    	String json=e.conectaApiClubPOST(body2,o.getEndpointAlpha());	
+				    	JSONObject resp2=new JSONObject(json);
+						JSONArray detalle=resp2.getJSONArray("Detalle");
+						for(int i=0;i<detalle.length();i++) {
+							JSONObject aux=detalle.getJSONObject(i);
+							importe=importe+aux.getDouble("Importe");
+						}
+					}catch(Exception e) {
+						e.printStackTrace();
+						resp.put("adeudo", "0.00");
+						return new ResponseEntity<>(resp.toString(), HttpStatus.OK);
+						
+					}
+					resp.put("adeudo", importe);
+					return new ResponseEntity<>(resp.toString(), HttpStatus.OK);
+					
+					
+				}catch(NullPointerException e){
+					resp.put("respuesta", "id de cliente no valido");
+					return new ResponseEntity<>(resp.toString(), HttpStatus.BAD_REQUEST);
+					
+				}catch(Exception e) {
+					e.printStackTrace();
+					resp.put("respuesta", "error durante el proceso");
+					return new ResponseEntity<>(resp.toString(), HttpStatus.INTERNAL_SERVER_ERROR);
+				}
+			}
 			@PostMapping("/agregarCliente")
 		    public Cliente addCliente(@RequestBody ClienteAux client)  {
 				Cliente cliente=new Cliente();
@@ -4356,7 +4481,8 @@ public class Servicios
 		    int day=calendar.get(Calendar.DAY_OF_MONTH);
 		    java.sql.Date fechaInicio;
 		    java.sql.Date fechaFin;
-		    if(day==1 || day==2) {
+		    if(day==1 || day==2 ) {
+		    	System.out.println("entre al if de la facturacion");
 		    	calendar.set(Calendar.DAY_OF_MONTH,1);
 		    	calendar.set(Calendar.MONTH,calendar.get(Calendar.MONTH)-1);
 			    fechaInicio= new java.sql.Date(calendar.getTime().getTime());
@@ -4402,11 +4528,13 @@ public class Servicios
 	              	
                 	
                 	String observaciones=rs.getString(16);
-                	String[] observacionesSplit=observaciones.split("\\|");
-                	to.setUnidad(observacionesSplit[1]);
-                	to.setProductCode(observacionesSplit[0].trim());
-                	if(to.getCosto()!=0 && to.getPrecioUnitario()!=0)
+                	
+                	if(to.getCosto()!=0 && to.getPrecioUnitario()!=0 && observaciones!=null) {
+                		String[] observacionesSplit=observaciones.split("\\|");
+                    	to.setUnidad(observacionesSplit[1]);
+                    	to.setProductCode(observacionesSplit[0].trim());
                 		listaReporte.add(to);
+                	}
                 	
                 }
                 
@@ -5590,6 +5718,50 @@ public ResponseEntity<?> guardarReferencia(@RequestBody Referencia body){
 		return new ResponseEntity<>(resp.toString(), HttpStatus.INTERNAL_SERVER_ERROR);
 	}
 }
+
+	@GetMapping("/actualizarDomiciliacion")
+	@Transactional(rollbackOn =Exception.class)
+	public ResponseEntity<?> actualizarDomiciliacion(){
+		Connection conn = null;
+	    try {
+	    	Session currentSession = entityManager.unwrap(Session.class);
+	    	currentSession.createNativeQuery("delete from cliente_domiciliado").executeUpdate();
+	    	DriverManager.registerDriver(new com.microsoft.sqlserver.jdbc.SQLServerDriver());
+	        conn = DriverManager.getConnection(dbURL, userData, passData);
+	        
+	        PreparedStatement ps=conn.prepareStatement("EXEC DataFlowAlpha.dbo.sp_Generar_Archivo_Domiciliacion_fiserv ");
+	        List<ClienteDomiciliado>lista=new ArrayList<ClienteDomiciliado>();
+	      	ResultSet rs =ps.executeQuery();
+	        while (rs.next()) {	     
+	        	ClienteDomiciliado to=new ClienteDomiciliado();
+	        	to.setIdCliente(rs.getInt(1));
+	        	to.setMembresia(rs.getString(2));
+	        	to.setNombre(rs.getString(3));
+	        	to.setMonto(rs.getFloat(8));
+	        	clienteDomiciliadoService.save(to);
+	        	lista.add(to);
+	        	
+	        }
+	        
+	    	conn.close();
+	    	return new ResponseEntity<>(lista, HttpStatus.OK);
+	    } catch (SQLException ex) {
+	        System.out.println("Error: " + ex.getMessage());
+	        ex.printStackTrace();
+	    } 
+	    catch(Exception e){
+	    	e.printStackTrace();
+	    }finally {
+	        try {
+	        	if(conn!=null) {
+		        	conn.close();	        		
+	        	}
+	        } catch (SQLException ex) {
+	            System.out.println("Error: " + ex.getMessage());
+	        }
+	    }
+		return null;
+	}
 
 }//fin de la clase
 

@@ -669,8 +669,13 @@ public class ParkingController
 			chip.setIdChip(i);
 			RegistroTag registro=registroTagService.findByIdChip(i);
 			if(registro==null) {
-				registroTagService.save(chip);
-				count++;
+				try {
+					registroTagService.save(chip);
+					count++;
+					
+				}catch(Exception e) {
+					
+				}
 				
 			}
 		}
@@ -1209,6 +1214,7 @@ public class ParkingController
 				return new ResponseEntity<>(json.toString(), HttpStatus.OK);
 			}catch(Exception e) {
 				e.printStackTrace();
+				System.out.println(body);
 				JSONObject json=new JSONObject();
 				json.put("respuesta", "ocurrio un error en el endpoint registrarEvento");
 				
@@ -1234,7 +1240,9 @@ public class ParkingController
 				String club=caseta.getClub().getNombre();
 				if(club.equals("Club Alpha 3")) {
 					club="A3";
-				}else {
+				}else if(club.equals("Club Alpha 2")) {
+					club="A2";
+				}else if(club.equals("CIMERA")) {
 					club="CIM";
 				}
 
@@ -1273,6 +1281,7 @@ public class ParkingController
 	
 	 @GetMapping("/chipsActivos/{idCaseta}")
 		@ResponseBody
+		@Transactional
 		public ResponseEntity<?> chipActivos(@PathVariable("idCaseta") int idCaseta){
 			Caseta caseta=casetaService.getOne(idCaseta).get();
 			String nombre=caseta.getClub().getNombre();
@@ -1280,20 +1289,44 @@ public class ParkingController
 			Query<RegistroTag> listaApartadosUsuario;
 			List<RegistroTag> results;
 			if(caseta.getId()==5) {
-				listaApartadosUsuario = currentSession.createNativeQuery("SELECT id,CASE WHEN estado_cobranza='Etapa 2' or estado_cobranza='Etapa 3'"
+				listaApartadosUsuario = currentSession.createNativeQuery("update registro_Tag set activo=false where (id_parking in "
+						+ "(select id_venta_Detalle from parking_usuario where estado_cobranza='Etapa 2' or estado_cobranza='Etapa 3'  or "
+						+ "estado_cobranza='Baja' AND id_venta_Detalle is not null ) or current_date>fecha_fin) and"
+						+ " (club='Futbol City' or club='CIMERA')", RegistroTag.class);
+				listaApartadosUsuario.executeUpdate();
+				/*currentSession.createNativeQuery("SELECT id,CASE WHEN estado_cobranza='Etapa 2' or estado_cobranza='Etapa 3'"
 						+ "  or estado_cobranza='Baja' or current_date>fecha_fin or REGISTRO_TAG.activo is false THEN false else true end as activo, REGISTRO_TAG.club,fecha_fin,"
 						+ "id_chip,id_parking FROM REGISTRO_TAG join parking_usuario on id_venta_Detalle=id_parking WHERE ID_PARKING is not null"
-						+ " and (REGISTRO_TAG.club='Futbol City' or REGISTRO_TAG.club='CIMERA')", RegistroTag.class);
+						+ " and (REGISTRO_TAG.club='Futbol City' or REGISTRO_TAG.club='CIMERA')", RegistroTag.class);*/
+				listaApartadosUsuario=currentSession.createNativeQuery("SELECT * FROM REGISTRO_TAG  WHERE ID_PARKING is not null"
+						+ " and (club='Futbol City' or club='CIMERA')", RegistroTag.class);
 				results = listaApartadosUsuario.getResultList();
 			}else {
-				listaApartadosUsuario = currentSession.createNativeQuery("SELECT id,CASE WHEN estado_cobranza='Etapa 2' or estado_cobranza='Etapa 3'"
+				listaApartadosUsuario = currentSession.createNativeQuery("update registro_Tag set activo=false where (id_parking in "
+						+ "(select id_venta_Detalle from parking_usuario where estado_cobranza='Etapa 2' or estado_cobranza='Etapa 3'  or "
+						+ "estado_cobranza='Baja' AND id_venta_Detalle is not null ) or current_date>fecha_fin) and"
+						+ " (club='"+nombre+"' or club='CIMERA')", RegistroTag.class);
+				listaApartadosUsuario.executeUpdate();
+				/*listaApartadosUsuario = currentSession.createNativeQuery("SELECT id,CASE WHEN estado_cobranza='Etapa 2' or estado_cobranza='Etapa 3'"
 						+ "  or estado_cobranza='Baja' or current_date>fecha_fin or REGISTRO_TAG.activo is false THEN false else true end as activo, REGISTRO_TAG.club,fecha_fin,"
 						+ "id_chip,id_parking FROM REGISTRO_TAG join parking_usuario on id_venta_Detalle=id_parking WHERE ID_PARKING is not null"
-						+ " and (REGISTRO_TAG.club='"+nombre+"' or REGISTRO_TAG.club='CIMERA')", RegistroTag.class);
+						+ " and (REGISTRO_TAG.club='"+nombre+"' or REGISTRO_TAG.club='CIMERA')", RegistroTag.class);*/
+				listaApartadosUsuario = currentSession.createNativeQuery("SELECT * FROM REGISTRO_TAG  WHERE ID_PARKING is not null"
+						+ " and (club='"+nombre+"' or club='CIMERA')", RegistroTag.class);
 				results = listaApartadosUsuario.getResultList();
 			}
-			
-			
+			return new ResponseEntity<>(results, HttpStatus.OK);
+	}
+	 
+	 @GetMapping("/listaChips")
+		@ResponseBody
+		@Transactional
+		public ResponseEntity<?> listaChips(){
+			Session currentSession = entityManager.unwrap(Session.class);
+			Query<RegistroTag> listaApartadosUsuario;
+			List<RegistroTag> results;
+			listaApartadosUsuario = currentSession.createNativeQuery("SELECT * FROM REGISTRO_TAG ", RegistroTag.class);
+			results = listaApartadosUsuario.getResultList();
 			return new ResponseEntity<>(results, HttpStatus.OK);
 	}
 	 @GetMapping("/calcularAmonestaciones")

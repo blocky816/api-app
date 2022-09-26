@@ -123,6 +123,13 @@ public class Cliente implements Serializable
 	@Column(name="tieneacceso")
 	private boolean tieneAcceso;
 	
+	private String token;
+	@Column(columnDefinition = "boolean default false")
+	private boolean domiciliado;
+
+	@Column(columnDefinition = "boolean default false",name = "cargo_domiciliacion")
+	private boolean cargoDomiciliacion;
+	
 	@OneToOne(cascade=CascadeType.ALL) //Relación de uno a uno
 	@JoinColumn(name="idclub") //Se utiliza para marcar una propiedad
 	private Club club;
@@ -190,6 +197,30 @@ public class Cliente implements Serializable
 	 
 	public int getIdCliente() {
 		return IdCliente;
+	}
+
+	public boolean isCargoDomiciliacion() {
+		return cargoDomiciliacion;
+	}
+
+	public void setCargoDomiciliacion(boolean cargoDomiciliacion) {
+		this.cargoDomiciliacion = cargoDomiciliacion;
+	}
+
+	public String obtenerToken() {
+		return token;
+	}
+
+	public void setToken(String token) {
+		this.token = token;
+	}
+
+	public boolean isDomiciliado() {
+		return domiciliado;
+	}
+
+	public void setDomiciliado(boolean domiciliado) {
+		this.domiciliado = domiciliado;
 	}
 
 	public void setAgendaUsuario(List<AgendaReservasUsuario> agendaUsuario) {

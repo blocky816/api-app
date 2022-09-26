@@ -4,6 +4,10 @@ import java.sql.Date;
 import java.util.UUID;
 
 public class Body {
+	
+	private String token;
+	
+	private int producto;
 	private String observaciones;
 	private int idRutina;
 	private String asesor;
@@ -120,6 +124,22 @@ public class Body {
 	
 	
 	
+	public int getProducto() {
+		return producto;
+	}
+
+	public void setProducto(int producto) {
+		this.producto = producto;
+	}
+
+	public String getToken() {
+		return token;
+	}
+
+	public void setToken(String token) {
+		this.token = token;
+	}
+
 	public int getIdChipAnterior() {
 		return idChipAnterior;
 	}
