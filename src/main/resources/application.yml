@@ -61,3 +61,7 @@ my:
     regimenFiscal: 616
     correoFactura: fernando.nava@clubalpha.com.mx
     apiFacturama: https://apisandbox.facturama.mx/
+    apiKeyFiserv: tFSef3RsuLpzPIMcDeuSYisgusLiQy9z
+    apiSecretFiserv: DVGUnyrS6yar5sSX631rtyMQRcwpcN7mKQ13Ay59LJf
+    endpointPagos: https://openpay.clubalpha.com.mx/fiserv/guardarDomiciliacion
+    endpointFiserv: https://cert.api.firstdata.com/gateway/v2/payments

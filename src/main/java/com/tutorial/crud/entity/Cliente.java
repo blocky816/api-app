@@ -130,6 +130,10 @@ public class Cliente implements Serializable
 	@Column(columnDefinition = "boolean default false",name = "cargo_domiciliacion")
 	private boolean cargoDomiciliacion;
 	
+
+	@Column(columnDefinition = "real default 0")
+	private float monto;
+	
 	@OneToOne(cascade=CascadeType.ALL) //Relación de uno a uno
 	@JoinColumn(name="idclub") //Se utiliza para marcar una propiedad
 	private Club club;
@@ -197,6 +201,14 @@ public class Cliente implements Serializable
 	 
 	public int getIdCliente() {
 		return IdCliente;
+	}
+
+	public float obtenerMonto() {
+		return monto;
+	}
+
+	public void setMonto(float monto) {
+		this.monto = monto;
 	}
 
 	public boolean isCargoDomiciliacion() {

@@ -12,7 +12,9 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.net.URLConnection;
 import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.PreparedStatement;
@@ -70,6 +72,7 @@ import com.tutorial.crud.dto.ClienteDTOO;
 import com.tutorial.crud.dto.ClienteReferenciado;
 import com.tutorial.crud.dto.ClienteRutina;
 import com.tutorial.crud.dto.DatosFiscalesDTO;
+import com.tutorial.crud.dto.DomiciliacionDTO;
 import com.tutorial.crud.dto.DomiciliacionDatos;
 import com.tutorial.crud.dto.FacturaOnline;
 import com.tutorial.crud.dto.GlobalInformation;
@@ -360,6 +363,18 @@ public class Servicios
 	
 	@Value("${my.property.copiaOculta2}")
 	String copiaOculta;
+
+	@Value("${my.property.apiKeyFiserv}")
+	String apiKeyFiserv;
+
+	@Value("${my.property.apiSecretFiserv}")
+	String apiSecretFiserv;
+
+	@Value("${my.property.endpointPagos}")
+	String endpointPagos;
+
+	@Value("${my.property.endpointFiserv}")
+	String endpointFiserv;
 	
 	//--------------------------SERVICIO WEB CLUB----------------------------------
 	/**
@@ -2754,7 +2769,25 @@ public class Servicios
 				String body2;
 				try {
 					Cliente cliente=clienteService.findById(body.getUsuario());
-					if(!cliente.isCargoDomiciliacion()) {
+					o=configuracionService.findByServiceName("getPedido").get();
+					body2 = "{\r\n"
+							+ "\"IdCliente\":"+cliente.getIdCliente()+",\r\n"
+							+ "\"Token\":\"77D5BDD4-1FEE-4A47-86A0-1E7D19EE1C74\"\r\n"
+							+ "}";
+					double importe=0;
+					try {
+				    	String json=e.conectaApiClubPOST(body2,o.getEndpointAlpha());	
+				    	JSONObject resp2=new JSONObject(json);
+						JSONArray detalle=resp2.getJSONArray("Detalle");
+						for(int i=0;i<detalle.length();i++) {
+							JSONObject aux=detalle.getJSONObject(i);
+							importe=importe+aux.getDouble("Importe");
+						}
+					}catch(Exception e) {
+						
+					}
+					System.out.println(importe);
+					if(/*!cliente.isCargoDomiciliacion() &&*/ importe==0) {
 						body2 = "{\r\n"
 								+ "\"IDCliente\":"+cliente.getIdCliente()+",  \r\n"
 								+ "\"IDClub\":"+cliente.getClub().getIdClub()+",   \r\n"
@@ -2781,7 +2814,7 @@ public class Servicios
 							+ "\"IdCliente\":"+cliente.getIdCliente()+",\r\n"
 							+ "\"Token\":\"77D5BDD4-1FEE-4A47-86A0-1E7D19EE1C74\"\r\n"
 							+ "}";
-					double importe=0;
+					importe=0;
 					try {
 				    	String json=e.conectaApiClubPOST(body2,o.getEndpointAlpha());	
 				    	JSONObject resp2=new JSONObject(json);
@@ -2790,14 +2823,15 @@ public class Servicios
 							JSONObject aux=detalle.getJSONObject(i);
 							importe=importe+aux.getDouble("Importe");
 						}
+						resp.put("adeudo", importe);
+						resp.put("NoPedido", resp2.getInt("NoPedido"));
+						return new ResponseEntity<>(resp.toString(), HttpStatus.OK);
 					}catch(Exception e) {
 						e.printStackTrace();
 						resp.put("adeudo", "0.00");
 						return new ResponseEntity<>(resp.toString(), HttpStatus.OK);
 						
 					}
-					resp.put("adeudo", importe);
-					return new ResponseEntity<>(resp.toString(), HttpStatus.OK);
 					
 					
 				}catch(NullPointerException e){
@@ -2810,6 +2844,16 @@ public class Servicios
 					return new ResponseEntity<>(resp.toString(), HttpStatus.INTERNAL_SERVER_ERROR);
 				}
 			}
+			@GetMapping("/cancelarDomiciliacion/{idCliente}")
+			public ResponseEntity<?> cancelarDomiciliacion(@PathVariable("idCliente") int idCliente){
+				JSONObject resp=new JSONObject();
+				Cliente cliente=clienteService.findById(idCliente);
+				cliente.setDomiciliado(false);
+				clienteService.save(cliente);
+				resp.put("respuesta", "el cliente ya no esta domiciliado");
+				return new ResponseEntity<>(resp.toString(), HttpStatus.OK);
+			}
+			
 			@PostMapping("/agregarCliente")
 		    public Cliente addCliente(@RequestBody ClienteAux client)  {
 				Cliente cliente=new Cliente();
@@ -5744,7 +5788,34 @@ public ResponseEntity<?> guardarReferencia(@RequestBody Referencia body){
 	        }
 	        
 	    	conn.close();
-	    	return new ResponseEntity<>(lista, HttpStatus.OK);
+	    	currentSession.createNativeQuery("update cliente set monto=0 where domiciliado is true").executeUpdate();
+	    	Query<ClienteDomiciliado> query;
+	    	query=currentSession.createNativeQuery("select id_cliente,membresia,nombre,0 as monto from domiciliacion where monto=0 and domiciliado='FISERV'",ClienteDomiciliado.class);
+	    	List<ClienteDomiciliado>listaClientes=query.getResultList();
+    		configuracion o = configuracionService.findByServiceName("getPedido").get();
+	    	for (int i =0; i<listaClientes.size();i++) {
+				String body2 = "{\r\n"
+						+ "\"IdCliente\":"+listaClientes.get(i).getIdCliente()+",\r\n"
+						+ "\"Token\":\"77D5BDD4-1FEE-4A47-86A0-1E7D19EE1C74\"\r\n"
+						+ "}";
+				float importe=0;
+				try {
+			    	String json=e.conectaApiClubPOST(body2,o.getEndpointAlpha());	
+			    	JSONObject resp2=new JSONObject(json);
+					JSONArray detalle=resp2.getJSONArray("Detalle");
+					for(int index=0;index<detalle.length();index++) {
+						JSONObject aux=detalle.getJSONObject(index);
+						importe=importe+aux.getFloat("Importe");
+					}
+					System.out.println(importe);
+					Cliente cliente=clienteService.findById(listaClientes.get(i).getIdCliente());
+					cliente.setMonto(importe);
+					clienteService.save(cliente);
+				}catch(Exception e) {
+					
+				}
+	    	}
+	    	return new ResponseEntity<>("datos almacenados", HttpStatus.OK);
 	    } catch (SQLException ex) {
 	        System.out.println("Error: " + ex.getMessage());
 	        ex.printStackTrace();
@@ -5762,6 +5833,95 @@ public ResponseEntity<?> guardarReferencia(@RequestBody Referencia body){
 	    }
 		return null;
 	}
+	@PostMapping("/pagosDomiciliadosFiserv")
+	@ResponseBody
+	public ResponseEntity<?> pagosDomiciliadosFiserv(@RequestBody DomiciliacionDTO body){
+		JSONObject resp=new JSONObject();
+		
+		try {
+			List<ClienteDomiciliado>listaClientes=body.body.get(0).domiciliados;
+			configuracion o = configuracionService.findByServiceName("getPedido").get();	   
 
+		    
+			for(int i=0;i<listaClientes.size();i++) {
+				System.out.println(i);
+				ClienteDomiciliado cliente=listaClientes.get(i);
+				Cliente clienteToken=clienteService.findById(cliente.getIdCliente());
+				String uuid = java.util.UUID.randomUUID().toString();
+				
+				long fecha=new Date().getTime();
+				
+				
+				String body2 = "{\r\n"
+						+ "\"IdCliente\":"+cliente.getIdCliente()+",\r\n"
+						+ "\"Token\":\"77D5BDD4-1FEE-4A47-86A0-1E7D19EE1C74\"\r\n"
+						+ "}";
+				int noPedido=0;
+				try {
+			    	String json=e.conectaApiClubPOST(body2,o.getEndpointAlpha());	
+			    	JSONObject resp2=new JSONObject(json);
+			    	noPedido=resp2.getInt("NoPedido");
+				}catch(Exception e) {
+					
+				}
+				
+				
+				
+				
+				String input = "{\"transactionAmount\":{\"total\":\""+cliente.getMonto()+"\",\"currency\":\"MXN\"},\"requestType\":\"PaymentTokenSaleTransaction\",\"paymentMethod\":{\"paymentToken\":{\"value\":\""+clienteToken.obtenerToken()+"\"}},\"order\":{\"orderId\":"+noPedido+"}}";
+			    
+			    String msgSignatureStrin= apiKeyFiserv+uuid + fecha + input;
+			    
+			    String hmac = new HmacUtils("HmacSHA256", apiSecretFiserv).hmacHex(msgSignatureStrin);
+			    byte[]valueDecoded=Base64.encodeBase64(hmac.getBytes());
+				String query=endpointFiserv;
+				URL url = new URL(query);
+			    HttpURLConnection conn = (HttpURLConnection) url.openConnection();
+			    conn.setConnectTimeout(5000);
+			    conn.setRequestProperty("Content-Type", "application/json; charset=UTF-8");
+			    conn.setDoOutput(true);
+			    conn.setDoInput(true);
+			    conn.setRequestMethod("POST");
+			    conn.setRequestProperty("Api-Key", apiKeyFiserv);
+			    conn.setRequestProperty("Client-Request-Id", uuid);
+			    conn.setRequestProperty("Timestamp", String.valueOf(fecha));
+			    conn.setRequestProperty("Message-Signature", new String(valueDecoded));
+				 OutputStream os = conn.getOutputStream();
+			    os.write(input.getBytes("UTF-8"));
+			    os.close();
+			 // read the response
+			    InputStream in = new BufferedInputStream(conn.getInputStream());
+			    String result = org.apache.commons.io.IOUtils.toString(in, "UTF-8");
+			    JSONObject usuarioLog = new JSONObject(result);
+			    //System.out.println(usuarioLog);
+	            in.close();
+	            conn.disconnect();
+	            
+	            url = new URL(endpointPagos);
+			    conn = (HttpURLConnection) url.openConnection();
+			    conn.setConnectTimeout(5000);
+			    conn.setRequestProperty("Content-Type", "application/json; charset=UTF-8");
+			    conn.setDoOutput(true);
+			    conn.setDoInput(true);
+			    conn.setRequestMethod("POST");
+				os = conn.getOutputStream();
+			    os.write(result.getBytes("UTF-8"));
+			    os.close();
+			 // read the response
+			    in = new BufferedInputStream(conn.getInputStream());
+			    result = org.apache.commons.io.IOUtils.toString(in, "UTF-8");
+			    usuarioLog = new JSONObject(result);
+			    System.out.println(usuarioLog);
+	            in.close();
+	            conn.disconnect();
+				
+			}
+			resp.put("respuesta", body);
+			return new ResponseEntity<>(resp.toString(), HttpStatus.OK);
+		}catch(Exception e) {
+			resp.put("respuesta", "ocurrio un error durante la aplicacion del pago");
+			return new ResponseEntity<>(resp.toString(), HttpStatus.INTERNAL_SERVER_ERROR);
+		}
+	}
 }//fin de la clase
 

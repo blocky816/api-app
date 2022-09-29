@@ -49,6 +49,12 @@ public class ClienteDomiciliado {
 	public void setMonto(float monto) {
 		this.monto = monto;
 	}
+
+	@Override
+	public String toString() {
+		return "ClienteDomiciliado [idCliente=" + idCliente + ", membresia=" + membresia + ", nombre=" + nombre
+				+ ", monto=" + monto + "]";
+	}
 	
 	
 }

@@ -1294,6 +1294,10 @@ public class ParkingController
 						+ "estado_cobranza='Baja' AND id_venta_Detalle is not null ) or current_date>fecha_fin) and"
 						+ " (club='Futbol City' or club='CIMERA')", RegistroTag.class);
 				listaApartadosUsuario.executeUpdate();
+				listaApartadosUsuario = currentSession.createNativeQuery("update registro_Tag set activo=true where (id_parking in "
+						+ "(select id_venta_Detalle from parking_usuario where estado_cobranza='Activo - Al Corriente'  AND id_venta_Detalle is not null ) or current_date<=fecha_fin) and"
+						+ " (club='Futbol City' or club='CIMERA')", RegistroTag.class);
+				listaApartadosUsuario.executeUpdate();
 				/*currentSession.createNativeQuery("SELECT id,CASE WHEN estado_cobranza='Etapa 2' or estado_cobranza='Etapa 3'"
 						+ "  or estado_cobranza='Baja' or current_date>fecha_fin or REGISTRO_TAG.activo is false THEN false else true end as activo, REGISTRO_TAG.club,fecha_fin,"
 						+ "id_chip,id_parking FROM REGISTRO_TAG join parking_usuario on id_venta_Detalle=id_parking WHERE ID_PARKING is not null"
@@ -1305,6 +1309,10 @@ public class ParkingController
 				listaApartadosUsuario = currentSession.createNativeQuery("update registro_Tag set activo=false where (id_parking in "
 						+ "(select id_venta_Detalle from parking_usuario where estado_cobranza='Etapa 2' or estado_cobranza='Etapa 3'  or "
 						+ "estado_cobranza='Baja' AND id_venta_Detalle is not null ) or current_date>fecha_fin) and"
+						+ " (club='"+nombre+"' or club='CIMERA')", RegistroTag.class);
+				listaApartadosUsuario.executeUpdate();
+				listaApartadosUsuario = currentSession.createNativeQuery("update registro_Tag set activo=true where (id_parking in "
+						+ "(select id_venta_Detalle from parking_usuario where estado_cobranza='Activo - Al Corriente'  AND id_venta_Detalle is not null ) or current_date<=fecha_fin) and"
 						+ " (club='"+nombre+"' or club='CIMERA')", RegistroTag.class);
 				listaApartadosUsuario.executeUpdate();
 				/*listaApartadosUsuario = currentSession.createNativeQuery("SELECT id,CASE WHEN estado_cobranza='Etapa 2' or estado_cobranza='Etapa 3'"
