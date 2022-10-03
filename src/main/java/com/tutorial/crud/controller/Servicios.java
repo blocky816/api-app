@@ -41,6 +41,8 @@ import org.hibernate.Session;
 import org.hibernate.query.Query;
 import org.json.JSONArray;
 import org.json.JSONObject;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.imageio.ImageIO;
 import javax.persistence.EntityManager;
@@ -276,6 +278,10 @@ public class Servicios
 
 	@Autowired
 	private ClienteDomiciliadoService clienteDomiciliadoService;	
+	
+
+    // creating a logger
+    Logger logger= LoggerFactory.getLogger(Servicios.class);
 	
 	@Value("${my.property.nombre}")
 	String nombre;
@@ -5844,7 +5850,6 @@ public ResponseEntity<?> guardarReferencia(@RequestBody Referencia body){
 
 		    
 			for(int i=0;i<listaClientes.size();i++) {
-				System.out.println(i);
 				ClienteDomiciliado cliente=listaClientes.get(i);
 				Cliente clienteToken=clienteService.findById(cliente.getIdCliente());
 				String uuid = java.util.UUID.randomUUID().toString();
@@ -5867,9 +5872,9 @@ public ResponseEntity<?> guardarReferencia(@RequestBody Referencia body){
 				
 				
 				
-				
-				String input = "{\"transactionAmount\":{\"total\":\""+cliente.getMonto()+"\",\"currency\":\"MXN\"},\"requestType\":\"PaymentTokenSaleTransaction\",\"paymentMethod\":{\"paymentToken\":{\"value\":\""+clienteToken.obtenerToken()+"\"}},\"order\":{\"orderId\":"+noPedido+"}}";
-			    
+				System.out.println(noPedido);
+				String input = "{\"transactionAmount\":{\"total\":\""+cliente.getMonto()+"\",\"currency\":\"MXN\"},\"requestType\":\"PaymentTokenSaleTransaction\",\"paymentMethod\":{\"paymentToken\":{\"value\":\""+clienteToken.obtenerToken()+"\"}},\"order\":{\"orderId\":"+noPedido+",\"additionalDetails\": {\"purchaseOrderNumber\": \""+cliente.getIdCliente()+"\"},\"installmentOptions\":{\"recurringType\":\"REPEAT\"}}}";
+			    System.out.println(input);
 			    String msgSignatureStrin= apiKeyFiserv+uuid + fecha + input;
 			    
 			    String hmac = new HmacUtils("HmacSHA256", apiSecretFiserv).hmacHex(msgSignatureStrin);
@@ -5890,11 +5895,30 @@ public ResponseEntity<?> guardarReferencia(@RequestBody Referencia body){
 			    os.write(input.getBytes("UTF-8"));
 			    os.close();
 			 // read the response
-			    InputStream in = new BufferedInputStream(conn.getInputStream());
-			    String result = org.apache.commons.io.IOUtils.toString(in, "UTF-8");
+			    
+			    
+			    int statusCode = conn.getResponseCode();
+			    InputStream is = null;
+
+			    if (statusCode >= 200 && statusCode < 400) {
+			       // Create an InputStream in order to extract the response object
+			       is = conn.getInputStream();
+			    }
+			    else {
+			       is = conn.getErrorStream();
+		           String result = org.apache.commons.io.IOUtils.toString(is, "UTF-8");
+
+					logger.warn("Error en fiserv: "+result);
+
+			    }
+
+	            //InputStream in = new BufferedInputStream(conn.getInputStream());
+	            String result = org.apache.commons.io.IOUtils.toString(is, "UTF-8");
+			    
+			    
 			    JSONObject usuarioLog = new JSONObject(result);
 			    //System.out.println(usuarioLog);
-	            in.close();
+	            is.close();
 	            conn.disconnect();
 	            
 	            url = new URL(endpointPagos);
@@ -5908,17 +5932,18 @@ public ResponseEntity<?> guardarReferencia(@RequestBody Referencia body){
 			    os.write(result.getBytes("UTF-8"));
 			    os.close();
 			 // read the response
-			    in = new BufferedInputStream(conn.getInputStream());
-			    result = org.apache.commons.io.IOUtils.toString(in, "UTF-8");
+			    is = new BufferedInputStream(conn.getInputStream());
+			    result = org.apache.commons.io.IOUtils.toString(is, "UTF-8");
 			    usuarioLog = new JSONObject(result);
 			    System.out.println(usuarioLog);
-	            in.close();
+	            is.close();
 	            conn.disconnect();
 				
 			}
 			resp.put("respuesta", body);
 			return new ResponseEntity<>(resp.toString(), HttpStatus.OK);
 		}catch(Exception e) {
+			e.printStackTrace();
 			resp.put("respuesta", "ocurrio un error durante la aplicacion del pago");
 			return new ResponseEntity<>(resp.toString(), HttpStatus.INTERNAL_SERVER_ERROR);
 		}
