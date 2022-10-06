@@ -84,6 +84,7 @@ public class MainSecurity extends WebSecurityConfigurerAdapter {
                 .antMatchers("/alpha/aplicarPago").permitAll()
                 .antMatchers("/alpha/idClienteByMembresia/**").permitAll()
                 .antMatchers("/alpha/referencia").permitAll()
+                .antMatchers("/alpha/referenciaDomiciliado").permitAll()
                 .antMatchers("/alpha/guardarReferencia").permitAll()
                 .antMatchers("/alpha/generarArchivoDomiciliacion").permitAll()
                 .antMatchers("/alpha/updateCliente/**").permitAll()
