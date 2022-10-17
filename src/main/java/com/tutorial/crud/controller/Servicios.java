@@ -5952,6 +5952,7 @@ public class Servicios
 				conn.disconnect();
 
 				url = new URL(endpointPagos);
+				url = new URL(endpointPagos);
 				conn = (HttpURLConnection) url.openConnection();
 				conn.setConnectTimeout(5000);
 				conn.setRequestProperty("Content-Type", "application/json; charset=UTF-8");

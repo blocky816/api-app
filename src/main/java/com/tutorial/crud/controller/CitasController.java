@@ -16,6 +16,8 @@ import java.sql.SQLException;
 import java.sql.Timestamp;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.time.Period;
+import java.time.ZoneId;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
@@ -961,9 +963,25 @@ endpoints e = new endpoints();
    			CAApartados apartado=apartadosService.getHorario(body.getId(),body.getDia());
    	        
    	        Session currentSession = entityManager.unwrap(Session.class);
-   	        
 
-	   		CAApartadosUsuario apartadosUsuario=new CAApartadosUsuario();
+			Date fechaApartado= null;
+			try {
+				fechaApartado = new SimpleDateFormat("yyyy-MM-dd").parse(body.getDia());
+			} catch (ParseException ex) {
+				throw new RuntimeException(ex);
+			}
+			Date hoy = new Date();
+			Period period = Period.between(fechaApartado.toInstant()
+					.atZone(ZoneId.systemDefault())
+					.toLocalDate(), hoy.toInstant()
+					.atZone(ZoneId.systemDefault())
+					.toLocalDate());
+			if(period.getDays()>1){
+				json.put("Respuesta", "No puedes apartar con más de un día de diferencia");
+				TransactionAspectSupport.currentTransactionStatus().setRollbackOnly();
+				return new ResponseEntity<String>(json.toString(), HttpStatus.CONFLICT);
+			}
+			CAApartadosUsuario apartadosUsuario=new CAApartadosUsuario();
 	   		int paga=apartado.getHorario().getActividad().getPaga();
    	        if(paga>0) {
 		   		List<PaseUsuario> paseUsuario=this.getPase(body.getUsuario());
