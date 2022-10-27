@@ -966,18 +966,24 @@ endpoints e = new endpoints();
 
 			Date fechaApartado= null;
 			try {
-				fechaApartado = new SimpleDateFormat("yyyy-MM-dd").parse(body.getDia());
+				fechaApartado = new SimpleDateFormat("yyyy-MM-dd HH:mm").parse(body.getDia()+' '+horario1.getHora());
 			} catch (ParseException ex) {
 				throw new RuntimeException(ex);
 			}
 			Date hoy = new Date();
-			Period period = Period.between(fechaApartado.toInstant()
+			/*Period period = Period.between(fechaApartado.toInstant()
 					.atZone(ZoneId.systemDefault())
 					.toLocalDate(), hoy.toInstant()
 					.atZone(ZoneId.systemDefault())
-					.toLocalDate());
-			if(period.getDays()>1){
-				json.put("Respuesta", "No puedes apartar con más de un día de diferencia");
+					.toLocalDate());*/
+			long diff = fechaApartado.getTime() - hoy.getTime();
+			long diffHours = diff / (60 * 60 * 1000) ;
+			/*System.out.println("Mi hora de apartado es "+fechaApartado);
+			System.out.println("Mi hora actual es "+hoy);
+
+			System.out.println("mi diferencia en horas de apartado es "+diffHours);*/
+			if(diffHours>=24){
+				json.put("Respuesta", "No puedes apartar con más de 24 horas de diferencia");
 				TransactionAspectSupport.currentTransactionStatus().setRollbackOnly();
 				return new ResponseEntity<String>(json.toString(), HttpStatus.CONFLICT);
 			}
