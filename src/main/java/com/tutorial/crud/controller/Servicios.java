@@ -34,6 +34,7 @@ import java.util.UUID;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import com.fasterxml.jackson.databind.node.ObjectNode;
 import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.codec.digest.HmacUtils;
 import org.apache.commons.io.IOUtils;
@@ -51,8 +52,10 @@ import javax.transaction.Transactional;
 import org.json.JSONException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -5978,6 +5981,37 @@ public class Servicios
 			resp.put("respuesta", "ocurrio un error durante la aplicacion del pago");
 			return new ResponseEntity<>(resp.toString(), HttpStatus.INTERNAL_SERVER_ERROR);
 		}
+	}
+
+
+	//-----------------------------   OCTUBRE 2022 ----------------------->>>>>>
+	//--------------   Asignar BandasComplex a los clientes  ----------------------->>>>>>
+	@PreAuthorize("hasRole('ADMIN')") //Con esto le exigimos un token en el Request
+	@PostMapping("/setIdComplexBand")
+	@ResponseBody
+	public ResponseEntity<?> setIdComplexBand(@RequestBody ObjectNode objectNode){
+		String idCliente = objectNode.get("idCliente").asText();
+		String idComplexBand = objectNode.get("idComplexBand").asText();
+		Cliente cliente = clienteService.findById(Integer.parseInt(idCliente));
+
+		JSONObject response=new JSONObject();
+
+		if(cliente == null) {
+			response.put("respuesta", "CLIENTE no existe.");
+			return new ResponseEntity<>(response.toString(), HttpStatus.NOT_FOUND);
+		}
+		try {
+			cliente.setIdComplexBand(idComplexBand);
+			clienteService.save(cliente);
+
+		} catch (DataIntegrityViolationException e) {
+			response.put("respuesta", "COMPLEXBAND  ya fue asignado.");
+			return new ResponseEntity<>(response.toString(), HttpStatus.CONFLICT);
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		response.put("respuesta", "COMPLEXBAND  asignado correctamente.");
+		return new ResponseEntity<>(response.toString(), HttpStatus.OK);
 	}
 }//fin de la clase
 

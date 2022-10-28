@@ -193,12 +193,12 @@ public class Cliente implements Serializable
 	
 	@Column(name="semanas")
 	private int semanas;
-	
-	 
+
+	@Column(name="id_complexband", unique=true)
+	private String idComplexBand;
+
 	//Se generaron todos los Getters y Setters.
-	
-	 
-	 
+
 	public int getIdCliente() {
 		return IdCliente;
 	}
@@ -570,6 +570,10 @@ public class Cliente implements Serializable
 		this.semanas = semanas;
 	}
 
+	public String getIdComplexBand() { return idComplexBand; }
+
+	public void setIdComplexBand(String idComplexBand) { this.idComplexBand = idComplexBand; }
+
 	@Override
 	public String toString() {
 		return "Cliente [IdCliente=" + IdCliente + ",\n NoMembresia=" + NoMembresia + ",\n Nombre=" + Nombre
@@ -584,7 +588,7 @@ public class Cliente implements Serializable
 				+ FechaModificacion + ",\n tieneAcceso=" + tieneAcceso + ",\n club=" + club + ",\n TipoCliente=" + TipoCliente
 				+ ",\n categoria=" + categoria + ",\n estatusCliente=" + estatusCliente + ",\n estatusMembresia="
 				+ estatusMembresia + ",\n estatusCobranza=" + estatusCobranza + ",\n mensajes=" + mensajes
-				+ ",\n tipoMembresia=" + tipoMembresia + ",\n terminalid=" + HorarioOtroClub + ",]";
+				+ ",\n tipoMembresia=" + tipoMembresia + ",\n terminalid=" + HorarioOtroClub + ",\n idComplexBand=" + idComplexBand + ",]";
 	}
 
 
