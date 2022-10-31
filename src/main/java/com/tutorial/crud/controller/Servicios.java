@@ -282,7 +282,8 @@ public class Servicios
 	@Autowired
 	private ClienteDomiciliadoService clienteDomiciliadoService;
 
-
+	@Autowired
+    private ClienteIntentosFiservService clienteIntentosFiservService;
 	// creating a logger
 	Logger logger= LoggerFactory.getLogger(Servicios.class);
 
@@ -5881,6 +5882,14 @@ public class Servicios
 			List<ClienteDomiciliado>listaClientes=body.body.get(0).domiciliados;
 			configuracion o = configuracionService.findByServiceName("getPedido").get();
 
+			//Lista donde se guardaran los intentos
+			List<ClienteIntentosFiserv> listaIntentos = new ArrayList<>();
+
+			//Obtener el ultimo folio de la tabla cliente_intentos_fiserv
+			Integer ultimoFolio = clienteIntentosFiservService.getLastFolio();
+			if (ultimoFolio == null){
+				ultimoFolio = 0;
+			}
 
 			for(int i=0;i<listaClientes.size();i++) {
 				ClienteDomiciliado cliente=listaClientes.get(i);
@@ -5908,8 +5917,21 @@ public class Servicios
 				System.out.println(noPedido);
 				String input = "{\"transactionAmount\":{\"total\":\""+cliente.getMonto()+"\",\"currency\":\"MXN\"},\"requestType\":\"PaymentTokenSaleTransaction\",\"paymentMethod\":{\"paymentToken\":{\"value\":\""+clienteToken.obtenerToken()+"\"}},\"order\":{\"orderId\":"+noPedido+",\"additionalDetails\": {\"purchaseOrderNumber\": \""+cliente.getIdCliente()+"\"},\"installmentOptions\":{\"recurringType\":\"REPEAT\"}}}";
 				System.out.println(input);
-				String msgSignatureStrin= apiKeyFiserv+uuid + fecha + input;
 
+				///Logica para registrar el número de intentos de Fiserv y generar el reporte
+				ClienteIntentosFiserv clienteIntentosFiserv = new ClienteIntentosFiserv();
+				//System.out.println("Cliente de intentos: " + clienteIntentosFiserv);
+
+				//Registrar intentos de Fiserv
+				clienteIntentosFiserv.setFolio(ultimoFolio + 1);
+				clienteIntentosFiserv.setIdCliente(clienteToken.getIdCliente());
+				clienteIntentosFiserv.setNombre(clienteToken.getNombre());
+				clienteIntentosFiserv.setMembresia(clienteToken.getNoMembresia());
+				clienteIntentosFiserv.setMonto(cliente.getMonto());
+				clienteIntentosFiserv.setFecha(LocalDate.now());
+
+
+				String msgSignatureStrin= apiKeyFiserv+uuid + fecha + input;
 				String hmac = new HmacUtils("HmacSHA256", apiSecretFiserv).hmacHex(msgSignatureStrin);
 				byte[]valueDecoded=Base64.encodeBase64(hmac.getBytes());
 				String query=endpointFiserv;
@@ -5948,6 +5970,9 @@ public class Servicios
 				//InputStream in = new BufferedInputStream(conn.getInputStream());
 				String result = org.apache.commons.io.IOUtils.toString(is, "UTF-8");
 
+				//Obtener el estado de la solicitud Aprobado | Rechazado
+				clienteIntentosFiserv.setEstado(result);
+				listaIntentos.add(clienteIntentosFiserv);
 
 				JSONObject usuarioLog = new JSONObject(result);
 				//System.out.println(usuarioLog);
@@ -5974,6 +5999,11 @@ public class Servicios
 				conn.disconnect();
 
 			}
+			// Persistir los datos en tabla
+			System.out.print("Lista de intentos" + listaIntentos);
+			clienteIntentosFiservService.saveAll(listaIntentos);
+
+			//return new ResponseEntity<>(listaIntentos, HttpStatus.OK);
 			resp.put("respuesta", body);
 			return new ResponseEntity<>(resp.toString(), HttpStatus.OK);
 		}catch(Exception e) {
