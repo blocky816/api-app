@@ -5975,7 +5975,15 @@ public class Servicios
 				String result = org.apache.commons.io.IOUtils.toString(is, "UTF-8");
 				//String result = "No aprobado";
 				//Obtener el estado de la solicitud Aprobado | Rechazado
-				clienteIntentosFiserv.setEstado(result);
+				try {
+					JSONObject jsonObject = new JSONObject(result);
+					System.out.println("OBJECT : "+jsonObject.toString());
+					String estado = jsonObject.getString("transactionStatus");
+					clienteIntentosFiserv.setEstado(estado);
+				} catch (JSONException err) {
+					System.out.println("Exception : "+err.toString());
+				}
+				//clienteIntentosFiserv.setEstado();
 				listaIntentos.add(clienteIntentosFiserv);
 				clienteIntentosFiservRepository.save(clienteIntentosFiserv);
 

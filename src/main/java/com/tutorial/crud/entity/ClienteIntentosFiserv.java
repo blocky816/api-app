@@ -19,6 +19,7 @@ public class ClienteIntentosFiserv {
     private Long membresia;
     private float monto;
     private LocalDate fecha;
+    @Column(name="estado", columnDefinition="text")
     private String estado;
 
     public int getId() {
