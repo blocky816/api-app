@@ -5983,9 +5983,8 @@ public class Servicios
 				} catch (JSONException err) {
 					System.out.println("Exception : "+err.toString());
 				}
-				//clienteIntentosFiserv.setEstado();
 				listaIntentos.add(clienteIntentosFiserv);
-				clienteIntentosFiservRepository.save(clienteIntentosFiserv);
+				//clienteIntentosFiservRepository.save(clienteIntentosFiserv);
 
 
 				JSONObject usuarioLog = new JSONObject(result);
@@ -6015,8 +6014,7 @@ public class Servicios
 			}
 			// Persistir los datos en tabla
 			System.out.print("Lista de intentos" + listaIntentos);
-			//clienteIntentosFiservService.saveAll(listaIntentos);
-
+			clienteIntentosFiservService.saveAll(listaIntentos);
 			//return new ResponseEntity<>(listaIntentos, HttpStatus.OK);
 			resp.put("respuesta", body);
 			return new ResponseEntity<>(resp.toString(), HttpStatus.OK);
