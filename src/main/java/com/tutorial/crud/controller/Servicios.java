@@ -5887,7 +5887,7 @@ public class Servicios
 			configuracion o = configuracionService.findByServiceName("getPedido").get();
 
 			//Lista donde se guardaran los intentos
-			List<ClienteIntentosFiserv> listaIntentos = new ArrayList<>();
+			//List<ClienteIntentosFiserv> listaIntentos = new ArrayList<>();
 
 			//Obtener el ultimo folio de la tabla cliente_intentos_fiserv
 			Integer ultimoFolio = clienteIntentosFiservService.getLastFolio();
@@ -5973,7 +5973,7 @@ public class Servicios
 
 				//InputStream in = new BufferedInputStream(conn.getInputStream());
 
-				 result = org.apache.commons.io.IOUtils.toString(is, "UTF-8");
+				result = org.apache.commons.io.IOUtils.toString(is, "UTF-8");
 				if(error){
 					logger.warn("Error en fiserv: "+result);
 				}
@@ -5982,18 +5982,23 @@ public class Servicios
 				int indexResult = result.indexOf("{");
 				result = result.substring(indexResult);
 				System.out.println("Mi result después es: ["+result+"]");
-				//String result = "No aprobado";
+
 				//Obtener el estado de la solicitud Aprobado | Rechazado
 				try {
 					JSONObject jsonObject = new JSONObject(result);
 					System.out.println("OBJECT : "+jsonObject.toString());
 					String estado = jsonObject.getString("transactionStatus");
+					String codigoAprobacion = jsonObject.getString("approvalCode");
+					String idTransaccion = jsonObject.getString("ipgTransactionId");
 					clienteIntentosFiserv.setEstado(estado);
+					clienteIntentosFiserv.setCodigoAprobacion(codigoAprobacion);
+					clienteIntentosFiserv.setTransactionId(idTransaccion);
 				} catch (JSONException err) {
 					System.out.println("Exception : "+err.toString());
 				}
-				listaIntentos.add(clienteIntentosFiserv);
-				//clienteIntentosFiservRepository.save(clienteIntentosFiserv);
+
+				// Persistir los datos en tabla
+				clienteIntentosFiservRepository.save(clienteIntentosFiserv);
 
 
 				JSONObject usuarioLog = new JSONObject(result);
@@ -6022,8 +6027,8 @@ public class Servicios
 
 			}
 			// Persistir los datos en tabla
-			System.out.print("Lista de intentos" + listaIntentos);
-			clienteIntentosFiservService.saveAll(listaIntentos);
+			//System.out.print("Lista de intentos" + listaIntentos);
+			//clienteIntentosFiservService.saveAll(listaIntentos);
 			//return new ResponseEntity<>(listaIntentos, HttpStatus.OK);
 			resp.put("respuesta", body);
 			return new ResponseEntity<>(resp.toString(), HttpStatus.OK);

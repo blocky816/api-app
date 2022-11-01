@@ -22,6 +22,12 @@ public class ClienteIntentosFiserv {
     //@Column(name="estado", columnDefinition="text")
     private String estado;
 
+    @Column(name = "codigo_aprobacion")
+    private String codigoAprobacion;
+
+    @Column(name = "id_transaccion")
+    private String transactionId;
+
     public int getId() {
         return id;
     }
@@ -82,15 +88,27 @@ public class ClienteIntentosFiserv {
         this.estado = estado;
     }
 
+    public String getCodigoAprobacion() { return codigoAprobacion; }
+
+    public void setCodigoAprobacion(String codigoAprobacion) { this.codigoAprobacion = codigoAprobacion; }
+
+    public String getTransactionId() { return transactionId; }
+
+    public void setTransactionId(String transactionId) { this.transactionId = transactionId; }
+
     @Override
     public String toString() {
         return "ClienteIntentosFiserv{" +
-                "idCliente=" + idCliente +
+                "id=" + id +
+                ", folio=" + folio +
+                ", idCliente=" + idCliente +
                 ", nombre='" + nombre + '\'' +
-                ", membresia='" + membresia + '\'' +
+                ", membresia=" + membresia +
                 ", monto=" + monto +
                 ", fecha=" + fecha +
                 ", estado='" + estado + '\'' +
+                ", codigoAprobacion='" + codigoAprobacion + '\'' +
+                ", transactionId='" + transactionId + '\'' +
                 '}';
     }
 }
