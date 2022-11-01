@@ -5958,21 +5958,30 @@ public class Servicios
 
 				int statusCode = conn.getResponseCode();
 				InputStream is = null;
-
+				String result;
+				boolean error=false;
 				if (statusCode >= 200 && statusCode < 400) {
 					// Create an InputStream in order to extract the response object
 					is = conn.getInputStream();
 				}
 				else {
 					is = conn.getErrorStream();
-					String result = org.apache.commons.io.IOUtils.toString(is, "UTF-8");
+					error=true;
 
-					logger.warn("Error en fiserv: "+result);
 
 				}
 
 				//InputStream in = new BufferedInputStream(conn.getInputStream());
-				String result = org.apache.commons.io.IOUtils.toString(is, "UTF-8");
+
+				 result = org.apache.commons.io.IOUtils.toString(is, "UTF-8");
+				if(error){
+					logger.warn("Error en fiserv: "+result);
+				}
+				System.out.println("Mi result antes es: ["+result+"]");
+
+				int indexResult = result.indexOf("{");
+				result = result.substring(indexResult);
+				System.out.println("Mi result después es: ["+result+"]");
 				//String result = "No aprobado";
 				//Obtener el estado de la solicitud Aprobado | Rechazado
 				try {
