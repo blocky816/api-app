@@ -79,9 +79,7 @@ public class Tipo {
 		return id;
 	}
 
-	public boolean isActivo() {
-		return activo;
-	}
+	public boolean isActivo() { return activo; }
 
 	@Override
 	public String toString() {

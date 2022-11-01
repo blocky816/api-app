@@ -11,6 +11,8 @@ import java.util.UUID;
 import javax.persistence.EntityManager;
 import javax.persistence.NoResultException;
 
+import com.tutorial.crud.entity.*;
+import com.tutorial.crud.service.TipoRetoService;
 import org.hibernate.Session;
 import org.hibernate.query.Query;
 import org.json.JSONObject;
@@ -20,15 +22,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.web.bind.annotation.CrossOrigin;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.ResponseBody;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import com.tutorial.crud.dto.CaloriasQuemadas;
 import com.tutorial.crud.dto.PasosDados;
@@ -37,14 +31,6 @@ import com.tutorial.crud.dto.SalaDTO;
 import com.tutorial.crud.dto.TecnicoDTO;
 import com.tutorial.crud.dto.TipoActividadDTO;
 import com.tutorial.crud.dto.TipoDTO;
-import com.tutorial.crud.entity.CAClase;
-import com.tutorial.crud.entity.CASala;
-import com.tutorial.crud.entity.CATecnico;
-import com.tutorial.crud.entity.CATipoActividad;
-import com.tutorial.crud.entity.EntrenamientoUsuario;
-import com.tutorial.crud.entity.PasosCalorias;
-import com.tutorial.crud.entity.Reto;
-import com.tutorial.crud.entity.Tipo;
 import com.tutorial.crud.service.EntrenamientoUsuarioService;
 import com.tutorial.crud.service.RetoService;
 import com.tutorial.crud.service.TipoService;
@@ -63,6 +49,9 @@ public class RetosController {
 	private EntityManager entityManager;
 	@Autowired
 	private EntrenamientoUsuarioService entrenamientoUsuarioService;
+
+	@Autowired
+	private TipoRetoService tipoRetoService;
 	//-------------------------------------- WEB SERVICE TIPO------------------------------------------------------
 		/**
 		 * Metodo que muestra todos los Miembros almacenados en la base de datos
@@ -112,22 +101,27 @@ public class RetosController {
 		
 		@PreAuthorize("hasRole('ADMIN')")
 		@RequestMapping(value="crearTipo", method=RequestMethod.POST)
-		public ResponseEntity<?> crearTecnico(@RequestBody Tipo tipo)
+		public ResponseEntity<?> crearTipoReto(@RequestBody TipoReto tipoReto)
 		{
-	    	tipo.setActivo(true);
-	    	tipo.setCreated(new Date());
+			tipoReto.setActivo(true);
+			tipoReto.setCreated(new Date());
 			Object principal = SecurityContextHolder.getContext().getAuthentication().getPrincipal();
 			String username;
 			if (principal instanceof UserDetails) {
 				username = ((UserDetails)principal).getUsername();
+				System.out.println("if principal instanceof UserDetails: " + username);
 			} else {
 			  	username = principal.toString();
+				System.out.println("else principal.toString(): " + username);
 			}
-			tipo.setCreatedBy(username);
-			tipo.setUpdated(new Date());
-			tipo.setUpdatedBy(username);
-			tipoService.save(tipo);
-			return ResponseEntity.ok("Tipo "+tipo.getNombre()+" creado correctamente");
+			tipoReto.setCreatedBy(username);
+			tipoReto.setUpdated(new Date());
+			tipoReto.setUpdatedBy(username);
+			tipoReto.setMax(tipoReto.getMax());
+			tipoReto.setTime(tipoReto.getTime());
+
+			tipoRetoService.save(tipoReto);
+			return ResponseEntity.ok("Tipo "+tipoReto.getNombre()+" creado correctamente");
 		}
 		
 	    @PreAuthorize("hasRole('ADMIN')")
@@ -317,4 +311,19 @@ public class RetosController {
 			}
 			
 		}
+
+		//OCtubre
+		//--------------   TipoReto    ----------------------->>>>>>
+	/*@PreAuthorize("hasRole('ADMIN')")
+	@PostMapping(path="/crearTipo")
+	public ResponseEntity<?> crearTipo(@RequestBody TipoReto tipoReto)
+	{
+		JSONObject response=new JSONObject();
+		TipoReto newTipoReto = tipoReto;
+		tipoRetoService.save(newTipoReto);
+
+		response.put("respuesta", "TIPO DE RETO creado correctamente.");
+		return new ResponseEntity<>(response.toString(), HttpStatus.OK);
+		}*/
+
 }

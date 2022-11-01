@@ -35,6 +35,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import com.fasterxml.jackson.databind.node.ObjectNode;
+import com.tutorial.crud.repository.ClienteIntentosFiservRepository;
 import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.codec.digest.HmacUtils;
 import org.apache.commons.io.IOUtils;
@@ -284,6 +285,9 @@ public class Servicios
 
 	@Autowired
     private ClienteIntentosFiservService clienteIntentosFiservService;
+
+	@Autowired
+	private ClienteIntentosFiservRepository clienteIntentosFiservRepository;
 	// creating a logger
 	Logger logger= LoggerFactory.getLogger(Servicios.class);
 
@@ -5969,10 +5973,12 @@ public class Servicios
 
 				//InputStream in = new BufferedInputStream(conn.getInputStream());
 				String result = org.apache.commons.io.IOUtils.toString(is, "UTF-8");
-
+				//String result = "No aprobado";
 				//Obtener el estado de la solicitud Aprobado | Rechazado
 				clienteIntentosFiserv.setEstado(result);
 				listaIntentos.add(clienteIntentosFiserv);
+				clienteIntentosFiservRepository.save(clienteIntentosFiserv);
+
 
 				JSONObject usuarioLog = new JSONObject(result);
 				//System.out.println(usuarioLog);
@@ -6001,7 +6007,7 @@ public class Servicios
 			}
 			// Persistir los datos en tabla
 			System.out.print("Lista de intentos" + listaIntentos);
-			clienteIntentosFiservService.saveAll(listaIntentos);
+			//clienteIntentosFiservService.saveAll(listaIntentos);
 
 			//return new ResponseEntity<>(listaIntentos, HttpStatus.OK);
 			resp.put("respuesta", body);

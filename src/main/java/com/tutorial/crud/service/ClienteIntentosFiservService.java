@@ -19,6 +19,9 @@ public class ClienteIntentosFiservService {
         return clienteIntentosFiservRepository.saveAll(clienteIntentosFiserv);
     }
 
+    //public void save(ClienteIntentosFiserv clienteIntentosFiserv){
+      //return clienteIntentosFiservRepository.save(clienteIntentosFiserv);
+    //}
     public Integer getLastFolio() {
         return clienteIntentosFiservRepository.getLastFolio();
     }
