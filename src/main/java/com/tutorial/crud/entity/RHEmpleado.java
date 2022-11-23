@@ -68,7 +68,12 @@ public class RHEmpleado
 	
 	@OneToMany(mappedBy = "empleado", cascade = CascadeType.ALL)
     List<RHSolicitud> solicitudes;
-	
+
+	@Column(name="fecha_nacimiento") //Permite establecer el nombre de la columna de la tabla con la que el atributo debe de mapear.
+	private Date fechaNacimiento;
+
+	@Column(name="correo") //Permite establecer el nombre de la columna de la tabla con la que el atributo debe de mapear.
+	private String correo;
 
 	public int getId() {
 		return id;
@@ -190,15 +195,34 @@ public class RHEmpleado
 		this.solicitudes = solicitudes;
 	}
 
+	public Date getFechaNacimiento() { return fechaNacimiento; }
+
+	public void setFechaNacimiento(Date fechaNacimiento) { this.fechaNacimiento = fechaNacimiento; }
+
+	public String getCorreo() { return correo; }
+
+	public void setCorreo(String correo) { this.correo = correo; }
 
 	@Override
 	public String toString() {
-		return "RHEmpleado [id=" + id + ", empleado=" + empleado + ", iniciales=" + iniciales + ", activo=" + activo
-				+ ", club=" + club + ", departamento=" + departamento + ", puesto=" + puesto + ", claveExterna="
-				+ claveExterna + ", idEmpleado=" + idEmpleado + ", rfc=" + rfc + ", curp=" + curp + ", imss=" + imss
-				+ ", empleadoTipo=" + empleadoTipo + ", fechaAlta=" + fechaAlta + "]";
+		return "RHEmpleado{" +
+				"id=" + id +
+				", empleado='" + empleado + '\'' +
+				", iniciales='" + iniciales + '\'' +
+				", activo='" + activo + '\'' +
+				", club='" + club + '\'' +
+				", departamento='" + departamento + '\'' +
+				", puesto='" + puesto + '\'' +
+				", claveExterna='" + claveExterna + '\'' +
+				", idEmpleado=" + idEmpleado +
+				", rfc='" + rfc + '\'' +
+				", curp='" + curp + '\'' +
+				", imss='" + imss + '\'' +
+				", empleadoTipo='" + empleadoTipo + '\'' +
+				", fechaAlta=" + fechaAlta +
+				", solicitudes=" + solicitudes +
+				", fechaNacimiento=" + fechaNacimiento +
+				", correo='" + correo + '\'' +
+				'}';
 	}
-
-
-	
 }

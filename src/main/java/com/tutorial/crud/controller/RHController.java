@@ -160,8 +160,10 @@ public class RHController
                 	to.setCurp(rs.getString(11));
                 	to.setImss(rs.getString(12));
                 	to.setEmpleadoTipo(rs.getString(13));
-                	to.setFechaAlta(rs.getDate(14));                	
-                    
+                	to.setFechaAlta(rs.getDate(14));
+					System.out.println("Fecha alta: " + rs.getDate(14));
+					System.out.println("Fecha nacimiento: " + rs.getDate(15));
+                    to.setFechaNacimiento(rs.getDate(15));
                     to=rhempleadoService.save(to);
                     listaReporte.add(to);
                 }
