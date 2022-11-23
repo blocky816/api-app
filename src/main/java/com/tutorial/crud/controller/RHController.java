@@ -14,11 +14,14 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
+import com.fasterxml.jackson.databind.node.ObjectNode;
 import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -161,8 +164,6 @@ public class RHController
                 	to.setImss(rs.getString(12));
                 	to.setEmpleadoTipo(rs.getString(13));
                 	to.setFechaAlta(rs.getDate(14));
-					System.out.println("Fecha alta: " + rs.getDate(14));
-					System.out.println("Fecha nacimiento: " + rs.getDate(15));
                     to.setFechaNacimiento(rs.getDate(15));
                     to=rhempleadoService.save(to);
                     listaReporte.add(to);
@@ -336,5 +337,35 @@ public class RHController
 	       
 			
 		}
+
+
+	/* ----------------------- Asignar Correo Electronico ------------------------------*/
+	@PreAuthorize("hasRole('ADMIN')") //Con esto le exigimos un token en el Request
+	@PostMapping("/asignarCorreo")
+	@ResponseBody
+	public ResponseEntity<?> asignarCorreo(@RequestBody ObjectNode objectNode){
+		String idEmpleado = objectNode.get("idEmpleado").asText();
+		String correo = objectNode.get("correo").asText();
+		RHEmpleado empleado = rhempleadoService.findByIdEmpleado(Integer.parseInt(idEmpleado));
+
+		JSONObject response=new JSONObject();
+
+		if(empleado == null) {
+			response.put("respuesta", "Empleado no existe.");
+			return new ResponseEntity<>(response.toString(), HttpStatus.NOT_FOUND);
+		}
+		try {
+			empleado.setCorreo(correo);
+			rhempleadoService.save(empleado);
+
+		} catch (DataIntegrityViolationException e) {
+			response.put("respuesta", "CORREO  ya fue asignado.");
+			return new ResponseEntity<>(response.toString(), HttpStatus.CONFLICT);
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		response.put("respuesta", "CORREO  asignado correctamente.");
+		return new ResponseEntity<>(response.toString(), HttpStatus.OK);
+	}
 }//fin de la clase
 
