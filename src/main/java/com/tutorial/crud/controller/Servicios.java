@@ -3268,7 +3268,7 @@ public class Servicios
 	}//fin del metodo
 
 	@PostMapping("/agregarMovimientos")
-	public ResponseEntity<?> addMovimientos() {
+	public ResponseEntity<?> addMovimientosgetPasesById() {
 		try {
 			JSONObject token=new JSONObject();
 			token.put("Token",Token);
@@ -3282,7 +3282,7 @@ public class Servicios
 			conn.setRequestMethod("POST");
 
 			OutputStream os = conn.getOutputStream();
-			os.write(token.toString().getBytes("UTF-8"));
+			os.write(token.toString().getBytes("UTF-8"));//escribir un flujo de datos en el destino
 			os.close();
 
 			// read the response
@@ -5889,7 +5889,7 @@ public class Servicios
 			//Lista donde se guardaran los intentos
 			//List<ClienteIntentosFiserv> listaIntentos = new ArrayList<>();
 
-			//Obtener el ultimo folio de la tabla cliente_intentos_fiserv
+			//Obtener el último folio de la tabla cliente_intentos_fiserv
 			Integer ultimoFolio = clienteIntentosFiservService.getLastFolio();
 			if (ultimoFolio == null){
 				ultimoFolio = 0;
