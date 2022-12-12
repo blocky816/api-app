@@ -1743,16 +1743,16 @@ public void enviar_rutina(String asunto,String idCliente,String fotoCliente, Str
    
     
     
-    String mensaje = "<html xmlns=\"http://www.w3.org/1999/xhtml\">\r\n"
+    /*String mensaje = "<html xmlns=\"http://www.w3.org/1999/xhtml\">\r\n"
     		+ "    <head>\r\n"
     		+ "        <meta http-equiv=\"Content-Type\" content=\"text/html; charset=utf-8\"/>\r\n"
     		+ "        <title>Rutina Entrenamiento</title>\r\n"
     		+ "        <style type=\"text/css\">\r\n"
-    		+ "            /* Reset -------------------------------------------------------------------- */\r\n"
+    		+ "            /* Reset -------------------------------------------------------------------- *//*\r\n"
     		+ "            * 	 { margin: 0;padding: 0; }\r\n"
     		+ "            body { font-size: 14px; }\r\n"
     		+ "\r\n"
-    		+ "            /* OPPS --------------------------------------------------------------------- */\r\n"
+    		+ "            /* OPPS --------------------------------------------------------------------- *//*\r\n"
     		+ "\r\n"
     		+ "            h3 {\r\n"
     		+ "                margin-bottom: 5px;\r\n"
@@ -1977,7 +1977,300 @@ public void enviar_rutina(String asunto,String idCliente,String fotoCliente, Str
     		+ "            </div>\r\n"
     		+ "        </div>\r\n"
     		+ "    </body>\r\n"
-    		+ "</html>";
+    		+ "</html>";*/
+
+	String mensaje = "<html xmlns=\"http://www.w3.org/1999/xhtml\">\n" +
+			"\n" +
+			"<head>\n" +
+			"    <meta http-equiv=\"Content-Type\" content=\"text/html; charset=UTF-8\" />\n" +
+			"    <meta http-equiv=\"X-UA-Compatible\" content=\"IE=edge\" />\n" +
+			"    <meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\" />\n" +
+			"    <title>Reporte de rutinas</title>\n" +
+			"\n" +
+			"    <style>\n" +
+			"        *,\n" +
+			"        *::after,\n" +
+			"        *::before {\n" +
+			"            box-sizing: border-box;\n" +
+			"        }\n" +
+			"\n" +
+			"        body {\n" +
+			"            margin: 0;\n" +
+			"            font-family: sans-serif;\n" +
+			"            /* background-color: #333; */\n" +
+			"        }\n" +
+			"\n" +
+			"        img {\n" +
+			"            /* max-width: 100%; */\n" +
+			"            /* display: block; */\n" +
+			"        }\n" +
+			"\n" +
+			"        .header {\n" +
+			"            width: 768px;\n" +
+			"            height: 185px;\n" +
+			"            margin-right: auto;\n" +
+			"            margin-left: auto;\n" +
+			"            border-bottom: 35px solid rgb(52, 52, 52);\n" +
+			"            margin-top: 50px;\n" +
+			"            position: relative;\n" +
+			"        }\n" +
+			"\n" +
+			"        .customer-image {\n" +
+			"            display: inline-block;\n" +
+			"            /* position: absolute; */\n" +
+			"        }\n" +
+			"\n" +
+			"        .customer-info {\n" +
+			"            /* width: 580px; */\n" +
+			"            width: 618px;\n" +
+			"            display: inline-block;\n" +
+			"            height: 100%;\n" +
+			"            /* position: absolute; */\n" +
+			"            float: right;\n" +
+			"            margin-top: 39px;\n" +
+			"        }\n" +
+			"\n" +
+			"        .img-profile {\n" +
+			"            width: 150px;\n" +
+			"            height: 150px;\n" +
+			"            box-shadow: 0px -3px 4px -2px rgb(0, 0, 0);\n" +
+			"        }\n" +
+			"\n" +
+			"        .title {\n" +
+			"            margin-bottom: 0;\n" +
+			"            /* margin-top: 0; */\n" +
+			"            font-size: 28px;\n" +
+			"        }\n" +
+			"\n" +
+			"        .description {\n" +
+			"            /* flex-grow: 1; */\n" +
+			"            /* margin-top: 0; */\n" +
+			"            /* margin-bottom: 27px; */\n" +
+			"            font-size: 14px;\n" +
+			"        }\n" +
+			"\n" +
+			"        .title,\n" +
+			"        .description {\n" +
+			"            padding-left: 16px;\n" +
+			"        }\n" +
+			"\n" +
+			"        .customer-goal {\n" +
+			"            background-color: rgb(224, 224, 224);\n" +
+			"            box-shadow: 0px -3px 4px -2px rgb(0, 0, 0);\n" +
+			"            font-size: 14px;\n" +
+			"        }\n" +
+			"\n" +
+			"        .goal-item {\n" +
+			"            padding-right: 1.5em;\n" +
+			"            padding: 1em;\n" +
+			"            display: inline-block;\n" +
+			"        }\n" +
+			"\n" +
+			"        .goal-item:not(div:last-child) {\n" +
+			"            box-shadow: 3px 0px 4px -2px rgb(0, 0, 0, 0);\n" +
+			"        }\n" +
+			"\n" +
+			"        .goal-item p {\n" +
+			"            margin: 0;\n" +
+			"        }\n" +
+			"\n" +
+			"        .goal-item p:first-child {\n" +
+			"            font-weight: 700;\n" +
+			"        }\n" +
+			"\n" +
+			"        .goal-item p:last-child {\n" +
+			"            margin-top: 0;\n" +
+			"            color: rgb(104, 101, 101);\n" +
+			"        }\n" +
+			"\n" +
+			"\n" +
+			"        /* CONTENIDO PRINCIPAL */\n" +
+			"\n" +
+			"        .main {\n" +
+			"            margin-left: auto;\n" +
+			"            margin-right: auto;\n" +
+			"            /*height: 300px;*/\n" +
+			"        }\n" +
+			"\n" +
+			"        .rutina-title {\n" +
+			"            font-size: 12px;\n" +
+			"            color: rgb(104, 101, 101);\n" +
+			"        }\n" +
+			"\n" +
+			"        .subtitle {\n" +
+			"            color: rgb(239, 1, 11);\n" +
+			"            font-size: 20px;\n" +
+			"        }\n" +
+			"\n" +
+			"        .subtitle,\n" +
+			"        .comments {\n" +
+			"            text-align: center;\n" +
+			"            font-size: 14px;\n" +
+			"        }\n" +
+			"\n" +
+			"\n" +
+			"        .workouts {\n" +
+			"            margin-left: auto;\n" +
+			"            margin-right: auto;\n" +
+			"            /*background-color: red; */\n" +
+			"        }\n" +
+			"\n" +
+			"        .workout {\n" +
+			"            width: 50%;\n" +
+			"            display: inline-block;\n" +
+			"            margin: 0 -2px;\n" +
+			"            /*height: 213px;*/\n" +
+			"            position: relative;\n" +
+			"        }\n" +
+			"\n" +
+			"        .machine,\n" +
+			"        .series {\n" +
+			"            width: 50%;\n" +
+			"            display: inline-block;\n" +
+			"            margin: 0 -1px;\n" +
+			"        }\n" +
+			"\n" +
+			"        .machine-name {\n" +
+			"            width: 100%;\n" +
+			"        }\n" +
+			"\n" +
+			"        .machine span,\n" +
+			"        .series span {\n" +
+			"            font-weight: 700;\n" +
+			"        }\n" +
+			"\n" +
+			"        .machine span:first-child {\n" +
+			"            padding-left: 1em;\n" +
+			"            padding-right: 1em;\n" +
+			"            background-color: rgb(239, 1, 11);\n" +
+			"            color: white;\n" +
+			"            display: inline-block;\n" +
+			"            width: 19%;\n" +
+			"        }\n" +
+			"\n" +
+			"        .machine-name {\n" +
+			"            display: flex;\n" +
+			"            align-items: center;\n" +
+			"        }\n" +
+			"\n" +
+			"        .machine-name span,\n" +
+			"        .series span {\n" +
+			"            padding: 0.3em 0;\n" +
+			"        }\n" +
+			"\n" +
+			"        .machine-name span:nth-child(2) {\n" +
+			"            background-color: rgb(146, 146, 146);\n" +
+			"            text-align: center;\n" +
+			"            width: 81%;\n" +
+			"            color: white;\n" +
+			"            display: inline-block;\n" +
+			"        }\n" +
+			"\n" +
+			"        .machine-image {\n" +
+			"            width: 180px;\n" +
+			"            height: 180px;\n" +
+			"        }\n" +
+			"\n" +
+			"        .series {\n" +
+			"            text-align: center;\n" +
+			"            /*height: 100%;*/\n" +
+			"            float: right;\n" +
+			"        }\n" +
+			"\n" +
+			"        .series>span {\n" +
+			"            display: block;\n" +
+			"            background-color: rgb(52, 52, 52);\n" +
+			"            color: white;\n" +
+			"        }\n" +
+			"\n" +
+			"        .series p {\n" +
+			"            margin-top: 0;\n" +
+			"            color: rgb(239, 1, 11);\n" +
+			"            font-weight: 700;\n" +
+			"            padding: 0 0.3em;\n" +
+			"            text-align: left;\n" +
+			"        }\n" +
+			"\n" +
+			"        .type {\n" +
+			"            display: flex;\n" +
+			"            padding: 0.5em;\n" +
+			"            justify-content: space-between;\n" +
+			"        }\n" +
+			"\n" +
+			"        .type span:last-child {\n" +
+			"            color: rgb(144, 144, 144);\n" +
+			"        }\n" +
+			"\n" +
+			"        .statistics-column img {\n" +
+			"            display: inline-block;\n" +
+			"            width: 18px;\n" +
+			"            height: 18px;\n" +
+			"        }\n" +
+			"\n" +
+			"        .fitness-statistics {\n" +
+			"            display: grid;\n" +
+			"            grid-template-columns: 50% 50%;\n" +
+			"        }\n" +
+			"\n" +
+			"        .statistics-column {\n" +
+			"            display: flex;\n" +
+			"            flex-direction: column;\n" +
+			"        }\n" +
+			"\n" +
+			"        .workout {\n" +
+			"            font-size: 12px;\n" +
+			"        }\n" +
+			"\n" +
+			"        .statistics-column .statistics-item:nth-child(odd) {\n" +
+			"            background-color: rgb(228, 228, 228);\n" +
+			"        }\n" +
+			"\n" +
+			"        .statistics-item {\n" +
+			"            display: flex;\n" +
+			"            align-items: center;\n" +
+			"            padding: .2em .7em;\n" +
+			"        }\n" +
+			"\n" +
+			"        .statistics-item span {\n" +
+			"            padding-left: 0.3em;\n" +
+			"        }\n" +
+			"    </style>\n" +
+			"</head>\n" +
+			"\n" +
+			"<body>\n" +
+			"    <header class=\"header\">\n" +
+			"        <div class=\"customer-image\">\n" +
+			"            <img src=\"data:image/jpeg;base64,"+fotoCliente+"\"" +" alt=\"Profile image\" class=\"img-profile\"/>\n" +
+			"        </div><div class=\"customer-info\">\n" +
+			"            <h1 class=\"title\">HOLA, "+nombreCliente+" "+idCliente+"</h1>\n" +
+			"            <p class=\"description\">"+club.toUpperCase()+" TE PRESENTA TU ENTRENAMIENTO PERSONALIZADO</p>\n" +
+			"            <div class=\"customer-goal\">\n" +
+			"                <div class=\"goal-item\">\n" +
+			"                    <p>INICIO</p>\n" +
+			"                    <p>"+inicio+"</p>\n" +
+			"                </div>\n" +
+			"                <div class=\"goal-item\">\n" +
+			"                    <p>FIN</p>\n" +
+			"                    <p>"+fin+"</p>\n" +
+			"                </div>\n" +
+			"                <div class=\"goal-item\">\n" +
+			"                    <p>OBJETIVO</p>\n" +
+			"                    <p>"+grupoMuscular+"</p>\n" +
+			"                </div>\n" +
+			"            </div>\n" +
+			"        </div>\n" +
+			"    </header>\n" +
+			"\n" +
+			"    <div class=\"main\">\n" +
+			"        <p class=\"rutina-title\">RUTINA</p>\n" +
+			"        <h2 class=\"subtitle\">"+segmento+"</h2>\n" +
+			"        <p class=\"comments\">"+comentarios+"</p>\n" +
+			"\n" +
+			"        <div class=\"workouts\">"+listaEjercicios+"</div>\n" +
+			"    </div>\n" +
+			"</body>\n" +
+			"\n" +
+			"</html>";
     String mensaje2 = "<html xmlns=\"http://www.w3.org/1999/xhtml\">\r\n"
     		+ "    <head>\r\n"
     		+ "        <meta http-equiv=\"Content-Type\" content=\"text/html; charset=utf-8\"/>\r\n"
@@ -2228,14 +2521,22 @@ public void enviar_rutina(String asunto,String idCliente,String fotoCliente, Str
         renderer.layout(); 
         renderer.createPDF(os); 
         os.close(); */
+		//Analiza el archivo
         Document document = Jsoup.parse(file, "UTF-8");
+		//Establece la sintaxis de salida
         document.outputSettings().syntax(Document.OutputSettings.Syntax.xml);
+
+		//Escribir el contenido de html en un archivo PDF
         try (OutputStream os = new FileOutputStream(ficheroPDF)) {
             PdfRendererBuilder builder = new PdfRendererBuilder();
             builder.withUri(ficheroPDF);
-            builder.toStream(os);
+			//Un flujo de salida para generar el PDF resultante.
+			builder.toStream(os);
+			//Clase de ayuda para transformar Documenta a org.w3c.dom.Document
+			//Convierta un documento jsoup en un documento W3C.
             builder.withW3cDocument(new W3CDom().fromJsoup(document), "/");
-            builder.run();
+            //Ejecute la conversión de XHTML/XML a PDF y la salida a un flujo de salida establecido por toStream
+			builder.run();
         }
     } catch (Exception e) {
         e.printStackTrace();
@@ -2279,17 +2580,20 @@ public void enviar_rutina(String asunto,String idCliente,String fotoCliente, Str
 		}
 
     try {
+		//Establecer el controlador de datos en el archivo adjunto y Obtener el archivo adjunto
     	contenido.setDataHandler(new DataHandler(new FileDataSource(ficheroPDF)));
-    	contenido.setFileName(ficheroPDF);
+    	// Establecer el nombre del archivo
+		contenido.setFileName(ficheroPDF);
     	contenido2.setContent(texto, "text/html; charset=UTF-8");
 	} catch (MessagingException e1) {
 		// TODO Auto-generated catch block
 		e1.printStackTrace();
 	}
+	//creamos un contenedor y le añadimos el cuerpo de texto
     MimeMultipart m =new MimeMultipart();
     try {
-		m.addBodyPart(contenido2);
-		m.addBodyPart(contenido);
+		m.addBodyPart(contenido2); //cuerpo del mensaje
+		m.addBodyPart(contenido); //archivo adjunto
 	} catch (MessagingException e1) {
 		// TODO Auto-generated catch block
 		e1.printStackTrace();
@@ -2307,9 +2611,12 @@ public void enviar_rutina(String asunto,String idCliente,String fotoCliente, Str
     renderer.createPDF(os); 
     os.close(); */
     try {
+		//direccion "From"
         mail.setFrom((Address)new InternetAddress(this.correoEnvia));
+		// Agregue las direcciones proporcionadas al tipo de destinatario especificado. //direccion "To"
         mail.addRecipients(Message.RecipientType.BCC, (Address[])new InternetAddress[] { new InternetAddress(this.destinatario) });
         mail.setSubject(asunto);
+		//Agregar el archivo adjunto y el contenido del mensaje m = contenido y contenido2
         mail.setContent(m, "text/html; charset=UTF-8");
         
         Transport transporte = sesion.getTransport("smtp");
@@ -2781,4 +3088,79 @@ public void enviar_pesaje(float liquidosCorporales, float masaOsea, float adipos
     }
 }
 
+	public void sendBirthdayEmail(String subject, String club) {
+		Properties propiedad = new Properties();
+		propiedad.setProperty("mail.smtp.host", "smtp.gmail.com");
+		propiedad.setProperty("mail.smtp.starttls.enable", "true");
+		propiedad.setProperty("mail.smtp.port", "587");
+		propiedad.setProperty("mail.smtp.auth", "true");
+
+		Session session = Session.getDefaultInstance(propiedad);
+
+		BodyPart contenido = new MimeBodyPart();
+		//BodyPart contenido2 = new MimeBodyPart();
+
+		String bannerName = "";
+		//String club = "Club Alpha 2";
+
+		if(club.equals("Club Alpha 2") || club.equals("Club Alpha 3") || club.equals("Corporativo")) {
+			bannerName = "alpha2.jpg";
+		}else if(club.equals("CIMERA")) {
+			bannerName = "cimera.jpg";
+		}else {
+			bannerName = "sports.jpg";
+		}
+
+		try {
+			//Establecer el controlador de datos en el archivo adjunto y Obtener el archivo adjunto
+			contenido.setDataHandler(new DataHandler(new FileDataSource(bannerName)));
+			// Establecer el nombre del archivo
+			contenido.setFileName(bannerName);
+			//contenido2.setContent(texto, "text/html; charset=UTF-8");
+		} catch (MessagingException e1) {
+			// TODO Auto-generated catch block
+			e1.printStackTrace();
+		}
+		//creamos un contenedor y le añadimos el cuerpo de texto
+		MimeMultipart m = new MimeMultipart();
+		try {
+			//m.addBodyPart(contenido2); //cuerpo del mensaje
+			m.addBodyPart(contenido); //archivo adjunto
+		} catch (MessagingException e1) {
+			// TODO Auto-generated catch block
+			e1.printStackTrace();
+		}
+
+		MimeMessage mail = new MimeMessage(session);
+
+		try {
+			//direccion "From"
+			mail.setFrom((Address)new InternetAddress(this.correoEnvia));
+			// Agregue las direcciones proporcionadas al tipo de destinatario especificado. //direccion "To"
+
+			//mail.addRecipients(Message.RecipientType.BCC, (Address[])new InternetAddress[] { new InternetAddress(to) });
+			mail.addRecipients(Message.RecipientType.TO, (Address[])new InternetAddress[] { new InternetAddress(this.destinatario) });
+
+			mail.setSubject(subject);
+			//Agregar el archivo adjunto y el contenido del mensaje m = contenido y contenido2
+			mail.setContent(m, "text/html; charset=UTF-8");
+
+			Transport transporte = session.getTransport("smtp");
+			transporte.connect(correoEnvia,contrasena);
+
+			//transporte.sendMessage((Message)mail, mail.getRecipients(Message.RecipientType.BCC));
+			transporte.sendMessage((Message)mail, mail.getRecipients(Message.RecipientType.TO));
+
+			transporte.close();
+			System.out.println("Correo enviado correctamente");
+		} catch (AddressException ex) {
+			Logger.getLogger(Correo.class.getName()).log(Level.SEVERE, null, ex);
+		} catch (MessagingException ex) {
+			Logger.getLogger(Correo.class.getName()).log(Level.SEVERE, null, ex);
+		}
+	}
+
 }
+
+
+

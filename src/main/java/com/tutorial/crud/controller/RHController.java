@@ -21,6 +21,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.CrossOrigin;
@@ -38,6 +39,8 @@ import com.tutorial.crud.entity.*;
 import com.tutorial.crud.security.service.RolService;
 import com.tutorial.crud.security.service.UsuarioService;
 import com.tutorial.crud.service.*;
+
+import javax.persistence.Tuple;
 
 
 /**
@@ -78,6 +81,15 @@ public class RHController
 
 	@Autowired
 	RHFirmaService rhfirmaService;
+
+	@Autowired
+	EmpleadoService empleadoService;
+
+	@Value("${my.property.usuarioCorreo}")
+	String usuarioCorreo;
+
+	@Value("${my.property.contrasenaCorreo}")
+	String contrasenaCorreo;
 	
 	
 	@Value("${my.property.nombre}")
@@ -119,12 +131,6 @@ public class RHController
 	@Value("${my.property.passData}")
     String passData;
 	
-	@Value("${my.property.usuarioCorreo}")
-	String usuarioCorreo;
-	
-	@Value("${my.property.contrasenaCorreo}")
-	String contrasenaCorreo;
-	
 	@Value("${my.property.receptor}")
 	String receptor;
 	
@@ -140,16 +146,13 @@ public class RHController
 	        try {
 	            // Carga el driver de oracle
 	        	DriverManager.registerDriver(new com.microsoft.sqlserver.jdbc.SQLServerDriver());
-	            
-
-	        	
 	            conn = DriverManager.getConnection(dbURL, userData, passData);
 	            
 	            PreparedStatement ps=conn.prepareStatement("EXEC DataFlowAlpha.dbo.sp_Consulta_RH_Empleado");
               	ResultSet rs =ps.executeQuery();
                 while (rs.next()) {
-                	
-                	RHEmpleado to=new RHEmpleado();
+                	RHEmpleado to = new RHEmpleado();
+
                 	to.setId(rs.getInt(1));
                 	to.setEmpleado(rs.getString(2));
                 	to.setIniciales(rs.getString(3));
@@ -165,8 +168,8 @@ public class RHController
                 	to.setEmpleadoTipo(rs.getString(13));
                 	to.setFechaAlta(rs.getDate(14));
                     to.setFechaNacimiento(rs.getDate(15));
-                    to=rhempleadoService.save(to);
-                    listaReporte.add(to);
+					to=rhempleadoService.save(to);
+                    //listaReporte.add(to);
                 }
               
             	conn.close();
@@ -180,29 +183,32 @@ public class RHController
 	                System.out.println("Error: " + ex.getMessage());
 	            }
 	        }
-	        List<RHEmpleado> listaEmpleadosInactivos=rhempleadoService.list();
-	        int i=0;
-	        while(i<listaEmpleadosInactivos.size()) {
-	        	int j=0;
-	        	while(j<listaReporte.size()) {
-	        		int idEmpleadoInactivo=listaEmpleadosInactivos.get(i).getId();
-	        		int idEmpleadoActivo=listaReporte.get(j).getId();
-	        		if(idEmpleadoInactivo==idEmpleadoActivo) {
-	        			listaEmpleadosInactivos.remove(i);
-	        			i--;
-	        			break;
-	        		}
-	        		j++;
-	        	}
-	        	i++;
-	        }
-	        for(i=0;i<listaEmpleadosInactivos.size();i++) {
-	        	RHEmpleado empleado=listaEmpleadosInactivos.get(i);
-	        	empleado.setActivo("NO");
-	        	rhempleadoService.save(empleado);
-	        }
+			listaReporte = new ArrayList<RHEmpleado>(rhempleadoService.list());
+			
+			ArrayList<RHEmpleado> empleadosActivos = new ArrayList<>();
+
+			for (RHEmpleado rhEmpleado:listaReporte){
+				if (rhEmpleado.getActivo().equals("SI")){
+					empleadosActivos.add(rhEmpleado);
+					if(empleadoService.existsById(rhEmpleado.getIdEmpleado())){
+						//System.out.println("Empleado: " + rhEmpleado.getIdEmpleado() + " ya existe en empleados.");
+						continue;
+					} else {
+						System.out.println("Agregando nuevo empleado: " + rhEmpleado.getIdEmpleado());
+						Empleado empleado = new Empleado();
+						empleado.setIdEmpleado(rhEmpleado.getIdEmpleado());
+						empleadoService.save(empleado);
+					}
+				}else if(rhEmpleado.getActivo().equals("NO")) {
+					if(empleadoService.existsById(rhEmpleado.getIdEmpleado())){
+						//System.out.println("Empleado inactivo detectado: " + rhEmpleado.getIdEmpleado());
+						empleadoService.deleteById(rhEmpleado.getIdEmpleado());
+						//System.out.println("Borrado exitosamente");
+					}
+				}
+			}
 	        
-			return new ResponseEntity<>(listaReporte, HttpStatus.OK);
+			return new ResponseEntity<>(empleadosActivos, HttpStatus.OK);
 		}
 		
 		@GetMapping("/historicoEmpleado/{horarioId}")
@@ -225,9 +231,6 @@ public class RHController
 			Date fechaAlta=empleado.getFechaAlta();
 			SimpleDateFormat getDiaMes = new SimpleDateFormat("dd-MM");
 	        String diaMes = getDiaMes.format(fechaAlta);
-	        
-	        
-	        
 	        
 			Date date = new Date();
 			ZoneId timeZone = ZoneId.systemDefault();
@@ -346,7 +349,7 @@ public class RHController
 	public ResponseEntity<?> asignarCorreo(@RequestBody ObjectNode objectNode){
 		String idEmpleado = objectNode.get("idEmpleado").asText();
 		String correo = objectNode.get("correo").asText();
-		RHEmpleado empleado = rhempleadoService.findByIdEmpleado(Integer.parseInt(idEmpleado));
+		Empleado empleado = empleadoService.findByIdEmpleado(Integer.parseInt(idEmpleado));
 
 		JSONObject response=new JSONObject();
 
@@ -356,7 +359,7 @@ public class RHController
 		}
 		try {
 			empleado.setCorreo(correo);
-			rhempleadoService.save(empleado);
+			empleadoService.save(empleado);
 
 		} catch (DataIntegrityViolationException e) {
 			response.put("respuesta", "CORREO  ya fue asignado.");
@@ -366,6 +369,118 @@ public class RHController
 		}
 		response.put("respuesta", "CORREO  asignado correctamente.");
 		return new ResponseEntity<>(response.toString(), HttpStatus.OK);
+	}
+
+	/*@PreAuthorize("hasRole('ADMIN')") //Con esto le exigimos un token en el Request
+	@GetMapping("/cumple")
+	public ResponseEntity<?> getCumple(){
+		JSONObject response=new JSONObject();
+
+		System.out.println("Tarea programada");
+
+		Date today = new Date();
+		int day = today.getDate();
+		int month = today.getMonth() + 1;
+
+		System.out.println("Dia: " + day);
+		System.out.println("Mes: " + month);
+
+		String dayStr = "";
+		String monthStr = "";
+		if(day < 10) {
+			dayStr += "0" + String.valueOf(day);
+		} else {
+			dayStr += String.valueOf(day);
+		}
+
+		if(month < 10) {
+			monthStr += "0" + String.valueOf(month);
+		} else {
+			monthStr += String.valueOf(month);
+		}
+		
+
+		List<Tuple> t = rhempleadoService.getEmpleadosCumpleaños(dayStr, monthStr);
+		System.out.println("\nTupla es: " + t);
+		System.out.println("Tupla es igual a null? " + t == null);
+		System.out.println("Tupla size? " + t.size());
+		System.out.println("Tupla is Empty? " + t.isEmpty());
+
+
+		
+		//response.put("respuesta", "CORREO  asignado correctamente.");
+		return new ResponseEntity<>(t.toString(), HttpStatus.OK);
+	}*/
+
+	//--------------   Service para enviar un correo de cumpleaños a las 9:00 a.m ----------------------->>>>>>
+
+	@Scheduled(cron = "0 0 9 * * *")
+	public void verificaCumpleaños() {
+			
+			try {
+				System.out.println("Tarea programada");
+
+				Date today = new Date();
+				int day = today.getDate();
+				int month = today.getMonth() + 1;
+				System.out.println("Dia: " + day);
+				System.out.println("Mes: " + month);
+
+				String dayStr = "";
+				String monthStr = "";
+				if(day < 10) {
+					dayStr += "0" + String.valueOf(day);
+				} else {
+					dayStr += String.valueOf(day);
+				}
+
+				if(month < 10) {
+					monthStr += "0" + String.valueOf(month);
+				} else {
+					monthStr += String.valueOf(month);
+				}
+				List<Tuple> t = rhempleadoService.getEmpleadosCumpleaños(dayStr, monthStr);
+				System.out.println("\nTupla es: " + t);
+				System.out.println("Tupla es igual a null? " + t == null);
+				System.out.println("Tupla size? " + t.size());
+				System.out.println("Tupla is Empty? " + t.isEmpty());
+
+
+				for (Tuple tuple:t){
+					String correoEmpleado = "";
+					String club = "";
+					int idEmpleado;
+
+					idEmpleado = tuple.get(0, Integer.class);
+					club = tuple.get(2, String.class);
+
+					Empleado empleado = empleadoService.findByIdEmpleado(idEmpleado);
+					//correoEmpleado = tuple.get(4, String.class);
+
+					if (!club.equals("") && empleado != null){
+						System.out.println("Empleado encontrado en tabla empleados: " + idEmpleado);
+						if(empleado.getCorreo() == null) {
+							System.out.println("Empleado sin correo electronico asignado saltando al siguiente...");
+							continue;
+						} else {
+							try {
+								correoEmpleado = empleado.getCorreo();
+								System.out.println("Enviando correo...");
+								Correo correo = new Correo(usuarioCorreo, contrasenaCorreo, correoEmpleado);
+								correo.sendBirthdayEmail("¡Feliz Cumpleaños!", club);
+							}catch(Exception e) {
+								System.out.println("Error al enviar el correo electronico");
+								continue;
+							}
+							
+						}
+					}
+				}
+			} catch (Exception e) {
+				// TODO: handle exception
+				System.out.println("Error en la tarea envio de correos de cumpleaños...");
+			}
+
 	}
 }//fin de la clase
 

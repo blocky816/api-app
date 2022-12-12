@@ -72,9 +72,6 @@ public class RHEmpleado
 	@Column(name="fecha_nacimiento") //Permite establecer el nombre de la columna de la tabla con la que el atributo debe de mapear.
 	private Date fechaNacimiento;
 
-	@Column(name="correo") //Permite establecer el nombre de la columna de la tabla con la que el atributo debe de mapear.
-	private String correo;
-
 	public int getId() {
 		return id;
 	}
@@ -199,10 +196,6 @@ public class RHEmpleado
 
 	public void setFechaNacimiento(Date fechaNacimiento) { this.fechaNacimiento = fechaNacimiento; }
 
-	public String getCorreo() { return correo; }
-
-	public void setCorreo(String correo) { this.correo = correo; }
-
 	@Override
 	public String toString() {
 		return "RHEmpleado{" +
@@ -222,7 +215,6 @@ public class RHEmpleado
 				", fechaAlta=" + fechaAlta +
 				", solicitudes=" + solicitudes +
 				", fechaNacimiento=" + fechaNacimiento +
-				", correo='" + correo + '\'' +
 				'}';
 	}
 }
