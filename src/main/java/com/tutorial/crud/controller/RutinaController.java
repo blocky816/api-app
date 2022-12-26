@@ -1254,7 +1254,7 @@ public class RutinaController
 			Collections.sort(ejercicios);
 			String lista="";
 			String lista2="";
-			for(int i=0;i<ejercicios.size();i++) {
+			/*for(int i=0;i<ejercicios.size();i++) {
 				lista=lista+"                <div class=\"card\">\r\n"
 			    		+ "                    <div>\r\n"
 			    		+ "                        <h5 align=\"center\"> dia: "+ejercicios.get(i).getDia()+" <h6>"+ejercicios.get(i).getMaquina()+"</h6></h5>\r\n"
@@ -1281,6 +1281,41 @@ public class RutinaController
 			    		+ "                        </table>\r\n"
 			    		+ "                    </div>\r\n"
 			    		+ "                </div>\r\n";
+			}*/
+
+			for(int i=0;i<ejercicios.size();i++) {
+				lista=lista+"<article class=\"workout\">\n" +
+						"    <div class=\"machine\">\n" +
+						"        <div class=\"machine-name\">\n" +
+						"            <span>1</span><span>"+ejercicios.get(i).getDia()+"</span>\n" +
+						"        </div>\n" +
+						"        <img src=\"https://trainingh.mx/wp-content/uploads/ejercicios/\"" +ejercicios.get(i).getGrupoMuscular()+"/"+ejercicios.get(i).getRutaImagen()+".gif\"" + "alt=\"Machine demo\" class=\"machine-image\"></img>\n" +
+						"    </div>\n" +
+						"    <div class=\"series\">\n" +
+						"        <span>"+ejercicios.get(i).getMaquina()+"</span>\n" +
+						"        <div class=\"type\">\n" +
+						"            <span>FUERZA</span>\n" +
+						"            <span>"+ejercicios.get(i).getGrupoMuscular()+"</span>\n" +
+						"        </div>\n" +
+						"        <p>"+ejercicios.get(i).getNombre()+"</p>\n" +
+						"        <div class=\"fitness-statistics\">\n" +
+						"            <div class=\"statistics-column\">\n" +
+						"                <div class=\"statistics-item\">\n" +
+						"                    <i class=\"fa-solid fa-dumbbell\"></i>\n" +
+						"                    <span>SERIES</span>\n" +
+						"                    <span>"+ejercicios.get(i).getSeries()+"</span>\n" +
+						"                </div>\n" +
+						"            </div>\n" +
+						"            <div class=\"statistics-column\">\n" +
+						"                <div class=\"statistics-item\">\n" +
+						"                    <i class=\"fa-solid fa-person-walking-arrow-right\"></i>\n" +
+						"                    <span>REPETICIONES</span>\n" +
+						"                    <span>"+ejercicios.get(i).getRepeticiones()+"</span>\n" +
+						"                </div>\n" +
+						"            </div>\n" +
+						"        </div>\n" +
+						"    </div>\n" +
+						"</article>";
 			}
 			for(int i=0;i<ejercicios.size();i++) {
 				lista2=lista2+"                <div class=\"card\">\r\n"

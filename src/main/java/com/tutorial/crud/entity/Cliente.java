@@ -7,10 +7,14 @@
 */
 package com.tutorial.crud.entity;
 
+import com.fasterxml.jackson.annotation.JsonManagedReference;
+
 import java.io.Serializable;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
+import java.time.ZoneOffset;
 import java.time.format.DateTimeFormatter;
+import java.time.temporal.ChronoField;
 import java.util.Date;
 import java.util.List;
 
@@ -69,7 +73,7 @@ public class Cliente implements Serializable
 	private Foto URLFoto;
 	
 	@Column(name="domiciliopago")
-	private boolean DomicilioPago;
+	private Boolean DomicilioPago;
 	
 	@Column(name="inicioactividades")
 	private Date InicioActividades;
@@ -175,8 +179,8 @@ public class Cliente implements Serializable
 	    )	
 	private List<HorarioOtroClub> HorarioOtroClub;
 
-	@OneToMany(mappedBy = "cliente")
-	 List<RetoUsuario> retoUsuario;
+	//@OneToMany(mappedBy = "cliente")
+	 //List<RetoUsuario> retoUsuario;
 	
 	 @OneToMany(mappedBy = "cliente")
 	 List<CAApartadosUsuario> apartadosUsuario;
@@ -193,6 +197,17 @@ public class Cliente implements Serializable
 	
 	@Column(name="semanas")
 	private int semanas;
+
+	@ManyToOne(cascade=CascadeType.ALL )
+	@JoinColumn(name="id_rutina_nuevo")
+	//@JsonManagedReference(value = "rutinanuevo-cliente")
+	private RutinaNuevo rutinanuevo;
+
+	@Column(name="dia_inicio_rutina_nuevo")
+	private LocalDateTime diaInicioRutinanuevo;
+
+	@Column(name="semanas_nuevo")
+	private Integer semanasnuevo;
 
 	@Column(name="id_complexband", unique=true)
 	private String idComplexBand;
@@ -315,8 +330,12 @@ public class Cliente implements Serializable
 		return DomicilioPago;
 	}
 
-	public void setDomicilioPago(boolean domicilioPago) {
-		DomicilioPago = domicilioPago;
+	public void setDomicilioPago(Boolean domicilioPago) {
+		this.DomicilioPago = domicilioPago;
+	}
+
+	public Boolean getDomicilioPago() {
+		return DomicilioPago;
 	}
 
 	public Date getInicioActividades() {
@@ -560,7 +579,25 @@ public class Cliente implements Serializable
 		DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
 		String formattedLocalDate = fechaRutina.format(formatter);
 		return formattedLocalDate;
-		
+
+	}
+
+	public java.sql.Date obtenerDiaInicioNuevo(){
+		java.sql.Date diaInicio=new java.sql.Date(diaInicioRutinanuevo.toEpochSecond(ZoneOffset.UTC));
+		return diaInicio;
+
+	}
+	public void setDiaInicioNuevo(LocalDateTime date) {
+		this.diaInicioRutinanuevo = date;
+	}
+	public LocalDateTime obtenerDiaFinalNuevo(){
+		//LocalDateTime fechaRutina = diaInicioRutinanuevo.toInstant().atZone(ZoneId.systemDefault()).toLocalDateTime();
+		LocalDateTime fechaRutina = diaInicioRutinanuevo;
+		fechaRutina = fechaRutina.plusWeeks(semanasnuevo);
+		//DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+		//String formattedLocalDate = fechaRutina.format(formatter);
+		return fechaRutina;
+
 	}
 	public int obtenerSemanas() {
 		return semanas;
@@ -573,6 +610,30 @@ public class Cliente implements Serializable
 	public String getIdComplexBand() { return idComplexBand; }
 
 	public void setIdComplexBand(String idComplexBand) { this.idComplexBand = idComplexBand; }
+
+	public RutinaNuevo obtenerRutinanuevo() {
+		return rutinanuevo;
+	}
+
+	public void setRutinanuevo(RutinaNuevo rutinanuevo) {
+		this.rutinanuevo = rutinanuevo;
+	}
+
+	public LocalDateTime getDiaInicioRutinanuevo() {
+		return diaInicioRutinanuevo;
+	}
+
+	public void setDiaInicioRutinanuevo(LocalDateTime diaInicioRutinanuevo) {
+		this.diaInicioRutinanuevo = diaInicioRutinanuevo;
+	}
+
+	public Integer obtenerSemanasnuevo() {
+		return semanasnuevo;
+	}
+
+	public void setSemanasnuevo(Integer semanasnuevo) {
+		this.semanasnuevo = semanasnuevo;
+	}
 
 	@Override
 	public String toString() {

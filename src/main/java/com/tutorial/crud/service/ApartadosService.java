@@ -65,11 +65,16 @@ public class ApartadosService {
 
 
 	public CAApartados getHorario(UUID id, String dia) {
-		Session currentSession = entityManager.unwrap(Session.class);
+		Session currentSession = entityManager.unwrap(Session.class); //se usa para obtener la sesión de EntityManager
 		Query<CAApartados> listaApartados = currentSession.createQuery("FROM CAApartados a where a.horario.id=:o and a.dia=:u", CAApartados.class);
 		listaApartados.setParameter("o",id);
 		listaApartados.setParameter("u",dia);
 		List<CAApartados> results = listaApartados.getResultList();
+		System.out.println("results:" + results);
+		System.out.println("results  is Empty ?:" + results.isEmpty());
+		System.out.println("idHorario:" + id);
+		System.out.println("dia:" + dia);
+		
 		return results.get(0);
 	}
 }

@@ -65,6 +65,9 @@ public class PaseUsuario {
 	
 	@Column(name = "activo")
 	private boolean activo=true;
+
+	@Column(name = "subgrupo")
+	private String subgrupo;
 	
 	public String obtenerCreatedBy() {
 		return createdBy;
@@ -174,11 +177,21 @@ public class PaseUsuario {
 		this.consumido = consumido;
 	}
 
+	public String getSubgrupo() {
+		return subgrupo;
+	}
+
+	public void setSubgrupo(String subgrupo) {
+		this.subgrupo = subgrupo;
+	}
+
+
+
 	@Override
 	public String toString() {
 		return "PaseUsuario [idVentaDetalle=" + idVentaDetalle + ", cliente=" + cliente.getIdCliente() + ", idProd=" + idProd
 				+ ", cantidad=" + cantidad + ", disponibles=" + disponibles + ", f_compra=" + f_compra + ", createdBy="
 				+ createdBy + ", created=" + created + ", updatedBy=" + updatedBy + ", updated=" + updated + ", activo="
-				+ activo + "]";
+				+ activo + ", subgrupo=" + subgrupo +"]";
 	}	
 }

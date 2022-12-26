@@ -228,8 +228,8 @@ public class ToallaController
 
     /*------------------- Task para enviar sanciones al no devolver una toalla el dia que te la asignaron --------------------*/
 
-    //@Scheduled(cron = "0 30 10 * * *")
-    @GetMapping("/getToallasNoRegresadas")
+    @Scheduled(cron = "0 30 23 * * *")
+    //@GetMapping("/getToallasNoRegresadas")
     public ResponseEntity<?> enviaSanciones() {
 		System.out.println("Leyendo tabla toallas...");
 
@@ -238,7 +238,7 @@ public class ToallaController
 
         for (Toalla toalla: toallaList){
             if (toalla.getFechaFin() == null && toalla.getAsignacion() == false){
-                int idProd = 0;
+                int idProd = 1260;
                 Date fecha = toalla.getFechaInicio();
 
                 if (toalla.getIdCliente() == 0) {
@@ -249,8 +249,6 @@ public class ToallaController
                     System.out.println("CLiente encontrado: " + cliente.getNombre());
                     System.out.println("email: " + cliente.getEmail());
                 }
-                //60887 cargar a pascual
-                // No existe retorno de toalla del año-mes-dia
 
                 String body2 = "{\r\n"
                         + "\"IDCliente\":"+cliente.getIdCliente()+",  \r\n"

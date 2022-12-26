@@ -83,14 +83,17 @@ public class ApartadosUsuarioService {
 	  return true;
 	}
 
-   	@Transactional(rollbackFor = SQLException.class)
-	public CAApartadosUsuario crearApartado(Body body, CAHorario horario1, CAApartados apartado,CAApartadosUsuario apartadosUsuario) throws IOException {
-		apartado.setConteo(apartado.getConteo()+1); 
-		if(horario1.getActividad().getMax()<apartado.getConteo()) {
+   	//Si se lanza Exception class o cualquier otra durante la transaccion se revertira toda la transaccion
+	@Transactional(rollbackFor = SQLException.class)
+	public CAApartadosUsuario crearApartado(Body body, CAHorario horario1, CAApartados apartado, CAApartadosUsuario apartadosUsuario) throws IOException {
+		apartado.setConteo(apartado.getConteo() + 1); // 3 + 1
+		if(horario1.getActividad().getMax() < apartado.getConteo()) { // 60 < 4
         	TransactionAspectSupport.currentTransactionStatus().setRollbackOnly();
 			throw new RuntimeException("NO hay cupo disponible ");
 		}else {
-			Cliente cli=clienteService.findById(body.getUsuario());
+			// Se obtiene el cliente
+			Cliente cli = clienteService.findById(body.getUsuario());
+			//Si el registro no existe en apartados_usuario con el idcliente y id_apartados se guarda el apartado_usuario sino entonces signifca que ya se aparto esta clase
 			if(this.isEmpty(cli, apartado)) {
 				apartadosUsuario.setActivo(true);
 				apartadosUsuario.setCreated(new Date());

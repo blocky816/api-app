@@ -61,12 +61,14 @@ public class AgendaReservasUsuarioService {
 
    	@Transactional(rollbackFor = SQLException.class)
 	public AgendaReservasUsuario crearReservacion(Body body, AgendaHorario horario1, AgendaReservas apartado,AgendaReservasUsuario apartadosUsuario) throws IOException {
-		apartado.setConteo(apartado.getConteo()+1); 
-		if(horario1.getCupoMaximo()<apartado.getConteo()) {
+		apartado.setConteo(apartado.getConteo() + 1);
+		if(horario1.getCupoMaximo() < apartado.getConteo()) {
         	TransactionAspectSupport.currentTransactionStatus().setRollbackOnly();
 			throw new RuntimeException("NO hay cupo disponible ");
 		}else {
-			Cliente cli=clienteService.findById(body.getUsuario());
+			Cliente cli = clienteService.findById(body.getUsuario());
+			// Se consulta si el apartado y el cliente ya existen en Agenda_apartados_usuario
+			// si esta vacio se crea el nuevo apartado usuario
 			if(this.isEmpty(cli, apartado)) {
 				apartadosUsuario.setActivo(true);
 				apartadosUsuario.setCreated(new Date());
@@ -83,7 +85,6 @@ public class AgendaReservasUsuarioService {
 				throw new IOException("Este usuario ya aparto esta clase ");
 			}
 		}
-		
 	}
 
 	public AgendaReservasUsuario getOne(int usuario, UUID id) {

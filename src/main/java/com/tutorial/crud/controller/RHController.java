@@ -414,7 +414,7 @@ public class RHController
 
 	//--------------   Service para enviar un correo de cumpleaños a las 9:00 a.m ----------------------->>>>>>
 
-	@Scheduled(cron = "0 0 9 * * *")
+	/*@Scheduled(cron = "0 0 9 * * *")
 	public void verificaCumpleaños() {
 			
 			try {
@@ -481,6 +481,6 @@ public class RHController
 				System.out.println("Error en la tarea envio de correos de cumpleaños...");
 			}
 
-	}
+	}*/
 }//fin de la clase
 
