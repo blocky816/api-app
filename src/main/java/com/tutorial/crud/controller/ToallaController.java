@@ -229,7 +229,7 @@ public class ToallaController
 
     /*------------------- Task para enviar sanciones al no devolver una toalla el dia que te la asignaron --------------------*/
 
-    @Scheduled(cron = "0 30 23 * * *")
+    //@Scheduled(cron = "0 30 23 * * *")
     //@GetMapping("/getToallasNoRegresadas")
     public ResponseEntity<?> enviaSanciones() {
 		System.out.println("Leyendo tabla toallas...");

@@ -371,50 +371,9 @@ public class RHController
 		return new ResponseEntity<>(response.toString(), HttpStatus.OK);
 	}
 
-	/*@PreAuthorize("hasRole('ADMIN')") //Con esto le exigimos un token en el Request
-	@GetMapping("/cumple")
-	public ResponseEntity<?> getCumple(){
-		JSONObject response=new JSONObject();
-
-		System.out.println("Tarea programada");
-
-		Date today = new Date();
-		int day = today.getDate();
-		int month = today.getMonth() + 1;
-
-		System.out.println("Dia: " + day);
-		System.out.println("Mes: " + month);
-
-		String dayStr = "";
-		String monthStr = "";
-		if(day < 10) {
-			dayStr += "0" + String.valueOf(day);
-		} else {
-			dayStr += String.valueOf(day);
-		}
-
-		if(month < 10) {
-			monthStr += "0" + String.valueOf(month);
-		} else {
-			monthStr += String.valueOf(month);
-		}
-		
-
-		List<Tuple> t = rhempleadoService.getEmpleadosCumpleaños(dayStr, monthStr);
-		System.out.println("\nTupla es: " + t);
-		System.out.println("Tupla es igual a null? " + t == null);
-		System.out.println("Tupla size? " + t.size());
-		System.out.println("Tupla is Empty? " + t.isEmpty());
-
-
-		
-		//response.put("respuesta", "CORREO  asignado correctamente.");
-		return new ResponseEntity<>(t.toString(), HttpStatus.OK);
-	}*/
-
 	//--------------   Service para enviar un correo de cumpleaños a las 9:00 a.m ----------------------->>>>>>
 
-	/*@Scheduled(cron = "0 0 9 * * *")
+	@Scheduled(cron = "0 0 9 * * *")
 	public void verificaCumpleaños() {
 			
 			try {
@@ -423,8 +382,6 @@ public class RHController
 				Date today = new Date();
 				int day = today.getDate();
 				int month = today.getMonth() + 1;
-				System.out.println("Dia: " + day);
-				System.out.println("Mes: " + month);
 
 				String dayStr = "";
 				String monthStr = "";
@@ -440,11 +397,6 @@ public class RHController
 					monthStr += String.valueOf(month);
 				}
 				List<Tuple> t = rhempleadoService.getEmpleadosCumpleaños(dayStr, monthStr);
-				System.out.println("\nTupla es: " + t);
-				System.out.println("Tupla es igual a null? " + t == null);
-				System.out.println("Tupla size? " + t.size());
-				System.out.println("Tupla is Empty? " + t.isEmpty());
-
 
 				for (Tuple tuple:t){
 					String correoEmpleado = "";
@@ -481,6 +433,6 @@ public class RHController
 				System.out.println("Error en la tarea envio de correos de cumpleaños...");
 			}
 
-	}*/
+	}
 }//fin de la clase
 
