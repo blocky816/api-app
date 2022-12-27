@@ -80,7 +80,8 @@ public class ToallaController
         JSONObject response = new JSONObject();
         
         if(toallaBodyRequest.get("idCliente") == null || toallaBodyRequest.get("club") == null || toallaBodyRequest.get("toallaCH") == null
-        || toallaBodyRequest.get("toallaG") == null || toallaBodyRequest.get("fechaInicio") == null || toallaBodyRequest.get("asignacion") == null){
+        || toallaBodyRequest.get("toallaG") == null || toallaBodyRequest.get("fechaInicio") == null || toallaBodyRequest.get("asignacion") == null
+        || toallaBodyRequest.get("empleado") == null){
             response.put("respuesta", "Todos los campos son obligatorios");
             return new ResponseEntity<>(response.toMap(), HttpStatus.CONFLICT);
         }
@@ -90,7 +91,7 @@ public class ToallaController
 		int toallaG = toallaBodyRequest.get("toallaG").asInt();
 		String dateStr = toallaBodyRequest.get("fechaInicio").asText().replace("T", " ");
         Boolean asignacion = (toallaBodyRequest.get("asignacion").asText().equals("0")) ? false : true;
-
+        String empleado = toallaBodyRequest.get("empleado").asText();
 
         try {
             Date fechaInicio = new SimpleDateFormat("yyyy-MM-dd hh:mm").parse(dateStr);
@@ -124,7 +125,7 @@ public class ToallaController
                     toalla.setFechaInicio(fechaInicio);
                     toalla.setAsignacion(asignacion);
                     toalla.setCliente(cliente.getNombre() + " " + cliente.getApellidoPaterno() + " " + cliente.getApellidoMaterno());
-
+                    toalla.setEmpleado(empleado);
                     toallaService.save(toalla);
                     response.put("respuesta", "TOALLA asignada correctamente");
                     return new ResponseEntity<>(response.toMap(), HttpStatus.OK);
@@ -199,7 +200,7 @@ public class ToallaController
                         System.out.println("Tiempo total: " + tiempoTotal);
                         toalla.setFechaFin(fechaFin);
                         toalla.setAsignacion(asignacion);
-                        toalla.setEmpleado(empleado);
+                        toalla.setEmpleadoLibera(empleado);
                         toalla.setTiempoTotal(tiempoTotal);
                         toallaService.save(toalla);
                         response.put("respuesta", "Retorno de toallas correcto");

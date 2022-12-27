@@ -59,6 +59,9 @@ public class Toalla {
     @Column(name = "empleado")
 	private String empleado;
 
+    @Column(name = "empleado_libera")
+    private String empleadoLibera;
+
     @Column(name = "sancion")
     private String sancion;
 
@@ -99,6 +102,10 @@ public class Toalla {
 
     public void setEmpleado(String empleado) { this.empleado = empleado; }
 
+    public String getEmpleadoLibera() { return empleadoLibera; }
+
+    public void setEmpleadoLibera(String empleadoLibera) { this.empleadoLibera = empleadoLibera; }
+
     public String getSancion() { return sancion; }
 
     public void setSancion(String sancion) { this.sancion = sancion; }
@@ -129,6 +136,7 @@ public class Toalla {
                 ", toallaG=" + toallaG +
                 ", asignacion=" + asignacion +
                 ", empleado='" + empleado + '\'' +
+                ", empleadoLibera='" + empleadoLibera + '\'' +
                 ", sancion='" + sancion + '\'' +
                 '}';
     }
