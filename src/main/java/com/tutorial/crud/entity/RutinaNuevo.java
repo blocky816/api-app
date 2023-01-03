@@ -18,10 +18,10 @@ public class RutinaNuevo {
     @Column(name="id")
     private int id;
 
-    @Column(name="nombre")
+    @Column(name="nombre", columnDefinition = "text")
     private String nombreRutina;
 
-    @Column(name="objetivo")
+    @Column(name="objetivo", columnDefinition = "text")
     private String nombreObjetivo;
 
     @Column(name="semanas")
@@ -30,7 +30,7 @@ public class RutinaNuevo {
     @Column(name="tipo")
     private String tipoPlantilla;
 
-    @Column(name="comentarios")
+    @Column(name="comentarios", columnDefinition = "text")
     private String comentarios;
 
     @Column(name="created")

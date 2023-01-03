@@ -24,6 +24,9 @@ public class BasculaCliente {
     @Column(name = "activo")
     private Boolean activo;
 
+    @Column(name = "intentos")
+    private int intentos = 0;
+
     public UUID getId() { return id; }
 
     public int getIdCliente() { return idCliente; }
@@ -34,12 +37,17 @@ public class BasculaCliente {
 
     public void setActivo(Boolean activo) { this.activo = activo; }
 
+    public int getIntentos() { return intentos; }
+
+    public void setIntentos(int intentos) { this.intentos = intentos; }
+
     @Override
     public String toString() {
         return "BasculaCliente{" +
                 "id=" + id +
                 ", idCliente=" + idCliente +
                 ", activo=" + activo +
+                ", intentos=" + intentos +
                 '}';
     }
 }

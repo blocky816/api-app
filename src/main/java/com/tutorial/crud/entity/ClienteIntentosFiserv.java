@@ -28,6 +28,12 @@ public class ClienteIntentosFiserv {
     @Column(name = "id_transaccion")
     private String transactionId;
 
+    @Column(name = "card")
+    private String card;
+
+    @Column(name = "brand")
+    private String brand;
+
     public int getId() {
         return id;
     }
@@ -96,6 +102,14 @@ public class ClienteIntentosFiserv {
 
     public void setTransactionId(String transactionId) { this.transactionId = transactionId; }
 
+    public String getCard() { return card; }
+
+    public void setCard(String card) { this.card = card; }
+
+    public String getBrand() { return brand; }
+
+    public void setBrand(String brand) { this.brand = brand; }
+
     @Override
     public String toString() {
         return "ClienteIntentosFiserv{" +
@@ -109,6 +123,8 @@ public class ClienteIntentosFiserv {
                 ", estado='" + estado + '\'' +
                 ", codigoAprobacion='" + codigoAprobacion + '\'' +
                 ", transactionId='" + transactionId + '\'' +
+                ", card='" + card + '\'' +
+                ", brand='" + brand + '\'' +
                 '}';
     }
 }

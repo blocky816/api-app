@@ -15,6 +15,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.awt.desktop.SystemEventListener;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -22,7 +23,8 @@ import java.util.List;
 @RestController
 @RequestMapping("/conversaciones")
 @CrossOrigin(origins = "*")
-public class ConversacionAsesorController {
+public class
+ConversacionAsesorController {
 
     @Autowired
     ConversacionAsesorService conversacionAsesorService;
@@ -48,9 +50,15 @@ public class ConversacionAsesorController {
             response.put("respuesta", "El cliente no existe");
             return new ResponseEntity<>(response.toMap(), HttpStatus.NOT_FOUND);
         }else {
-            System.out.println("BasculaCliente.getActivo(): " + basculaCliente.getActivo());
-            System.out.println("BasculaCliente.getActivo() ? null: " + basculaCliente.getActivo() == null);
             if(basculaClienteService.existsByIdCliente(basculaCliente.getIdCliente()) && basculaCliente.getActivo() == null){
+                BasculaCliente basculaClienteFound = basculaClienteService.findByIdCliente(basculaCliente.getIdCliente());
+                if (basculaClienteFound.getIntentos() >= 1 && cliente.getFormulario() == null) {
+                    System.out.println("CLIEnte encontrado en bascula: " + basculaCliente.getIdCliente());
+                    System.out.println("Intentos de pesaje: " + basculaClienteFound.getIntentos());
+                    basculaClienteFound.setIntentos(basculaClienteFound.getIntentos() + 1);
+                    basculaClienteService.save(basculaClienteFound);
+                }
+
                 response.put("respuesta", "CLIENTE ya registrado");
                 return new ResponseEntity<>(response.toMap(), HttpStatus.CONFLICT);
             } else if (basculaCliente.getActivo() != null) {

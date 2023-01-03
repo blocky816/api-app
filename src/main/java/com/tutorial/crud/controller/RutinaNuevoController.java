@@ -1,5 +1,6 @@
 package com.tutorial.crud.controller;
 
+import com.tutorial.crud.correo.Correo;
 import com.tutorial.crud.dto.*;
 import com.tutorial.crud.entity.*;
 import com.tutorial.crud.service.*;
@@ -7,6 +8,7 @@ import org.hibernate.Session;
 import org.hibernate.query.Query;
 import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -54,6 +56,15 @@ public class RutinaNuevoController {
 
     @Autowired
     AgendaReservasUsuarioService agendaReservasUsuarioService;
+
+    @Value("${my.property.usuarioCorreo}")
+    String usuarioCorreo;
+
+    @Value("${my.property.contrasenaCorreo}")
+    String contrasenaCorreo;
+
+    @Value("${my.property.copiaOculta2}")
+    String copiaOculta;
 
 
     // Crear una nueva plantilla rutina
@@ -364,7 +375,7 @@ public class RutinaNuevoController {
         }
     }
 
-
+    //Asignar rutina a un cliente
     @PostMapping("/asignarRutinaPlantilla")
     @Transactional(rollbackFor = SQLException.class)
     public ResponseEntity<?> asignarRutinaPlantilla(@RequestBody Body body){
@@ -397,7 +408,9 @@ public class RutinaNuevoController {
                     cliente.setRutinanuevo(rutina.get());
                     cliente.setSemanas(rutina.get().getSemanas());
                     cliente.setDiaInicioNuevo(LocalDateTime.now().withNano(0));
-                    //this.enviarCorreo(idCliente);
+                    Boolean correoEnviado = this.enviarCorreo(idCliente);
+                    if (correoEnviado) System.out.println("El correo de rutina se envio correctamente");
+                    else System.out.println("Fallo el envio de correo de rutina");
                     json.put("respuesta", "Rutina cargada exitosamente al cliente "+ idCliente);
                     return new ResponseEntity<String>(json.toString(), HttpStatus.OK);
                 }else {
@@ -410,7 +423,9 @@ public class RutinaNuevoController {
                 cliente.setRutinanuevo(rutina.get());
                 cliente.setSemanasnuevo(rutina.get().getSemanas());
                 cliente.setDiaInicioNuevo(LocalDateTime.now().withNano(0));
-                //this.enviarCorreo(idCliente);
+                Boolean correoEnviado = this.enviarCorreo(idCliente);
+                if (correoEnviado) System.out.println("El correo de rutina se envio correctamente");
+                else System.out.println("Fallo el envio de correo de rutina");
                 json.put("respuesta", "Rutina cargada exitosamente al cliente "+idCliente);
                 return new ResponseEntity<String>(json.toString(), HttpStatus.OK);
 
@@ -766,4 +781,34 @@ public class RutinaNuevoController {
             return new ResponseEntity<String>(json.toString(), HttpStatus.CONFLICT);
         }
     }*/
+
+    // Funcion para enviar la rutina asignada a un cliente
+    public boolean enviarCorreo(int idCliente){
+        try {
+            Cliente cliente = clienteService.findById(idCliente);
+            Correo correo = new Correo(usuarioCorreo,contrasenaCorreo,cliente.getEmail(),copiaOculta);
+            RutinaNuevo rutinaCliente = cliente.obtenerRutinanuevo();
+            List<RutinaEjercicioNuevo> ejercicios = rutinaCliente.getEjercicios();
+
+            String lista = "";
+
+            for (RutinaEjercicioNuevo rutinaEjercicioNuevo: ejercicios){
+                String rutinaImagen = rutinaEjercicioNuevo.getEjercicio().getImagen();
+                lista = lista + "<img src=\"data:image/jpeg;base64," + rutinaImagen + "\" alt=\"Rutina de ejercicios\"/>";
+            }
+            //String rutinaImagen = ejercicios.get(0).getEjercicio().getImagen();
+
+            //lista = lista + "<img src=\"data:image/jpeg;base64," + rutinaImagen + "alt=\"Rutina de ejercicios\">";
+
+            String asunto="Rutina nueva";
+            LocalDateTime fechaRutina = new Date(cliente.obtenerDiaInicio().getTime()).toInstant().atZone(ZoneId.systemDefault()).toLocalDateTime();
+            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+            String formattedLocalDate = fechaRutina.format(formatter);
+            correo.enviar_rutinanuevo(asunto, lista);
+            return true;
+        }catch(Exception e) {
+            return false;
+        }
+
+    }
 }

@@ -266,7 +266,7 @@ public class ToallaController
                 System.out.println("Body2:\n" + body2);
 
                 try {
-                    URL url = new URL("http://192.168.20.26/ServiciosClubAlpha/api/OrdenDeVenta/Registra");
+                    URL url = new URL("http://192.168.20.44/ServiciosClubAlpha/api/OrdenDeVenta/Registra");
                     //String postData = "foo1=bar1&foo2=bar2";
                     String postData = body2;
                     HttpURLConnection conn = (HttpURLConnection) url.openConnection();

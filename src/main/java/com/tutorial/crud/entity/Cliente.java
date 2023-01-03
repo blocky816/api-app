@@ -212,6 +212,9 @@ public class Cliente implements Serializable
 	@Column(name="id_complexband", unique=true)
 	private String idComplexBand;
 
+	@Column(name = "id_formulario")
+	private Integer idFormulario;
+
 	//Se generaron todos los Getters y Setters.
 
 	public int getIdCliente() {
@@ -634,6 +637,10 @@ public class Cliente implements Serializable
 	public void setSemanasnuevo(Integer semanasnuevo) {
 		this.semanasnuevo = semanasnuevo;
 	}
+
+	public Integer getFormulario() { return idFormulario; }
+
+	public void setFormulario(Integer idFormulario) { this.idFormulario = idFormulario; }
 
 	@Override
 	public String toString() {

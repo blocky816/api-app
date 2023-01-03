@@ -108,4 +108,5 @@ public class EjercicioNuevoController {
             return new ResponseEntity<>(response.toMap(), HttpStatus.NOT_FOUND);
         }
     }
+
 }
