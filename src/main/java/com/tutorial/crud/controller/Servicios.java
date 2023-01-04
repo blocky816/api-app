@@ -41,6 +41,7 @@ import org.apache.commons.codec.digest.HmacUtils;
 import org.apache.commons.io.IOUtils;
 import org.hibernate.Session;
 import org.hibernate.query.Query;
+import org.hibernate.tool.schema.internal.exec.ScriptTargetOutputToFile;
 import org.json.JSONArray;
 import org.json.JSONObject;
 import org.slf4j.Logger;
@@ -1655,19 +1656,26 @@ public class Servicios
 	@ResponseBody
 	public String getPedidoId(@PathVariable("ordenPedidoid") int pedidoid)
 	{
+		System.out.println("OBTENER PEDIDO ID");
+		System.out.println("Pedido ID : " + pedidoid);
 		try {
 			String body2 = "{\n"
 					+ "\"IdCliente\":"+pedidoid+",\n"
 					+ "\"Token\":\"77D5BDD4-1FEE-4A47-86A0-1E7D19EE1C74\"\n"
 					+ "}";
 			configuracion o = configuracionService.findByServiceName("getPedido").get();
+
+			System.out.println("Configuracion: " + o.getEndpointAlpha());
+			System.out.println("Configuracion: " + o.getServicenNme());
 			JSONObject json=new JSONObject(e.conectaApiClubPOST(body2,o.getEndpointAlpha()));
+			System.out.println("JSON: " + json);
 			JSONObject json2=this.convertirPedido(json);
+			System.out.println("JSON 2: " + json2);
 			return json2.toString();
 		}catch(JSONException e) {
-
+			return null;
 		}
-		return null;
+		//return null;
 	}//Fin del metodo
 
 
@@ -2348,9 +2356,12 @@ public class Servicios
 	@CrossOrigin(origins = "*")
 	@ResponseBody
 	public Cliente obtenerCliente(@PathVariable("horarioId") int horarioId){
+
+		//System.out.println("ENDPOINT ALPHA OBTENER CLIENTE");
 		Cliente cliente = clienteService.findById(horarioId);
+		//System.out.println("ID CLiente: " + horarioId);
 		if(cliente == null) {
-			throw new RuntimeException("cliente id not found -"+horarioId);
+			//throw new RuntimeException("cliente id not found -"+horarioId);
 		}
 		//retornará al usuario con id pasado en la url
 		if(cliente.getURLFoto()==null) {
@@ -2362,7 +2373,7 @@ public class Servicios
 				byte [] data = bos.toByteArray();
 				cliente.setURLFoto(new Foto(data));
 			} catch (IOException e) {
-				e.printStackTrace();
+				//e.printStackTrace();
 			}
 		}
 		return cliente;
@@ -3396,7 +3407,9 @@ public class Servicios
 	}
 
 	public JSONObject convertirPedido(JSONObject pedidoCliente) {
+		System.out.println("CONVERTIR PEDIDO");
 		JSONArray detalle=(JSONArray) pedidoCliente.get("Detalle");
+		System.out.println("Detalle: " + detalle);
 		JSONArray pedidoDetalle=new JSONArray();
 		JSONObject json=new JSONObject();
 		for(int i1=0;i1<detalle.length();i1++){
@@ -3418,18 +3431,26 @@ public class Servicios
 			deta.put("subImporte",((JSONObject) detalle.get(i1)).get("SubImporte"));
 			pedidoDetalle.put(deta);
 		}
-		json.put("noPedido",pedidoCliente.get("NoPedido") );
-		json.put("idCliente",pedidoCliente.get("IDCliente") );
-		json.put("uRLLiga", pedidoCliente.get("URLLigaPago"));
-		json.put("status", pedidoCliente.get("Status"));
-		json.put("creado", pedidoCliente.get("Creado"));
-		json.put("pagoFecha", pedidoCliente.get("PagadoFecha"));
-		json.put("canceladoFecha", pedidoCliente.get("CanceladoFecha"));
-		json.put("pagado", pedidoCliente.get("Pagado"));
-		json.put("cancelado", pedidoCliente.get("Cancelado"));
-		json.put("correoCliente", pedidoCliente.get("CorreoCliente"));
-		json.put("pedidoDetalle", pedidoDetalle);
+		System.out.println("Pedido detalle: " + pedidoDetalle);
+		try{
+			json.put("noPedido",pedidoCliente.get("NoPedido") );
+			json.put("idCliente",pedidoCliente.get("IDCliente") );
+			json.put("uRLLiga", pedidoCliente.get("URLLigaPago"));
+			json.put("status", pedidoCliente.get("Status"));
+			json.put("creado", pedidoCliente.get("Creado"));
+			json.put("pagoFecha", pedidoCliente.get("PagadoFecha"));
+			json.put("canceladoFecha", pedidoCliente.get("CanceladoFecha"));
+			json.put("pagado", pedidoCliente.get("Pagado"));
+			json.put("cancelado", pedidoCliente.get("Cancelado"));
+			json.put("correoCliente", pedidoCliente.get("CorreoCliente"));
+			json.put("pedidoDetalle", pedidoDetalle);
+			System.out.println("JSON convertir pedido: " + json);
+		}catch(Exception e){
+			e.printStackTrace();
+		}
+
 		return json;
+		//return pedidoDetalle;
 
 	}
 	@PostMapping("/RegistraOV")
@@ -5990,9 +6011,16 @@ public class Servicios
 					String estado = jsonObject.getString("transactionStatus");
 					String codigoAprobacion = jsonObject.getString("approvalCode");
 					String idTransaccion = jsonObject.getString("ipgTransactionId");
+					String bin = jsonObject.getJSONObject("paymentMethodDetails").getJSONObject("paymentCard").getString("bin");
+					String last4 = jsonObject.getJSONObject("paymentMethodDetails").getJSONObject("paymentCard").getString("last4");
+					String brand = jsonObject.getJSONObject("paymentMethodDetails").getJSONObject("paymentCard").getString("brand");
+					String card = "" + bin + "..." + last4;
+
 					clienteIntentosFiserv.setEstado(estado);
 					clienteIntentosFiserv.setCodigoAprobacion(codigoAprobacion);
 					clienteIntentosFiserv.setTransactionId(idTransaccion);
+					clienteIntentosFiserv.setCard(card);
+					clienteIntentosFiserv.setBrand(brand);
 				} catch (JSONException err) {
 					System.out.println("Exception : "+err.toString());
 				}
