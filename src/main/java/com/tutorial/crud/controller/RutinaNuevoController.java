@@ -392,6 +392,11 @@ public class RutinaNuevoController {
                 json.put("respuesta", "CLIENTE con id "+ idCliente + " no existe");
                 return new ResponseEntity<String>(json.toString(), HttpStatus.NOT_FOUND);
             }
+
+            if(!cliente.isActivo() || cliente.getEstatusCobranza().getIdEstatusCobranza() != 1) {
+                json.put("respuesta", "CLIENTE con id "+ idCliente + " no esta activo y al corriente");
+                return new ResponseEntity<String>(json.toString(), HttpStatus.CONFLICT);
+            }
             if (!rutina.isPresent() || !rutina.get().getActivo()){
                 json.put("respuesta", "RUTINA no existe");
                 return new ResponseEntity<String>(json.toString(), HttpStatus.NOT_FOUND);
@@ -674,19 +679,36 @@ public class RutinaNuevoController {
     @Transactional(rollbackFor = SQLException.class)
     public ResponseEntity<String> crearReserva(@RequestBody Body body) {
 
+        System.out.println("ID AGENDA Reserva: " + body.getId());
+        System.out.println("USUARIO: " + body.getUsuario());
         JSONObject json = new JSONObject();
+
+        try {
+
         // Obtiene el apartado
+        //Optional<AgendaReservas> apartadoOpt = agendaReservasService.getOne(body.getId());
         AgendaReservas apartado = agendaReservasService.getOne(body.getId());
+
+        /*if (!apartadoOpt.isPresent()) {
+            json.put("respuesta", "El apartado no existe " + body.getId());
+            TransactionAspectSupport.currentTransactionStatus().setRollbackOnly();
+            return new ResponseEntity<String>(json.toString(), HttpStatus.NOT_FOUND);
+        }
+        AgendaReservas apartado = new AgendaReservas();
+        apartado = apartadoOpt.get().;*/
+        System.out.println("APARTADO FOUND ID" + apartado.getId());
         // Asigna el asesor si existe en el request
         apartado.setAsesor(body.getAsesor());
+        System.out.println("Asesor request: " + body.getAsesor());
         // Obtiene el horario de ese apartado
         AgendaHorario horario1 = apartado.getHorario();
+        System.out.println("ID HORARIO del apartado found: " + horario1.getId());
 
         // Se crea una nueva reserva y se busca al cliente
         AgendaReservasUsuario apartadosUsuario = new AgendaReservasUsuario();
         Cliente cliente = clienteService.findById(body.getUsuario());
 
-        try {
+
             if(cliente.getEstatusCobranza().getIdEstatusCobranza() != 1) {
                 throw new Exception("El usuario no esta activo y al corriente");
             }
@@ -728,10 +750,13 @@ public class RutinaNuevoController {
             json.put("respuesta", "Se agendo la cita correctamente");
             return new ResponseEntity<String>(json.toString(), HttpStatus.OK);
 
+        } catch (NoSuchElementException e) {
+            json.put("respuesta", "No existe " + e.getMessage());
+            TransactionAspectSupport.currentTransactionStatus().setRollbackOnly();
+            return new ResponseEntity<String>(json.toString(), HttpStatus.NOT_FOUND);
         } catch (IOException e) {
             json.put("respuesta", "Este usuario ya esta agendado");
             TransactionAspectSupport.currentTransactionStatus().setRollbackOnly();
-
             return new ResponseEntity<String>(json.toString(), HttpStatus.CONFLICT);
         } catch (RuntimeException  e) {
             json.put("respuesta", "No hay cupo disponible");
@@ -744,35 +769,43 @@ public class RutinaNuevoController {
         }
     }
 
-    /*
+
     @RequestMapping(value="cancelarReserva", method=RequestMethod.POST)
     @Transactional(rollbackFor = SQLException.class)
     public ResponseEntity<String> cancelarReserva(@RequestBody Body body) {
 
-        JSONObject json =new JSONObject();
-        AgendaReservas apartado=agendaReservasService.getOne(body.getId());
-        AgendaReservasUsuario reservasUsuario=agendaReservasUsuarioService.getOne(body.getUsuario(), body.getId());
+        JSONObject json = new JSONObject();
         try {
-            Cliente cliente=clienteService.findById(body.getUsuario());
-            if(cliente==null) {
+            // obtiene el apartado a cancelar
+            AgendaReservas apartado = agendaReservasService.getOne(body.getId());
+            // obtiene el registro de agenda_reserva_usuarios enviando el idcliente y el id_apartados
+            AgendaReservasUsuario reservasUsuario = agendaReservasUsuarioService.getOne(body.getUsuario(), body.getId());
+            // Buscamos al cliente
+            Cliente cliente = clienteService.findById(body.getUsuario());
+            //if(cliente == null) {
+            if(cliente == null || reservasUsuario == null) {
                 throw new FileNotFoundException("Este Cliente no tiene apartados ");
             }
-            apartado.setConteo(apartado.getConteo()-1);
-            if(-1==apartado.getConteo()) {
+            apartado.setConteo(apartado.getConteo() - 1);
+            if(-1 == apartado.getConteo()) {
                 throw new IOException("Sala Vacía");
             }
-            boolean ban=agendaReservasUsuarioService.delete(cliente,apartado);
+            boolean ban = agendaReservasUsuarioService.delete(cliente, apartado);
             reservasUsuario.setCliente(null);
             reservasUsuario.setReservas(null);
             agendaReservasUsuarioService.save(reservasUsuario);
-            if(ban==false)
-                throw new FileNotFoundException("Error cancelando la clase ");
-            json.put("respuesta", "Se cancelo la reservacion Correctamente");
 
+            if(ban == false)
+                throw new FileNotFoundException("Error cancelando la clase ");
+
+            json.put("respuesta", "Se cancelo la reservacion Correctamente");
             return new ResponseEntity<String>(json.toString(), HttpStatus.OK);
+        } catch (IndexOutOfBoundsException e) {
+            TransactionAspectSupport.currentTransactionStatus().setRollbackOnly();
+            json.put("respuesta", "No existe la reserva");
+            return new ResponseEntity<String>(json.toString(), HttpStatus.CONFLICT);
         } catch (FileNotFoundException  e) {
             TransactionAspectSupport.currentTransactionStatus().setRollbackOnly();
-
             json.put("respuesta", "No ha agendado");
             return new ResponseEntity<String>(json.toString(), HttpStatus.CONFLICT);
         }catch(IOException e) {
@@ -780,9 +813,9 @@ public class RutinaNuevoController {
             json.put("respuesta", "Sala Vacía");
             return new ResponseEntity<String>(json.toString(), HttpStatus.CONFLICT);
         }
-    }*/
+    }
 
-    // Funcion para enviar la rutina asignada a un cliente
+    // Funcion para enviar la rutina asignada a un cliente por correo
     public boolean enviarCorreo(int idCliente){
         try {
             Cliente cliente = clienteService.findById(idCliente);

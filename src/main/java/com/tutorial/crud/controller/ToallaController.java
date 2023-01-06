@@ -265,33 +265,35 @@ public class ToallaController
                         + "}";
                 System.out.println("Body2:\n" + body2);
 
-                try {
-                    URL url = new URL("http://192.168.20.44/ServiciosClubAlpha/api/OrdenDeVenta/Registra");
-                    //String postData = "foo1=bar1&foo2=bar2";
-                    String postData = body2;
-                    HttpURLConnection conn = (HttpURLConnection) url.openConnection();
-                    conn.setRequestMethod("POST");
-                    conn.setDoOutput(true);
-                    conn.setRequestProperty("Content-Type", "application/json; charset=UTF-8");
+                if(toalla.getSancion().equals("") || toalla.getSancion() == null || toalla.getSancion().equals("NO")) {
+                    try {
+                        URL url = new URL("http://192.168.20.44/ServiciosClubAlpha/api/OrdenDeVenta/Registra");
+                        //String postData = "foo1=bar1&foo2=bar2";
+                        String postData = body2;
+                        HttpURLConnection conn = (HttpURLConnection) url.openConnection();
+                        conn.setRequestMethod("POST");
+                        conn.setDoOutput(true);
+                        conn.setRequestProperty("Content-Type", "application/json; charset=UTF-8");
 
-                    try (DataOutputStream dos = new DataOutputStream(conn.getOutputStream())) {
-                        dos.writeBytes(postData);
-                    }
-                    int statusCode = conn.getResponseCode();
-                    System.out.println("Statuscode: " + statusCode);
-                    if (statusCode == 200) {
-                        toalla.setSancion("SI");
-                    }else {
-                        toalla.setSancion("NO");
-                    }
-                    toallaService.save(toalla);
-                    conn.disconnect();
+                        try (DataOutputStream dos = new DataOutputStream(conn.getOutputStream())) {
+                            dos.writeBytes(postData);
+                        }
+                        int statusCode = conn.getResponseCode();
+                        System.out.println("Statuscode: " + statusCode);
+                        if (statusCode == 200) {
+                            toalla.setSancion("SI");
+                        }else {
+                            toalla.setSancion("NO");
+                        }
+                        toallaService.save(toalla);
+                        conn.disconnect();
 
-                } catch (Exception e) {
-                    e.printStackTrace();
-                    System.out.println("e.getMessage(): " + e.getMessage());
-                    System.out.println("e.getMessage(): " + e.getLocalizedMessage());
-                    System.out.println("e.getMessage(): " + e.getCause());
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                        System.out.println("e.getMessage(): " + e.getMessage());
+                        System.out.println("e.getMessage(): " + e.getLocalizedMessage());
+                        System.out.println("e.getMessage(): " + e.getCause());
+                    }
                 }
                 toallasNoDevueltas.add(toalla);
             }

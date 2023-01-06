@@ -7,6 +7,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.Optional;
 import java.util.UUID;
 
 @Service
@@ -20,9 +21,7 @@ public class AgendaReservasService {
 	private EntityManager entityManager;*/
 	
 
-    public AgendaReservas getOne(UUID id){
-        return reservasRepository.findById(id).get();
-    }
+    public AgendaReservas getOne(UUID id) { return reservasRepository.findById(id).get(); }
 
     public AgendaReservas  save(AgendaReservas apartados){
     	return reservasRepository.save(apartados);
