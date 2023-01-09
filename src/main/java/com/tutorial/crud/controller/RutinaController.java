@@ -37,6 +37,8 @@ import javax.persistence.EntityManager;
 import javax.persistence.NoResultException;
 import javax.persistence.StoredProcedureQuery;
 
+import com.tutorial.crud.entity.*;
+import com.tutorial.crud.service.*;
 import org.apache.log4j.Logger;
 import org.hibernate.Session;
 import org.hibernate.annotations.Type;
@@ -88,58 +90,6 @@ import com.tutorial.crud.dto.TipoActividadDTO;
 import com.tutorial.crud.dto.VistaPlantilla;
 import com.tutorial.crud.dto.VistaPlantilla2;
 import com.tutorial.crud.dto.VistaRutinaCliente;
-import com.tutorial.crud.entity.CAActividad;
-import com.tutorial.crud.entity.CAApartados;
-import com.tutorial.crud.entity.CAApartadosUsuario;
-import com.tutorial.crud.entity.CAClase;
-import com.tutorial.crud.entity.CAHorario;
-import com.tutorial.crud.entity.CASala;
-import com.tutorial.crud.entity.CATecnico;
-import com.tutorial.crud.entity.CATipoActividad;
-import com.tutorial.crud.entity.Cliente;
-import com.tutorial.crud.entity.ClienteBascula;
-import com.tutorial.crud.entity.Club;
-import com.tutorial.crud.entity.Ejercicio;
-import com.tutorial.crud.entity.Foto;
-import com.tutorial.crud.entity.PaseConsumido;
-import com.tutorial.crud.entity.PaseUsuario;
-import com.tutorial.crud.entity.Registro;
-import com.tutorial.crud.entity.RegistroGimnasio;
-import com.tutorial.crud.entity.ReportePromocion;
-import com.tutorial.crud.entity.Rutina;
-import com.tutorial.crud.entity.RutinaEjercicio;
-import com.tutorial.crud.entity.TerminalRedencion;
-import com.tutorial.crud.entity.AgendaHorario;
-import com.tutorial.crud.entity.AgendaReservas;
-import com.tutorial.crud.entity.AgendaReservasUsuario;
-import com.tutorial.crud.entity.Banda;
-import com.tutorial.crud.entity.Body;
-import com.tutorial.crud.entity.configuracion;
-import com.tutorial.crud.service.ActividadService;
-import com.tutorial.crud.service.AgendaHorarioService;
-import com.tutorial.crud.service.AgendaReservasService;
-import com.tutorial.crud.service.AgendaReservasUsuarioService;
-import com.tutorial.crud.service.ApartadosService;
-import com.tutorial.crud.service.ApartadosUsuarioService;
-import com.tutorial.crud.service.BandaService;
-import com.tutorial.crud.service.CAHorarioService;
-import com.tutorial.crud.service.ClienteBasculaService;
-import com.tutorial.crud.service.ClienteService;
-import com.tutorial.crud.service.ClubService;
-import com.tutorial.crud.service.EjercicioService;
-import com.tutorial.crud.service.FotoServiceImpl;
-import com.tutorial.crud.service.PaseConsumidoService;
-import com.tutorial.crud.service.PaseUsuarioService;
-import com.tutorial.crud.service.RegistroGimnasioService;
-import com.tutorial.crud.service.RegistroService;
-import com.tutorial.crud.service.RutinaEjercicioService;
-import com.tutorial.crud.service.RutinaService;
-import com.tutorial.crud.service.SalaService;
-import com.tutorial.crud.service.TecnicoService;
-import com.tutorial.crud.service.TerminalRedencionService;
-import com.tutorial.crud.service.TipoActividadService;
-import com.tutorial.crud.service.configuracionService;
-
 
 
 /**
@@ -192,6 +142,9 @@ public class RutinaController
 
 	@Autowired
 	BandaService bandaService;
+
+	@Autowired
+	BasculaClienteService basculaClienteService;
 	
 	@Value("${my.property.usuarioCorreo}")
 	String usuarioCorreo;
@@ -1062,6 +1015,10 @@ public class RutinaController
 			String formattedLocalDate = fechaActual.format(formatter);
 			formattedLocalDate=formattedLocalDate.toUpperCase();
 			correo.enviar_pesaje(body.agua, body.masaOsea, body.adiposidad, body.masaMagra, body.masaGrasa, body.peso, body.caloriasDiarias, body.tMB, body.edadMetabolica, body.iMC, formattedLocalDate, body.idUsuario, cliente.getNombre(), Base64.getEncoder().encodeToString(cliente.getURLFoto().getImagen()), cliente.getClub().getNombre(), asunto);
+
+			BasculaCliente basculaCliente = new BasculaCliente();
+			basculaCliente.setIdCliente(body.idUsuario);
+			this.crearRegistroBascula(basculaCliente);
    			json.put("respuesta", "Se almaceno la informacion del cliente correctamente");
    			
    			return new ResponseEntity<String>(json.toString(), HttpStatus.OK); 
@@ -1384,8 +1341,46 @@ public class RutinaController
         }		       
         return cliente;
     }//Fin del metodo
-	
-	
+
+
+	/*------------------------------------------------------------------ Registrar en bascula cliente ---------------------------------------*/
+	public ResponseEntity<?> crearRegistroBascula(@RequestBody BasculaCliente basculaCliente){
+
+		JSONObject response = new JSONObject();
+		if (basculaCliente.getIdCliente() == 0){
+			response.put("respuesta", "Campo CLIENTE es obligatorio");
+			return new ResponseEntity<>(response.toMap(), HttpStatus.CONFLICT);
+		}
+		Cliente cliente = clienteService.findById(basculaCliente.getIdCliente());
+		if (cliente == null){
+			response.put("respuesta", "El cliente no existe");
+			return new ResponseEntity<>(response.toMap(), HttpStatus.NOT_FOUND);
+		}else {
+			if(basculaClienteService.existsByIdCliente(basculaCliente.getIdCliente()) && basculaCliente.getActivo() == null){
+				BasculaCliente basculaClienteFound = basculaClienteService.findByIdCliente(basculaCliente.getIdCliente());
+				if (basculaClienteFound.getIntentos() >= 1 && cliente.getFormulario() == null) {
+					System.out.println("CLIEnte encontrado en bascula: " + basculaCliente.getIdCliente());
+					System.out.println("Intentos de pesaje: " + basculaClienteFound.getIntentos());
+					basculaClienteFound.setIntentos(basculaClienteFound.getIntentos() + 1);
+					basculaClienteService.save(basculaClienteFound);
+				}
+
+				response.put("respuesta", "CLIENTE ya registrado");
+				return new ResponseEntity<>(response.toMap(), HttpStatus.CONFLICT);
+			} else if (basculaCliente.getActivo() != null) {
+				BasculaCliente basculaClienteFound = basculaClienteService.findByIdCliente(basculaCliente.getIdCliente());
+				basculaClienteFound.setActivo(basculaCliente.getActivo());
+				basculaClienteService.save(basculaClienteFound);
+				return new ResponseEntity<>(basculaClienteFound, HttpStatus.OK);
+			}else {
+				BasculaCliente basculaClienteNew = new BasculaCliente();
+				basculaClienteNew = basculaCliente;
+				basculaClienteNew.setActivo(true);
+				basculaClienteService.save(basculaClienteNew);
+				return new ResponseEntity<>(basculaClienteNew, HttpStatus.OK);
+			}
+		}
+	}
 	
 	
 }//fin de la clase
