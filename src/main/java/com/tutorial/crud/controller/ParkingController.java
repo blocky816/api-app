@@ -1274,7 +1274,7 @@ public class ParkingController
 		}
 		JSONObject json=new JSONObject();
 		json.put("respuesta", "ocurrio un error en el endpoint registrarEvento");
-		return new ResponseEntity<>(json.toString(), HttpStatus.BAD_REQUEST);
+		return new ResponseEntity<>(json.toString(), HttpStatus.OK);
 		
 		
 	}

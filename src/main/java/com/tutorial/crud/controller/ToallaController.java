@@ -94,7 +94,7 @@ public class ToallaController
         String empleado = toallaBodyRequest.get("empleado").asText();
 
         try {
-            Date fechaInicio = new SimpleDateFormat("yyyy-MM-dd hh:mm").parse(dateStr);
+            Date fechaInicio = new SimpleDateFormat("yyyy-MM-dd HH:mm").parse(dateStr);
 
             try {
                 boolean existe = toallaService.existsByIdClienteAndFechaInicio(idCliente, fechaInicio);
@@ -161,7 +161,7 @@ public class ToallaController
         String empleado = toallaBodyRequest.get("usuario").asText();
                     
         try {
-            Date fechaFin = new SimpleDateFormat("yyyy-MM-dd hh:mm").parse(dateStr);
+            Date fechaFin = new SimpleDateFormat("yyyy-MM-dd HH:mm").parse(dateStr);
 
             try {
                 Cliente cliente = clienteService.findById(idCliente);
@@ -184,8 +184,18 @@ public class ToallaController
                     if(toalla.getFechaFin() != null && toalla.getAsignacion()) {
                         response.put("respuesta", "Registro cerrado");
                         return new ResponseEntity<>(response.toMap(), HttpStatus.CONFLICT); 
-                    } 
+                    }
+
                     if(fechaFin != null && asignacion && !empleado.equals("") && !empleado.equals("null")) {
+
+                        if (!fechaFin.after(toalla.getFechaInicio())){
+                            response.put("respuesta", "Fecha de cierre no valida");
+                            return new ResponseEntity<>(response.toMap(), HttpStatus.CONFLICT);
+                        }
+                        if (toalla.getSancion() != null || "SI".equals(toalla.getSancion()) || "NO".equals(toalla.getSancion())){
+                            response.put("respuesta", "No se puede liberar una toalla con sancion");
+                            return new ResponseEntity<>(response.toMap(), HttpStatus.CONFLICT);
+                        }
                         long time = toalla.getFechaInicio().getTime();
                         //Calcular el tiempo usado de las toallas
 
@@ -229,7 +239,7 @@ public class ToallaController
 
     /*------------------- Task para enviar sanciones al no devolver una toalla el dia que te la asignaron --------------------*/
 
-    @Scheduled(cron = "0 00 23 * * *")
+    @Scheduled(cron = "0 0 23 * * *")
     //@GetMapping("/getToallasNoRegresadas")
     public ResponseEntity<?> enviaSanciones() {
 
