@@ -377,8 +377,6 @@ public class RHController
 	public void verificaCumpleaños() {
 			
 			try {
-				System.out.println("Tarea programada");
-
 				Date today = new Date();
 				int day = today.getDate();
 				int month = today.getMonth() + 1;
@@ -410,18 +408,14 @@ public class RHController
 					//correoEmpleado = tuple.get(4, String.class);
 
 					if (!club.equals("") && empleado != null){
-						System.out.println("Empleado encontrado en tabla empleados: " + idEmpleado);
 						if(empleado.getCorreo() == null) {
-							System.out.println("Empleado sin correo electronico asignado saltando al siguiente...");
 							continue;
 						} else {
 							try {
 								correoEmpleado = empleado.getCorreo();
-								System.out.println("Enviando correo...");
 								Correo correo = new Correo(usuarioCorreo, contrasenaCorreo, correoEmpleado);
 								correo.sendBirthdayEmail("¡Feliz Cumpleaños!", club);
 							}catch(Exception e) {
-								System.out.println("Error al enviar el correo electronico");
 								continue;
 							}
 							
@@ -430,7 +424,7 @@ public class RHController
 				}
 			} catch (Exception e) {
 				// TODO: handle exception
-				System.out.println("Error en la tarea envio de correos de cumpleaños...");
+				//System.out.println("Error en la tarea envio de correos de cumpleaños...");
 			}
 
 	}

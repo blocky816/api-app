@@ -119,7 +119,7 @@ import com.tutorial.crud.service.configuracionService;
 @CrossOrigin(origins = "*")
 public class CitasController 
 {
-endpoints e = new endpoints();
+	endpoints e = new endpoints();
     
 	private static Logger logJava = Logger.getLogger(CitasController.class);
 
@@ -956,10 +956,11 @@ endpoints e = new endpoints();
    			}
 				return new ResponseEntity<String>("Ok", HttpStatus.OK);  
    			
-   		}else {
+   		}
+		else { //si body no es null
    			
-   			JSONObject json =new JSONObject();
-   			CAHorario horario1=horarioService.getOne(body.getId()).get();		
+   			JSONObject json = new JSONObject();
+   			CAHorario horario1 = horarioService.getOne(body.getId()).get();
    			CAApartados apartado=apartadosService.getHorario(body.getId(),body.getDia());
    	        
    	        Session currentSession = entityManager.unwrap(Session.class);
@@ -1161,7 +1162,7 @@ endpoints e = new endpoints();
 	   				return new ResponseEntity<String>(json.toString(), HttpStatus.CONFLICT); 
 	   			} 
 	   		}
-   		}
+   		}//fin else si body no es null
 	}
 
 	
@@ -2796,7 +2797,7 @@ endpoints e = new endpoints();
 		@ResponseBody
 		public List<PaseUsuario> getPase(@PathVariable("idCliente") int idCliente)
 		{
-    	   Connection conn = null;
+    	    Connection conn = null;
          	ArrayList<PaseUsuario> listaReporte = new ArrayList<PaseUsuario>();
 	        try {
 	            // Carga el driver de oracle
@@ -2998,7 +2999,7 @@ endpoints e = new endpoints();
    	@RequestMapping(value="redimirPase", method=RequestMethod.POST)
    	public ResponseEntity<?> redimirPase(@RequestBody Body body)
    	{
-   		this.actualizarPasesRedimidos();
+   		this.actualizarPasesRedimidos(); //Coloca la fecha en pases_consumidos(fecha_redencion)
 		JSONObject json=new JSONObject();
    		try {
    	   		if(body.isSuper()) {
@@ -3006,7 +3007,8 @@ endpoints e = new endpoints();
    	   			registroService.save(nuevoRegistroAcceso);
    	   			json.put("Respuesta", "Acceso permitido");
    	   			return new ResponseEntity<String>(json.toString(), HttpStatus.OK); 
-   	   		}else {
+   	   		}
+			else {
    	   			TerminalRedencion terminal=terminalRedencionService.getOne(body.getTerminal()).get();
    	   			if((terminal.getId()==5 && body.getIdVentaDetalle()==-1) || (terminal.getId()==6  && body.getIdVentaDetalle()==-1)) {
    	   				this.getPaseAlberca(body.getUsuario());
@@ -3095,7 +3097,7 @@ endpoints e = new endpoints();
    	   			return new ResponseEntity<String>(json.toString(), HttpStatus.CONFLICT); 
    	       	
    	   			
-   	   		}
+   	   		}// fin del !body.isSuper()
    		}catch(IndexOutOfBoundsException e) {
   	   		json.put("Respuesta", "No tiene pases para esta clase");
   	   		
@@ -3170,40 +3172,179 @@ endpoints e = new endpoints();
 		return new ResponseEntity<>("listo",HttpStatus.OK);
 		
 	}
-	public String getPaseAlberca(int paseid)
+
+	@GetMapping("/getPasesAlberca/{idCliente}")
+	public String getPaseAlberca(@PathVariable("idCliente") int paseid)
+	//public String getPaseAlberca(int paseid)
 	{
 		String body2 = "{\n"
-    			+ "\"IdCliente\":"+paseid+",\n"
-    			+ "\"Token\":\"77D5BDD4-1FEE-4A47-86A0-1E7D19EE1C74\"\n"
-    			+ "}";
-    	configuracion o = configuracionService.findByServiceName("getPasesById").get(); 
-    	JSONArray json=new JSONArray(e.conectaApiClubPOST(body2,o.getEndpointAlpha()));
-    	for(int i=0;i<json.length();i++) {
-    		JSONObject obj=json.getJSONObject(i);
-    		int concepto=obj.getInt("IDProdServ");
-	    	PaseUsuario pase=new PaseUsuario();
-	    	pase.setIdProd(concepto);
-	    	if((concepto>=1834 && concepto<=1846) || (concepto==1746 || concepto==1747)) {
-	    		pase.setCantidad(0);
-	    		pase.setDisponibles(0);
-	    		pase.setConsumido(0);
-	    		if(concepto==1747) {
-	    			pase.setIdProd(1746);
-	    		}
-	    	}
-	    	pase.setCantidad(obj.getInt("Cantidad"));
-	    	pase.setIdVentaDetalle(obj.getInt("VentaDetalle"));
-	    	pase.setConcepto(obj.getString("Concepto"));
-	    	pase.setF_compra(new Date(obj.getLong("FechaCaptura")));
-	    	pase.setActivo(true);
-	    	pase.setCliente(clienteService.findById(paseid));
-	    	pase.setCreated(new Date());
-	    	pase.setUpdated(new Date());
-	    	paseUsuarioService.save(pase);
-	    	pase.setUpdatedBy(String.valueOf(paseid));
-	    	pase.setCreatedBy(String.valueOf(paseid));
-    	}
-    	return json.toString();
+				+ "\"IdCliente\":"+paseid+",\n"
+				+ "\"Token\":\"77D5BDD4-1FEE-4A47-86A0-1E7D19EE1C74\"\n"
+				+ "}";
+		configuracion o = configuracionService.findByServiceName("" +
+				"getPasesById").get();
+		JSONArray json=new JSONArray(e.conectaApiClubPOST(body2,o.getEndpointAlpha()));
+		for(int i=0;i<json.length();i++) {
+			JSONObject obj=json.getJSONObject(i);
+			int concepto=obj.getInt("IDProdServ");
+			PaseUsuario pase=new PaseUsuario();
+			pase.setIdProd(concepto);
+			if((concepto>=1834 && concepto<=1846) || (concepto==1746 || concepto==1747)) {
+				pase.setCantidad(0);
+				pase.setDisponibles(0);
+				pase.setConsumido(0);
+				if(concepto==1747) {
+					pase.setIdProd(1746);
+				}
+			}
+			pase.setCantidad(obj.getInt("Cantidad"));
+			pase.setIdVentaDetalle(obj.getInt("VentaDetalle"));
+			pase.setConcepto(obj.getString("Concepto"));
+			pase.setF_compra(new Date(obj.getLong("FechaCaptura")));
+			pase.setActivo(true);
+			pase.setCliente(clienteService.findById(paseid));
+			pase.setCreated(new Date());
+			pase.setUpdated(new Date());
+			paseUsuarioService.save(pase);
+			pase.setUpdatedBy(String.valueOf(paseid));
+			pase.setCreatedBy(String.valueOf(paseid));
+		}
+		return json.toString();
 	}
 
+
+	//---------------------------------------------------WEB SERVICE CIMERA------------------------------------------------------
+
+	@GetMapping("/obtenerPaseCimera/{idCliente}")
+	@ResponseBody
+	public List<PaseUsuario> getPaseCimera(@PathVariable("idCliente") int idCliente)
+	{
+		Connection conn = null;
+		ArrayList<PaseUsuario> listaReporte = new ArrayList<PaseUsuario>();
+		try {
+			// Carga el driver de oracle
+			DriverManager.registerDriver(new com.microsoft.sqlserver.jdbc.SQLServerDriver());
+			conn = DriverManager.getConnection(dbURL, userData, passData);
+
+			PreparedStatement ps = conn.prepareStatement("EXEC DataFlowAlpha.dbo.sp_Consulta_Pases_Cimera ?");
+			ps.setInt(1, idCliente);
+			ResultSet rs = ps.executeQuery();
+			while (rs.next()) {
+
+				PaseUsuario to = new PaseUsuario();
+				to.setActivo(true);
+				to.setIdProd(rs.getInt(1));
+				to.setF_compra(new Date(rs.getLong(2)));
+				to.setConcepto(rs.getString(3));
+				to.setIdVentaDetalle(rs.getInt(4));
+				to.setCliente(clienteService.findById(idCliente));
+				to.setCantidad(rs.getInt(11));
+				to.setConsumido(0);
+				to.setCreated(new Date());
+
+				to.setSubgrupo(rs.getString(12));
+
+
+				System.out.println(rs.getString(12));
+				/*if(to.getSubgrupo() )) {
+					to.setDisponibles(0);
+					to.setCantidad(0);
+					to.setIdProd(2002);
+				}else {
+					to.setDisponibles(rs.getInt(11));
+					to.setCantidad(rs.getInt(11));
+				}*/
+
+				/*if(to.getIdProd()==1896 || to.getIdProd()==1897 || to.getIdProd()==1898 ) {
+					to.setIdProd(1895);
+				}*/ 
+
+				to.setUpdated(new Date());
+				Object principal = SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+				String username;
+				if (principal instanceof UserDetails) {
+					username = ((UserDetails)principal).getUsername();
+				} else {
+					username = principal.toString();
+				}
+				to.setUpdatedBy(username);
+				to.setCreatedBy(username);
+				listaReporte.add(to);
+			}
+			/*ps=conn.prepareStatement("EXEC DataFlowAlpha.dbo.sp_Consulta_Paquetes_Sports_Plaza ?");
+			ps.setInt(1, idCliente);
+			rs =ps.executeQuery();
+			while (rs.next()) {
+
+				PaseUsuario to=new PaseUsuario();
+				to.setActivo(true);
+				to.setIdProd(rs.getInt(1));
+				to.setF_compra(new Date(rs.getDate(2).getTime()));
+				to.setConcepto(rs.getString(3));
+				to.setIdVentaDetalle(rs.getInt(4));
+				to.setCliente(clienteService.findById(idCliente));
+				to.setConsumido(0);
+				to.setCreated(new Date());
+				if(to.getConcepto().equals("SP Mensualidad Gym") || to.getConcepto().equals("SP Mensualidad Gym Estudiante")) {
+					to.setDisponibles(0);
+					to.setCantidad(0);
+					to.setIdProd(1746);
+				}else {
+					to.setDisponibles(rs.getInt(11));
+					to.setCantidad(rs.getInt(11));
+				}
+				to.setUpdated(new Date());
+				Object principal = SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+				String username;
+				if (principal instanceof UserDetails) {
+					username = ((UserDetails)principal).getUsername();
+				} else {
+					username = principal.toString();
+				}
+				to.setUpdatedBy(username);
+				to.setCreatedBy(username);
+				listaReporte.add(to);
+			}*/
+
+			conn.close();
+		} catch (SQLException ex) {
+			System.out.println("Error: " + ex.getMessage());
+			ex.printStackTrace();
+		} finally {
+			try {
+				conn.close();
+			} catch (SQLException ex) {
+				System.out.println("Error: " + ex.getMessage());
+			}
+		}
+		for(int i=0;i<listaReporte.size();i++) {
+			int idVenta = listaReporte.get(i).getIdVentaDetalle();
+			Optional<PaseUsuario> pase = paseUsuarioService.getOne(idVenta);
+
+			if(pase.isEmpty()) {
+				PaseUsuario paseUsuario=new PaseUsuario();
+				paseUsuario.setIdVentaDetalle(idVenta);
+				paseUsuario.setCliente(clienteService.findById(idCliente));
+				paseUsuario.setDisponibles(listaReporte.get(i).getCantidad());
+				paseUsuario.setCantidad(listaReporte.get(i).getCantidad());
+				paseUsuario.setConcepto(listaReporte.get(i).getConcepto());
+				paseUsuario.setConsumido(0);
+				paseUsuario.setF_compra(new Date(listaReporte.get(i).getF_compra()));
+				paseUsuario.setIdProd(listaReporte.get(i).getIdProd());
+				Object principal = SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+				String username;
+				if (principal instanceof UserDetails) {
+					username = ((UserDetails)principal).getUsername();
+				} else {
+					username = principal.toString();
+				}
+				paseUsuario.setCreatedBy(username);
+				paseUsuario.setUpdatedBy(username);
+				paseUsuario.setSubgrupo(listaReporte.get(i).getSubgrupo());
+				paseUsuarioService.save(paseUsuario);
+			}
+		}
+
+		return paseUsuarioService.getByIdCliente(idCliente);
+	}
 }//fin de la clase

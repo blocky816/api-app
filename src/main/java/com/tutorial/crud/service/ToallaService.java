@@ -32,33 +32,10 @@ public class ToallaService {
         int month = fechaInicio.getMonth() + 1;
         int year = fechaInicio.getYear();
 
-        System.out.println("Toallas list is Empty?: " + toallasList.isEmpty());
-        System.out.println("Toallas list size: " + toallasList.size());
-
-        System.out.println("IDCliente" + idCliente);
-        System.out.println("DAY fecha inicio: " + day);
-        System.out.println("Month fecha inicio: " + month);
-        System.out.println("YEAR fecha inicio: " + year);
 
         boolean bandera = false;
         for(Toalla toalla: toallasList){
-            System.out.println("toalla cliente: " + toalla.getIdCliente());
-            System.out.println("toalla DAY fecha inicio: " + toalla.getFechaInicio().getDate());
-            System.out.println("toalla MONTH fecha inicio: " + toalla.getFechaInicio().getMonth());
-            System.out.println("toalla YEAR fecha inicio: " + toalla.getFechaInicio().getYear());
-            System.out.println("Bandera: " + bandera);
-            System.out.println("Month = toalla month ? ");
-            System.out.println(month == toalla.getFechaInicio().getMonth() + 1);
-            System.out.println("day = toalla day ? ");
-            System.out.println(day == toalla.getFechaInicio().getDay());
-            System.out.println("year = toalla year ? ");
-            System.out.println(year == toalla.getFechaInicio().getYear());
-            System.out.println("cliente = toalla cliente ? ");
-            System.out.println(idCliente == toalla.getIdCliente());
-
-            System.out.println(day == toalla.getFechaInicio().getDate() && month == toalla.getFechaInicio().getMonth() + 1 && year == toalla.getFechaInicio().getYear() && idCliente == toalla.getIdCliente());
             if(day == toalla.getFechaInicio().getDate() && month == toalla.getFechaInicio().getMonth() + 1 && year == toalla.getFechaInicio().getYear() && idCliente == toalla.getIdCliente()){
-              System.out.println("registro duplicado en toalla service");
               bandera = true;  
               break;
             }
@@ -76,7 +53,6 @@ public class ToallaService {
         boolean bandera = false;
         for(Toalla toalla: toallasList){
             if(day == toalla.getFechaInicio().getDate() && month == toalla.getFechaInicio().getMonth() + 1 && year == toalla.getFechaInicio().getYear() && idCliente == toalla.getIdCliente()){
-              System.out.println("registro encontrado en toalla service");
               toallaLiberar = toalla;
               break;
             }

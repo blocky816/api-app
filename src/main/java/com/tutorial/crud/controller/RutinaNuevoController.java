@@ -73,7 +73,6 @@ public class RutinaNuevoController {
     @Transactional(rollbackFor = SQLException.class)
     public ResponseEntity<?> crearPlantillaRutina(@RequestBody ArrayPruebaNuevo body){
         JSONObject respuesta=new JSONObject();
-        System.out.println("ENDPOINT crear plantilla rutina");
         try {
             ArrayPrueba2Nuevo nuevaRutina = body.getBody().get(0);
             //Obtener los ejercicios dentro de Array ejercicios del requestBody
@@ -94,8 +93,6 @@ public class RutinaNuevoController {
             //System.out.println("Lista de ejercicios: " + listaEjercicios);
             for(EjercicioNuevo r: listaEjercicios){
                 RutinaEjercicioNuevo rutinaejercicio = new RutinaEjercicioNuevo();
-
-                System.out.println("r id: " + r.getId());
                 Optional<EjercicioNuevo> ej = ejercicioNuevoService.findById(r.getId());
 
                 if (!ej.isPresent()){
@@ -138,7 +135,6 @@ public class RutinaNuevoController {
                 rutina.setTipoPlantilla(rutinaNuevo.get().getTipoPlantilla());
 
                 List<RutinaEjercicioNuevo> listaEjercicios = rutinaEjercicioNuevoService.findAllByRutinanuevo(rutinaNuevo.get());
-                System.out.println("lista rutinaejericicio nuevo is empty ? : " + listaEjercicios.isEmpty());
                 List<EjercicioNuevoDTO> ejercicioNuevos = new ArrayList<>();
                 for (RutinaEjercicioNuevo ejercicios: listaEjercicios){
                     Optional<EjercicioNuevo> ejercicio = ejercicioNuevoService.findById(ejercicios.getEjercicio().getId());
@@ -176,7 +172,6 @@ public class RutinaNuevoController {
             Optional<RutinaNuevo> rutina = rutinaNuevoService.findById(idRutina);
 
             if (rutina.isPresent() && rutina.get().getActivo()){
-                System.out.println("Rutina id found: " + rutina.get().getId());
                 //primero eliminar los ejercicios de la rutina en rutina_ejercicios_nuevo
 
                 RutinaNuevo rutinaActualizar = rutina.get();
@@ -200,7 +195,6 @@ public class RutinaNuevoController {
                     for(EjercicioNuevo r: listaEjercicios){
                         RutinaEjercicioNuevo rutinaejercicio = new RutinaEjercicioNuevo();
 
-                        System.out.println("r id: " + r.getId());
                         Optional<EjercicioNuevo> ej = ejercicioNuevoService.findById(r.getId());
 
                         if (!ej.isPresent()){
@@ -222,34 +216,7 @@ public class RutinaNuevoController {
                 json.put("respuesta", "Rutina actualizada exitosamente");
                 return new ResponseEntity<String>(json.toString(), HttpStatus.OK);
             }
-            //rutina = rutinaService.getOne(nuevaRutina.getIdPlantilla()).get();
 
-            /*rutina.setActivo(true);
-            rutina.setPlantilla(true);
-            rutina.setNombreObjetivo(nuevaRutina.getNombreObjetivo());
-            rutina.setNombreRutina(nuevaRutina.getNombreRutina());
-            rutina.setSemanas(nuevaRutina.getSemanas());
-            rutina.setComentarios(nuevaRutina.getComentarios());
-            rutina.setUpdated(new Date());
-            List<RutinaEjercicio> rutinaAnterior=rutina.getEjercicios();
-            for(RutinaEjercicio rutinaEjercicio: rutinaAnterior) {
-                rutinaEjercicioService.delete(rutinaEjercicio);
-            }
-            rutinaAnterior.clear();
-            for(EjercicioDTO ejercicioNuevo: listaEjercicios){
-                RutinaEjercicio rutinaEjercicio=new RutinaEjercicio();
-                String[] split=ejercicioNuevo.getId_ejercicio().split(",");
-                rutinaEjercicio.setDia(Integer.parseInt(split[1]));
-                Ejercicio ejercicio=ejercicioService.getOne(Integer.parseInt(split[0]));
-                rutinaEjercicio.setOrden(ejercicioNuevo.getOrden());
-                rutinaEjercicio.setRepeticiones(ejercicioNuevo.getRepeticiones());
-                rutinaEjercicio.setSeries(ejercicioNuevo.getSeries());
-                rutinaEjercicio.setEjercicio(ejercicio);
-                rutinaEjercicio.setRutina(rutina);
-
-                rutinaAnterior.add(rutinaEjercicio);
-            }*/
-            //rutina.setEjercicios(rutinaActualizada.getEjercicios());
             json.put("respuesta", "Rutina no existe");
             return new ResponseEntity<String>(json.toString(), HttpStatus.NOT_FOUND);
         }catch(IndexOutOfBoundsException e) {
@@ -287,7 +254,6 @@ public class RutinaNuevoController {
             rutina.setTipoPlantilla(rutinaIterator.getTipoPlantilla());
 
             List<RutinaEjercicioNuevo> listaEjercicios = rutinaEjercicioNuevoService.findAllByRutinanuevo(rutinaIterator);
-            System.out.println("lista rutinaejericicio nuevo is empty ? : " + listaEjercicios.isEmpty());
             List<EjercicioNuevoDTO> ejercicioNuevos = new ArrayList<>();
             for (RutinaEjercicioNuevo ejercicios: listaEjercicios){
                 Optional<EjercicioNuevo> ejercicio = ejercicioNuevoService.findById(ejercicios.getEjercicio().getId());
@@ -323,7 +289,6 @@ public class RutinaNuevoController {
         Cliente cliente = clienteService.findById(idCliente);
         if (cliente != null){
             LocalDateTime now = LocalDateTime.now().withNano(0);
-            System.out.println("NOW: " + now);
             if (cliente.obtenerRutinanuevo() == null){
                 respuesta.put("respuesta", "CLIENTE no tiene una rutina asignada");
                 return new ResponseEntity<>(respuesta.toMap(), HttpStatus.NOT_FOUND);
@@ -337,7 +302,6 @@ public class RutinaNuevoController {
                     rutina.setNombreObjetivo(cliente.obtenerRutinanuevo().getNombreObjetivo());
                     rutina.setSemanas(cliente.obtenerRutinanuevo().getSemanas());
                     rutina.setInicio(cliente.getDiaInicioRutinanuevo());
-                    System.out.println("CLiente dia final: " + cliente.obtenerDiaFinalNuevo());
                     //rutina.setFin(LocalDateTime.parse(cliente.obtenerDiaFinalNuevo()));
                     rutina.setFin(cliente.obtenerDiaFinalNuevo());
 
@@ -404,18 +368,16 @@ public class RutinaNuevoController {
             // si el cliente ya tiene una rutina asignada
             if(rutinaCliente != null) {
                 LocalDateTime diaFinal = cliente.obtenerDiaFinalNuevo();
-                System.out.println("Dia final: " + diaFinal);
                 LocalDateTime now = LocalDateTime.now();
                 if(diaFinal.isBefore(now)) {
                     this.eliminarRutinaByCliente(idCliente);
-                    System.out.println("La fecha final  de la rutina ya paso");
                     rutina.get().setCliente(cliente);
                     cliente.setRutinanuevo(rutina.get());
                     cliente.setSemanas(rutina.get().getSemanas());
                     cliente.setDiaInicioNuevo(LocalDateTime.now().withNano(0));
                     Boolean correoEnviado = this.enviarCorreo(idCliente);
-                    if (correoEnviado) System.out.println("El correo de rutina se envio correctamente");
-                    else System.out.println("Fallo el envio de correo de rutina");
+                    /*if (correoEnviado) System.out.println("El correo de rutina se envio correctamente");
+                    else System.out.println("Fallo el envio de correo de rutina");*/
                     json.put("respuesta", "Rutina cargada exitosamente al cliente "+ idCliente);
                     return new ResponseEntity<String>(json.toString(), HttpStatus.OK);
                 }else {
@@ -429,19 +391,17 @@ public class RutinaNuevoController {
                 cliente.setSemanasnuevo(rutina.get().getSemanas());
                 cliente.setDiaInicioNuevo(LocalDateTime.now().withNano(0));
                 Boolean correoEnviado = this.enviarCorreo(idCliente);
-                if (correoEnviado) System.out.println("El correo de rutina se envio correctamente");
-                else System.out.println("Fallo el envio de correo de rutina");
+               /* if (correoEnviado) System.out.println("El correo de rutina se envio correctamente");
+                else System.out.println("Fallo el envio de correo de rutina");*/
                 json.put("respuesta", "Rutina cargada exitosamente al cliente "+idCliente);
                 return new ResponseEntity<String>(json.toString(), HttpStatus.OK);
 
             }
         }catch(RuntimeException e) {
-            e.printStackTrace();
             TransactionAspectSupport.currentTransactionStatus().setRollbackOnly();
             json.put("respuesta", "El usuario ya tiene una rutina asignada");
             return new ResponseEntity<String>(json.toString(), HttpStatus.CONFLICT);
         }catch(Exception e) {
-            e.printStackTrace();
             TransactionAspectSupport.currentTransactionStatus().setRollbackOnly();
             json.put("respuesta", "ID´s incorrectos");
             return new ResponseEntity<String>(json.toString(), HttpStatus.CONFLICT);
@@ -463,7 +423,6 @@ public class RutinaNuevoController {
                 List<Cliente> clientes = rutina.obtenerClientes();
 
                 if (clientes.contains(cliente)){
-                    System.out.println("El cliente se encontro en la lista de clientes");
                     clientes.remove(cliente);
                     rutina.colocarCliente(clientes);
                     cliente.setRutinanuevo(null);
@@ -475,27 +434,12 @@ public class RutinaNuevoController {
             }
             json.put("respuesta", "Cliente " + idCliente + " no tiene una rutina asignada");
             return new ResponseEntity<String>(json.toString(), HttpStatus.OK);
-            /*if(rutina.esPlantilla()) {
-                List<Cliente>clientes=rutina.obtenerClientes();
-                clientes.remove(cliente);
-                rutina.colocarCliente(clientes);
-                cliente.setRutina(null);
 
-            }else {
-                List<RutinaEjercicio> rutinaAnterior=rutina.getEjercicios();
-                for(RutinaEjercicio rutinaEjercicio: rutinaAnterior) {
-                    rutinaEjercicioService.delete(rutinaEjercicio);
-                }
-                rutinaAnterior.clear();
-                clienteService.findById(idCliente).setRutina(null);
-                rutinaService.delete(rutina);
-            }*/
         }catch(RuntimeException e) {
             TransactionAspectSupport.currentTransactionStatus().setRollbackOnly();
             json.put("respuesta", "El usuario no tiene una rutina asignada");
             return new ResponseEntity<String>(json.toString(), HttpStatus.CONFLICT);
         }catch(Exception e) {
-            e.printStackTrace();
             TransactionAspectSupport.currentTransactionStatus().setRollbackOnly();
             json.put("respuesta", "CLIENTE incorrecto");
             return new ResponseEntity<String>(json.toString(), HttpStatus.CONFLICT);
@@ -529,7 +473,6 @@ public class RutinaNuevoController {
             json.put("respuesta", "RUTINA no existe");
             return new ResponseEntity<String>(json.toString(), HttpStatus.CONFLICT);
         }catch(Exception e) {
-            e.printStackTrace();
             TransactionAspectSupport.currentTransactionStatus().setRollbackOnly();
             json.put("respuesta", "Rutina incorrecta");
             return new ResponseEntity<String>(json.toString(), HttpStatus.CONFLICT);
@@ -679,8 +622,6 @@ public class RutinaNuevoController {
     @Transactional(rollbackFor = SQLException.class)
     public ResponseEntity<String> crearReserva(@RequestBody Body body) {
 
-        System.out.println("ID AGENDA Reserva: " + body.getId());
-        System.out.println("USUARIO: " + body.getUsuario());
         JSONObject json = new JSONObject();
 
         try {
@@ -696,13 +637,10 @@ public class RutinaNuevoController {
         }
         AgendaReservas apartado = new AgendaReservas();
         apartado = apartadoOpt.get().;*/
-        System.out.println("APARTADO FOUND ID" + apartado.getId());
         // Asigna el asesor si existe en el request
         apartado.setAsesor(body.getAsesor());
-        System.out.println("Asesor request: " + body.getAsesor());
         // Obtiene el horario de ese apartado
         AgendaHorario horario1 = apartado.getHorario();
-        System.out.println("ID HORARIO del apartado found: " + horario1.getId());
 
         // Se crea una nueva reserva y se busca al cliente
         AgendaReservasUsuario apartadosUsuario = new AgendaReservasUsuario();

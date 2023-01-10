@@ -27,11 +27,8 @@ public class FormularioController {
             formularioService.save(body);
             return new ResponseEntity<>(new JSONObject("{'respuesta': 'Creado correctamente'}").toMap(), HttpStatus.OK);
         } catch (NullPointerException e){
-            System.out.println("Exception message: " + e.getMessage());
             return new ResponseEntity<>(new JSONObject("{'respuesta':" + e.getMessage() + "}").toMap(), HttpStatus.NOT_FOUND);
         } catch (Exception e) {
-            System.out.println("Exception message: " + e.getMessage());
-            e.printStackTrace();
             return new ResponseEntity<>(new JSONObject("{'respuesta': 'Error interno'}").toMap(), HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
@@ -43,11 +40,8 @@ public class FormularioController {
             formularioService.updateFormulario(body, folio);
             return new ResponseEntity<>(new JSONObject("{'respuesta': 'Actualizado correctamente'}").toMap(), HttpStatus.OK);
         } catch (NullPointerException e){
-            System.out.println("Exception message: " + e.getMessage());
             return new ResponseEntity<>(new JSONObject("{'respuesta':" + e.getMessage() + "}").toMap(), HttpStatus.NOT_FOUND);
         } catch (Exception e) {
-            System.out.println("Exception message: " + e.getMessage());
-            e.printStackTrace();
             return new ResponseEntity<>(new JSONObject("{'respuesta': 'Error interno'}").toMap(), HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
@@ -59,11 +53,8 @@ public class FormularioController {
             FormularioDTO  formularioDTO = formularioService.findByFolio(folio);
             return new ResponseEntity<>(formularioDTO, HttpStatus.OK);
         } catch (NullPointerException e){
-            System.out.println("Exception message: " + e.getMessage());
             return new ResponseEntity<>(new JSONObject("{'respuesta':" + e.getMessage() + "}").toMap(), HttpStatus.NOT_FOUND);
         } catch (Exception e) {
-            System.out.println("Exception message: " + e.getMessage());
-            e.printStackTrace();
             return new ResponseEntity<>(new JSONObject("{'respuesta': 'Error interno'}").toMap(), HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
@@ -75,11 +66,8 @@ public class FormularioController {
             formularioService.deleteByFolio(folio);
             return new ResponseEntity<>(new JSONObject("{'respuesta': 'Eliminado correctamente'}").toMap(), HttpStatus.OK);
         } catch (NullPointerException e){
-            System.out.println("Exception message: " + e.getMessage());
             return new ResponseEntity<>(new JSONObject("{'respuesta':" + e.getMessage() + "}").toMap(), HttpStatus.NOT_FOUND);
         } catch (Exception e) {
-            System.out.println("Exception message: " + e.getMessage());
-            e.printStackTrace();
             return new ResponseEntity<>(new JSONObject("{'respuesta':" + e.getMessage() + "}").toMap(), HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
@@ -92,11 +80,8 @@ public class FormularioController {
             formularioService.asignarCliente(request);
             return new ResponseEntity<>(new JSONObject("{'respuesta': 'Asignado correctamente'}").toMap(), HttpStatus.OK);
         } catch (NullPointerException e){
-            System.out.println("Exception message: " + e.getMessage());
             return new ResponseEntity<>(new JSONObject("{'respuesta':" + e.getMessage() + "}").toMap(), HttpStatus.NOT_FOUND);
         } catch (Exception e) {
-            System.out.println("Exception message: " + e.getMessage());
-            e.printStackTrace();
             return new ResponseEntity<>(new JSONObject("{'respuesta':" + e.getMessage() + "}").toMap(), HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
@@ -111,11 +96,8 @@ public class FormularioController {
             if (e.getMessage() == null) {
                 return new ResponseEntity<>(HttpStatus.NOT_FOUND);
             }
-            System.out.println("Exception message: " + e.getMessage());
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         } catch (Exception e) {
-            System.out.println("Exception message: " + e.getMessage());
-            e.printStackTrace();
             return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
@@ -127,11 +109,8 @@ public class FormularioController {
             formularioService.responderForm(idCliente, body);
             return new ResponseEntity<>(new JSONObject("{'respuesta': 'Form completado correctamente'}").toMap(), HttpStatus.OK);
         } catch (NullPointerException e){
-            System.out.println("Exception message: " + e.getMessage());
             return new ResponseEntity<>(new JSONObject("{'respuesta':" + e.getMessage() + "}").toMap(), HttpStatus.NOT_FOUND);
         } catch (Exception e) {
-            System.out.println("Exception message: " + e.getMessage());
-            e.printStackTrace();
             return new ResponseEntity<>(new JSONObject("{'respuesta': 'Error interno'}").toMap(), HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }

@@ -46,7 +46,6 @@ public class FormularioService {
 
     public LocalDateTime getFechaCreated(int folio) {
         Formulario formulario = formularioRepository.findTopByFolio(folio);
-        System.out.println("FECHA de creacion del formulario: " + formulario.getCreated());
         return formulario.getCreated();
     }
 
@@ -54,12 +53,6 @@ public class FormularioService {
         FormularioDTO formulario = body.getBody().get(0);
         List<Pregunta> preguntas = formulario.getFormulario();
 
-        /*System.out.println("FORMULARIO REQUEST: " + formulario);
-        System.out.println("Formulario preguntas: " + formulario.getFormulario());
-        System.out.println("Formulario nombre: " + formulario.getNombre());
-        System.out.println("Formulario tipo: " + formulario.getTipo());
-        System.out.println("Formulario nivel: " + formulario.getNivel());
-        System.out.println("LAST FOLIO:  " + getLastFormularioId());*/
         int lastFolio = getLastFormularioId() == null ? 1 : getLastFormularioId() + 1;
         for (Pregunta pregunta: preguntas){
             Formulario newFormulario = new Formulario();
@@ -76,18 +69,14 @@ public class FormularioService {
     public void asignarCliente(ObjectNode request) throws Exception {
         int idCliente = request.get("idCliente").asInt();
         int folio = request.get("folio").asInt();
-        System.out.println("IDCLIENTE: " + idCliente);
-        System.out.println("FOLIO: " + folio);
+
         if (idCliente < 1 || folio < 1) {
-            System.out.println("CAMPOS OBLIGATORIOS");
             throw new NullPointerException("Todos los campos son obligatorios");
         }
         Cliente cliente = clienteService.findById(idCliente);
         if (cliente == null) {
-            System.out.println("Cliente no existe");
             throw new NullPointerException("CLIENTE no existe");
         }
-        System.out.println("Formulario existe ? : " + existByFolioAndActivo(folio, true));
         if(existByFolioAndActivo(folio, true)) {
             if (cliente.getFormulario() == null){
                 FormularioCliente formularioCliente = new FormularioCliente();
@@ -160,7 +149,6 @@ public class FormularioService {
             throw new NullPointerException("Formulario no existe");
         } else {
             if (formularioClienteService.findByFolioAndActivo(folio, true).isEmpty()){
-                System.out.println("ES seguro eliminar el formulario");
                 for(Formulario form: formularioList) {
                     form.setActivo(false);
                     formularioRepository.save(form);
@@ -212,7 +200,6 @@ public class FormularioService {
         FormularioDTO formularioRespuestas = body;
         List<Pregunta> respuestas = formularioRespuestas.getFormulario();
 
-        System.out.println("FORMULARIO RESPUESTAS: " + formularioRespuestas);
         if (respuestas.isEmpty()) throw new NullPointerException("Formulario vacio");
 
         for (Pregunta respuesta: respuestas){

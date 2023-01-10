@@ -1,18 +1,22 @@
 package com.tutorial.crud.controller;
 
 import java.math.BigInteger;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
-import java.util.NoSuchElementException;
-import java.util.Optional;
-import java.util.UUID;
+import java.sql.SQLException;
+import java.text.SimpleDateFormat;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
+import java.time.format.DateTimeFormatter;
+import java.time.format.DateTimeParseException;
+import java.util.*;
 
 import javax.persistence.EntityManager;
 import javax.persistence.NoResultException;
+import javax.persistence.Tuple;
 
+import com.fasterxml.jackson.databind.node.ObjectNode;
+import com.tutorial.crud.dto.*;
 import com.tutorial.crud.entity.*;
-import com.tutorial.crud.service.TipoRetoService;
+import com.tutorial.crud.service.*;
 import org.hibernate.Session;
 import org.hibernate.query.Query;
 import org.json.JSONObject;
@@ -22,18 +26,9 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.transaction.annotation.Transactional;
+import org.springframework.transaction.interceptor.TransactionAspectSupport;
 import org.springframework.web.bind.annotation.*;
-
-import com.tutorial.crud.dto.CaloriasQuemadas;
-import com.tutorial.crud.dto.PasosDados;
-import com.tutorial.crud.dto.RetoDTO;
-import com.tutorial.crud.dto.SalaDTO;
-import com.tutorial.crud.dto.TecnicoDTO;
-import com.tutorial.crud.dto.TipoActividadDTO;
-import com.tutorial.crud.dto.TipoDTO;
-import com.tutorial.crud.service.EntrenamientoUsuarioService;
-import com.tutorial.crud.service.RetoService;
-import com.tutorial.crud.service.TipoService;
 
 @RestController
 @RequestMapping("/retos")
@@ -52,7 +47,16 @@ public class RetosController {
 
 	@Autowired
 	private TipoRetoService tipoRetoService;
-	//-------------------------------------- WEB SERVICE TIPO------------------------------------------------------
+
+	@Autowired
+	private RetoUsuarioService retoUsuarioService;
+
+	@Autowired
+	private ClienteService clienteService;
+
+	@Autowired RetoAcumulableService retoAcumulableService;
+	@Autowired RetoEstadisticaService retoEstadisticaService;
+	//-------------------------------------- WEB SERVICE TIPO RETO------------------------------------------------------
 		/**
 		 * Metodo que muestra todos los Miembros almacenados en la base de datos
 		 * @return lista de Miembro
@@ -60,28 +64,32 @@ public class RetosController {
 		@GetMapping({"/obtenerTipo","/obtenerTipo{activo}"})
 		public ResponseEntity<?> obtenerTipo(@RequestParam(required = false) String activo)
 		{
-			List<Tipo> tipo;
+			List<TipoReto> tipoRetos;
 			if(activo!=null) {
 				try {
-					tipo = tipoService.getByActivo(Boolean.parseBoolean(activo));
+					tipoRetos = tipoRetoService.getByActivo(Boolean.parseBoolean(activo));
 				}catch(NoSuchElementException e) {
 					return new ResponseEntity<>("No se encontraron resultados", HttpStatus.CONFLICT);
 				}
 			}else {
-				tipo = tipoService.list();
+				tipoRetos = tipoRetoService.list();
 			}
-			List<TipoDTO> tipoDTO = new ArrayList<TipoDTO>();
-			for(int i=0;i<tipo.size();i++) {
-				TipoDTO tipoaux=new TipoDTO();
-				tipoaux.setNombre(tipo.get(i).getNombre());			
-				tipoDTO.add(tipoaux);
+			List<TipoRetoDTO> tipoRetoDTOS = new ArrayList<TipoRetoDTO>();
+			for(int i=0;i<tipoRetos.size();i++) {
+				TipoRetoDTO tipoaux=new TipoRetoDTO();
+				tipoaux.setNombre(tipoRetos.get(i).getNombre());
+				tipoaux.setId(tipoRetos.get(i).getId());
+				tipoaux.setDificultad(tipoRetos.get(i).getDificultad());
+				tipoaux.setTime(tipoRetos.get(i).getTime());
+				tipoaux.setMax(tipoRetos.get(i).getMax());
+				tipoRetoDTOS.add(tipoaux);
 			}
-			return ResponseEntity.ok(tipo);
+			return ResponseEntity.ok(tipoRetoDTOS);
 		}
 		
 		/**
 		 * Metodo que muestra solo un miembro
-		 * @param Id es el id del miembro que se quiere mostrar, en caso de no encontrarlo genera un RuntimeException
+		 * @param ID es el id del miembro que se quiere mostrar, en caso de no encontrarlo genera un RuntimeException
 		 * @return 
 		 * @return El miembro con el id 
 		 */
@@ -173,14 +181,16 @@ public class RetosController {
 			List<RetoDTO> retoDTO = new ArrayList<RetoDTO>();
 			for(int i=0;i<reto.size();i++) {
 				RetoDTO retoAUX=new RetoDTO();
-				retoAUX.setDescripcion(reto.get(i).getDescripcion());
-				retoAUX.setFechaFin(reto.get(i).getFechafin());		
-				retoAUX.setFechaInicio(reto.get(i).getFechaInicio());
-				retoAUX.setTipo(reto.get(i).getTipo().getNombre());
+				retoAUX.setId(reto.get(i).getId());
 				retoAUX.setNombre(reto.get(i).getNombre());
+				retoAUX.setDescripcion(reto.get(i).getDescripcion());
+				retoAUX.setFechaFin(reto.get(i).getFechaFin());
+				retoAUX.setFechaInicio(reto.get(i).getFechaInicio());
+				retoAUX.setTipo(reto.get(i).getTipoReto().getNombre());
 				retoDTO.add(retoAUX);
 			}
-			return ResponseEntity.ok(reto);
+			//return ResponseEntity.ok(reto);
+			return ResponseEntity.ok(retoDTO);
 		}
 		@GetMapping({"/obtenerRET","/obtenerRET{nombre}"})
 	    public ResponseEntity<?> getReto(@RequestParam String nombre){
@@ -197,8 +207,14 @@ public class RetosController {
 		
 		@PreAuthorize("hasRole('ADMIN')")
 		@RequestMapping(value="crearReto", method=RequestMethod.POST)
-		public ResponseEntity<?> crearTecnico(@RequestBody Reto miReto)
+		public ResponseEntity<?> crearReto(@RequestBody Reto miReto)
 		{
+			miReto.setNombre(miReto.getNombre());
+			miReto.setDescripcion(miReto.getDescripcion());
+			miReto.setFechaInicio(miReto.getFechaInicio());
+			System.out.println("miReto.getFechafin(): "+miReto.getFechaFin());
+			miReto.setFechaFin(miReto.getFechaFin());
+			miReto.setTipoReto(miReto.getTipoReto());
 	    	miReto.setActivo(true);
 	    	miReto.setCreated(new Date());
 			Object principal = SecurityContextHolder.getContext().getAuthentication().getPrincipal();
@@ -211,6 +227,13 @@ public class RetosController {
 			miReto.setCreatedBy(username);
 			miReto.setUpdated(new Date());
 			miReto.setUpdatedBy(username);
+			miReto.setDispositivo(miReto.getDispositivo());
+			miReto.setCupoMaximo(miReto.getCupoMaximo());
+			miReto.setBanner(miReto.getBanner());
+			miReto.setIcono(miReto.getIcono());
+			miReto.setClub(miReto.getClub());
+
+			System.out.println("Mi Reto: " + miReto);
 			retoService.save(miReto);
 			return ResponseEntity.ok("Reto "+miReto.getNombre()+" creado correctamente");
 		}
@@ -312,18 +335,287 @@ public class RetosController {
 			
 		}
 
-		//OCtubre
-		//--------------   TipoReto    ----------------------->>>>>>
-	/*@PreAuthorize("hasRole('ADMIN')")
-	@PostMapping(path="/crearTipo")
-	public ResponseEntity<?> crearTipo(@RequestBody TipoReto tipoReto)
-	{
-		JSONObject response=new JSONObject();
-		TipoReto newTipoReto = tipoReto;
-		tipoRetoService.save(newTipoReto);
+		//OCTUBRE
 
-		response.put("respuesta", "TIPO DE RETO creado correctamente.");
-		return new ResponseEntity<>(response.toString(), HttpStatus.OK);
-		}*/
+		//--------------   Asignar un cliente    ----------------------->>>>>>
+		@RequestMapping(value = "asignarCliente", method = RequestMethod.POST)
+		@Transactional(rollbackFor = SQLException.class)
+		public ResponseEntity<?> asignarCliente(@RequestBody ObjectNode objectNode) {
+			JSONObject response = new JSONObject();
+			int idCliente = objectNode.get("idCliente").asInt();
+			String idReto = objectNode.get("idReto").asText();
+
+			try {
+				Cliente cliente = clienteService.findById(idCliente);
+				Optional<Reto> retoOptional = retoService.getOne(UUID.fromString(idReto));
+
+				if (!retoOptional.isPresent() || retoOptional.get().isActivo() == false) {
+					return new ResponseEntity<>("RETO no existe.", HttpStatus.NOT_FOUND);
+				}
+				Reto reto = retoOptional.get();
+
+				RetoUsuario retoUsuario = retoUsuarioService.existeCliente(reto, cliente);
+				if (retoUsuario != null) {
+					return new ResponseEntity<>("CLIENTE inscrito anteriormente.", HttpStatus.CONFLICT);
+				}
+
+				if (reto.getCupoMaximo() > reto.getNoInscritos()) {
+					retoUsuario = new RetoUsuario();
+					retoUsuario.setCliente(cliente);
+					retoUsuario.setReto(reto);
+					retoUsuario.setClub(cliente.getClub().getIdClub());
+					retoUsuario.setMembresia(cliente.getTipoMembresia().getIdTipoMembresia());
+					retoUsuario.setEstatusCobranza(cliente.getEstatusCobranza().getIdEstatusCobranza());
+
+					//Incrementar numero de inscritos
+					reto.setNoInscritos(reto.getNoInscritos() + 1);
+					retoUsuarioService.save(retoUsuario);
+					return new ResponseEntity<>("CLIENTE inscrito correctamente. ", HttpStatus.OK);
+				}else {
+					return new ResponseEntity<>("CUPO máximo alcanzado.", HttpStatus.OK);
+				}
+			}catch (Exception e){
+				TransactionAspectSupport.currentTransactionStatus().setRollbackOnly();
+				response.put("respuesta", "El usuario ya tiene una rutina asignada");
+				return new ResponseEntity<String>(response.toString(), HttpStatus.CONFLICT);
+			}
+	}
+
+
+		//--------------   Lista de retos disponibles por cliente y estado de inscripción    ----------------------->>>>>>
+		@PreAuthorize("hasRole('ADMIN')")
+		@GetMapping(path="/disponiblesByClub")
+		public ResponseEntity<?> listaRetosByCLub(@RequestParam int idCliente)
+		 {
+			JSONObject response = new JSONObject();
+
+			try {
+				//Consultar si cliente existe
+				Cliente cliente = clienteService.findById(idCliente);
+				if (cliente == null) {
+					response.put("respuesta", "CLIENTE no encontrado.");
+					return new ResponseEntity<>(response, HttpStatus.NOT_FOUND);
+				}
+				//Obtener datos recibidos del Join
+				List<Tuple> t = retoUsuarioService.getRetoUsuarioDTO(cliente.getIdCliente());
+
+				List<RetosByClienteDTO> retosByClienteDTOList = new ArrayList<RetosByClienteDTO>();
+
+				for (Tuple tuple:t){
+					Optional<TipoReto> tipoRetoOptional = tipoRetoService.getOne(UUID.fromString(tuple.get(3, String.class)));
+					TipoRetoDTO tipoRetoDTO = new TipoRetoDTO();
+					if(tipoRetoOptional.isPresent()) {
+						tipoRetoDTO.setId(tipoRetoOptional.get().getId());
+						tipoRetoDTO.setNombre(tipoRetoOptional.get().getNombre());
+						tipoRetoDTO.setDificultad(tipoRetoOptional.get().getDificultad());
+						tipoRetoDTO.setTime(tipoRetoOptional.get().getTime());
+						tipoRetoDTO.setMax(tipoRetoOptional.get().getMax());
+					}
+					SimpleDateFormat formato = new SimpleDateFormat("yyyy-MM-dd");
+					Date fechaInicio = formato.parse(tuple.get(6, String.class));
+					Date fechaFin = formato.parse(tuple.get(7, String.class));
+					RetosByClienteDTO reto = new RetosByClienteDTO(UUID.fromString(tuple.get(0, String.class)),
+							tuple.get(1, String.class),
+							tuple.get(2, String.class),
+							tipoRetoDTO,
+							tuple.get(4, Integer.class),
+							tuple.get(5, Integer.class),
+							fechaInicio,
+							fechaFin,
+							tuple.get(8, Boolean.class),
+							tuple.get(9, String.class),
+							tuple.get(10, Integer.class),
+							tuple.get(11, String.class),
+							tuple.get(12, String.class),
+							tuple.get(13, Integer.class)
+					);
+					retosByClienteDTOList.add(reto);
+				}
+				return new ResponseEntity<>(retosByClienteDTOList, HttpStatus.OK);
+
+			}catch(NoSuchElementException e) {
+				response.put("respuesta", "No hay RETOS disponibles.");
+				return new ResponseEntity<>(response.toString(), HttpStatus.NOT_FOUND);
+			} catch(Exception e) {
+				response.put("respuesta", "ERROR interno.");
+				return new ResponseEntity<>(response.toString(), HttpStatus.INTERNAL_SERVER_ERROR);
+			}
+
+		}
+
+
+		//--------------   Agregar valores acumulables   ----------------------->>>>>>
+		@PreAuthorize("hasRole('ADMIN')")
+		@PostMapping(path="/setAcumulables")
+		@Transactional(rollbackFor = SQLException.class)
+		public ResponseEntity<?> setValoresAcumulables(@RequestBody ObjectNode objectNode)
+		{
+			JSONObject response = new JSONObject();
+
+			if (objectNode.get("idCliente") == null || objectNode.get("idReto") == null) {
+				response.put("respuesta","CLIENTE Y RETO obligatorios.");
+				return new ResponseEntity<>(response.toMap(), HttpStatus.CONFLICT);
+			}
+
+			int idCliente = objectNode.get("idCliente").asInt();
+			String idReto = objectNode.get("idReto").asText();
+
+			int pasos = objectNode.get("pasos") != null ? objectNode.get("pasos").asInt() : 0;
+			Double calorias = objectNode.get("calorias") != null ? objectNode.get("calorias").asDouble() : 0;
+			Double distancia = objectNode.get("distancia") != null ? objectNode.get("distancia").asDouble() : 0;
+			Boolean isSummable = objectNode.get("isSummable").asBoolean();
+
+			try {
+				Cliente cliente = clienteService.findById(idCliente);
+				Optional<Reto> retoOptional = retoService.getOne(UUID.fromString(idReto));
+
+				if(cliente == null) {
+					response.put("respuesta", "CLIENTE no existe.");
+					return new ResponseEntity<String>(response.toString(), HttpStatus.NOT_FOUND);
+				}
+				if (!retoOptional.isPresent()){
+					response.put("respuesta", "RETO no existe.");
+					return new ResponseEntity<String>(response.toString(), HttpStatus.NOT_FOUND);
+				}
+
+				List<RetoUsuario> retoUsuarios = retoUsuarioService.list();
+
+				//buscamos y guardamos el reto_usuario que corresponde al id_reto
+				RetoUsuario retoAux = null;
+				for (RetoUsuario retoUsuario:retoUsuarios) {
+					if (retoUsuario.getReto().getId().equals(retoOptional.get().getId()) &&
+							retoUsuario.getCliente().getIdCliente() == cliente.getIdCliente()){
+						retoAux = retoUsuario;
+						break;
+					}
+				}
+
+				if (retoAux == null) {
+					response.put("respuesta", "Registro inexistente para guardar los datos");
+					return new ResponseEntity<>(response, HttpStatus.NOT_FOUND);
+				}
+
+				List<RetoAcumulable> retoAcumulableList =  retoAcumulableService.list();
+
+				RetoAcumulable retoAcumulable = null;
+
+				//verificamos que el registro ya existe en tabla si es asi y es sumable se suman los nuevos valores que lleguen
+				if (!retoAcumulableList.isEmpty()){
+					//System.out.println("Lista de retos acumulables no vacia: " + retoAcumulableList);
+
+					for (RetoAcumulable retoAcu: retoAcumulableList){
+						if (retoAcu.getRetoUsuario().getReto().getId().equals(retoOptional.get().getId()) &&
+								retoAcu.getRetoUsuario().getCliente().getIdCliente() == cliente.getIdCliente()){
+							retoAcumulable = retoAcu;
+						}
+					}
+
+					if (retoAcumulable != null && isSummable){
+						retoAcumulable.setCalorias(retoAcumulable.getCalorias() + calorias);
+						retoAcumulable.setDistancia(retoAcumulable.getDistancia() + distancia);
+						retoAcumulable.setPasos(retoAcumulable.getPasos() + pasos);
+						retoAcumulable.setSummable(isSummable);
+						retoAcumulable.setRetoUsuario(retoAux);
+					}
+				} else {
+					//en caso contario solo se crea un nuevo registro con los valores de entrada
+					retoAcumulable = new RetoAcumulable();
+					retoAcumulable.setCalorias(calorias);
+					retoAcumulable.setDistancia(distancia);
+					retoAcumulable.setPasos(pasos);
+					retoAcumulable.setRetoUsuario(retoAux);
+					retoAcumulable.setSummable(isSummable);
+				}
+
+				retoAcumulableService.save(retoAcumulable);
+				response.put("respuesta","Datos registrados correctamente.");
+				return new ResponseEntity<>(response.toMap(), HttpStatus.OK);
+				//return new ResponseEntity<>(retoAcumulable, HttpStatus.OK);
+			}catch(Exception e) {
+				TransactionAspectSupport.currentTransactionStatus().setRollbackOnly();
+				response.put("respuesta", "CLIENTE ID incorrecto");
+				return new ResponseEntity<String>(response.toString(), HttpStatus.CONFLICT);
+			}
+		}
+
+		//--------------   Agregar valores estadisticos   ----------------------->>>>>>
+		@PreAuthorize("hasRole('ADMIN')")
+		@PostMapping(path="/setEstadisticos")
+		@Transactional(rollbackFor = SQLException.class)
+		public ResponseEntity<?> setValoresEstadisticos(@RequestBody ObjectNode objectNode)
+		{
+			JSONObject response = new JSONObject();
+
+			if (objectNode.get("idCliente") == null || objectNode.get("idReto") == null) {
+				response.put("respuesta","CLIENTE Y RETO obligatorios.");
+				return new ResponseEntity<>(response.toMap(), HttpStatus.CONFLICT);
+			}
+
+			int idCliente = objectNode.get("idCliente").asInt();
+			String idReto = objectNode.get("idReto").asText();
+			int frecuenciaCardiaca = objectNode.get("frecuenciaCardiaca").asInt();
+			int frecuenciaRespiratoria = objectNode.get("frecuenciaRespiratoria").asInt();
+			int pasos = objectNode.get("pasos").asInt();
+			Double calorias = objectNode.get("calorias").asDouble();
+			Double distancia = objectNode.get("distancia").asDouble();
+			String updatedAt = objectNode.get("updatedAt").asText();
+
+			try {
+				Cliente cliente = clienteService.findById(idCliente);
+				Optional<Reto> retoOptional = retoService.getOne(UUID.fromString(idReto));
+
+				if(cliente == null) {
+					response.put("respuesta", "CLIENTE no existe.");
+					return new ResponseEntity<String>(response.toString(), HttpStatus.NOT_FOUND);
+				}
+				if (!retoOptional.isPresent()){
+					response.put("respuesta", "RETO no existe.");
+					return new ResponseEntity<String>(response.toString(), HttpStatus.NOT_FOUND);
+				}
+
+				List<RetoUsuario> retoUsuarios = retoUsuarioService.list();
+
+				RetoUsuario retoAux = null;
+				for (RetoUsuario retoUsuario:retoUsuarios) {
+					if (retoUsuario.getReto().getId().equals(retoOptional.get().getId()) &&
+							retoUsuario.getCliente().getIdCliente() == cliente.getIdCliente()){
+						retoAux = retoUsuario;
+						break;
+					}
+				}
+				if (retoAux == null) {
+					response.put("respuesta", "Registro inexistente para guardar los datos");
+					return new ResponseEntity<>(response.toMap(), HttpStatus.NOT_FOUND);
+				}
+
+				RetoEstadistica retoEstadistica = new RetoEstadistica();
+
+				retoEstadistica.setFrecuenciaCardiaca(frecuenciaCardiaca);
+				retoEstadistica.setFrecuenciaRespiratoria(frecuenciaRespiratoria);
+				retoEstadistica.setRetoUsuario(retoAux);
+				retoEstadistica.setPasos(pasos);
+				retoEstadistica.setCalorias(calorias);
+				retoEstadistica.setDistancia(distancia);
+
+				DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm");
+				LocalDateTime dateTime = LocalDateTime.parse(updatedAt, formatter);
+
+				retoEstadistica.setUpdatedAt(dateTime);
+				retoEstadisticaService.save(retoEstadistica);
+
+				//return new ResponseEntity<>(retoEstadistica, HttpStatus.OK);
+				response.put("respuesta","Datos registrados correctamente.");
+				return new ResponseEntity<>(response.toMap(), HttpStatus.OK);
+
+			} catch (DateTimeParseException e) {
+				TransactionAspectSupport.currentTransactionStatus().setRollbackOnly();
+				response.put("respuesta", "FECHA formato incorrecto");
+				return new ResponseEntity<String>(response.toString(), HttpStatus.CONFLICT);
+			} catch(Exception e) {
+				TransactionAspectSupport.currentTransactionStatus().setRollbackOnly();
+				response.put("respuesta", "CLIENTE ID incorrecto");
+				return new ResponseEntity<String>(response.toString(), HttpStatus.CONFLICT);
+			}
+		}
 
 }

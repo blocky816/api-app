@@ -131,13 +131,13 @@ public class ToallaController
                     return new ResponseEntity<>(response.toMap(), HttpStatus.OK);
                 }
             }catch (Exception e) {
-                e.printStackTrace();
+                //e.printStackTrace();
                 response.put("respuesta", "Error interno");
                 return new ResponseEntity<>(response.toMap(), HttpStatus.INTERNAL_SERVER_ERROR);
             }
         } catch (ParseException e1) {
             // TODO Auto-generated catch block
-            e1.printStackTrace();
+            //e1.printStackTrace();
             response.put("respuesta", "No se pudo convertir la fecha correctamente");
             return new ResponseEntity<>(response.toMap(), HttpStatus.CONFLICT);
         }  
@@ -197,7 +197,7 @@ public class ToallaController
                        // Date tiempoTotal = new Date(difference_In_Time);
                         Date tiempoTotal = new Date(toalla.getFechaInicio().getYear(), toalla.getFechaInicio().getMonth(), toalla.getFechaInicio().getDate(),
                                 (int) difference_In_Hours, (int) difference_In_Minutes, (int) difference_In_Seconds);
-                        System.out.println("Tiempo total: " + tiempoTotal);
+
                         toalla.setFechaFin(fechaFin);
                         toalla.setAsignacion(asignacion);
                         toalla.setEmpleadoLibera(empleado);
@@ -214,12 +214,12 @@ public class ToallaController
                     return new ResponseEntity<>(response.toMap(), HttpStatus.CONFLICT);
                 }
             }catch (Exception e) {
-                e.printStackTrace();
+                //e.printStackTrace();
                 response.put("respuesta", "Error interno");
                 return new ResponseEntity<>(response.toMap(), HttpStatus.INTERNAL_SERVER_ERROR);
             }
         }catch(ParseException e1){
-            e1.printStackTrace();
+            //e1.printStackTrace();
             response.put("respuesta", "No se pudo convertir la fecha correctamente");
             return new ResponseEntity<>(response.toMap(), HttpStatus.CONFLICT);
         }
@@ -229,10 +229,9 @@ public class ToallaController
 
     /*------------------- Task para enviar sanciones al no devolver una toalla el dia que te la asignaron --------------------*/
 
-    @Scheduled(cron = "0 30 23 * * *")
+    @Scheduled(cron = "0 00 23 * * *")
     //@GetMapping("/getToallasNoRegresadas")
     public ResponseEntity<?> enviaSanciones() {
-		System.out.println("Leyendo tabla toallas...");
 
         List<Toalla> toallaList = toallaService.findAll();
         List<Toalla> toallasNoDevueltas = new ArrayList<>();
@@ -243,12 +242,9 @@ public class ToallaController
                 Date fecha = toalla.getFechaInicio();
 
                 if (toalla.getIdCliente() == 0) {
-                    System.out.println("CLiente no existe en el registro");
                 }
                 Cliente cliente = clienteService.findById(toalla.getIdCliente());
                 if (cliente != null) {
-                    System.out.println("CLiente encontrado: " + cliente.getNombre());
-                    System.out.println("email: " + cliente.getEmail());
                 }
 
                 String body2 = "{\r\n"
@@ -263,12 +259,11 @@ public class ToallaController
                         + "\"CobroProporcional\":0, \r\n"
                         + "\"Token\":\"77D5BDD4-1FEE-4A47-86A0-1E7D19EE1C74\"  \r\n"
                         + "}";
-                System.out.println("Body2:\n" + body2);
 
-                if(toalla.getSancion().equals("") || toalla.getSancion() == null || toalla.getSancion().equals("NO")) {
+                if (toalla.getSancion() == null || "NO".equals(toalla.getSancion())) {
+
                     try {
                         URL url = new URL("http://192.168.20.44/ServiciosClubAlpha/api/OrdenDeVenta/Registra");
-                        //String postData = "foo1=bar1&foo2=bar2";
                         String postData = body2;
                         HttpURLConnection conn = (HttpURLConnection) url.openConnection();
                         conn.setRequestMethod("POST");
@@ -279,7 +274,7 @@ public class ToallaController
                             dos.writeBytes(postData);
                         }
                         int statusCode = conn.getResponseCode();
-                        System.out.println("Statuscode: " + statusCode);
+
                         if (statusCode == 200) {
                             toalla.setSancion("SI");
                         }else {
@@ -289,12 +284,10 @@ public class ToallaController
                         conn.disconnect();
 
                     } catch (Exception e) {
-                        e.printStackTrace();
-                        System.out.println("e.getMessage(): " + e.getMessage());
-                        System.out.println("e.getMessage(): " + e.getLocalizedMessage());
-                        System.out.println("e.getMessage(): " + e.getCause());
                     }
+
                 }
+
                 toallasNoDevueltas.add(toalla);
             }
         }//fin del for

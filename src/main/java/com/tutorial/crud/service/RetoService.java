@@ -37,4 +37,5 @@ public class RetoService {
 	public Optional<Reto> getByNombre(String nombre) {
         return retoRepository.findByNombre(nombre); 
 	}
+
 }

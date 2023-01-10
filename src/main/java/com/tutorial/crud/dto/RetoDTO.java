@@ -1,13 +1,21 @@
 package com.tutorial.crud.dto;
 
 
+import java.util.UUID;
+
 public class RetoDTO {
-	private String fechaInicio;
+	private UUID id;
 	private String nombre;
+	private String fechaInicio;
 	private String fechaFin;
-	private String tipo;
-	private int dato;
+	private String tipoReto;
 	private String descripcion;
+
+
+	public UUID getId() { return id; }
+
+	public void setId(UUID id) { this.id = id; }
+
 	public String getFechaInicio() {
 		return fechaInicio;
 	}
@@ -21,16 +29,10 @@ public class RetoDTO {
 		this.fechaFin = fechaFin;
 	}
 	public String getTipo() {
-		return tipo;
+		return tipoReto;
 	}
-	public void setTipo(String tipo) {
-		this.tipo = tipo;
-	}
-	public int getDato() {
-		return dato;
-	}
-	public void setDato(int dato) {
-		this.dato = dato;
+	public void setTipo(String tipoReto) {
+		this.tipoReto = tipoReto;
 	}
 	public String getDescripcion() {
 		return descripcion;

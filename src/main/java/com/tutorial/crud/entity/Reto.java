@@ -36,21 +36,24 @@ public class Reto {
 	@Column(name = "descripcion")
 	private String descripcion;
 	
-	@OneToOne(cascade=CascadeType.ALL)
-	@JoinColumn(name="tipo")
-	private Tipo tipo;	
+	@OneToOne(cascade=CascadeType.MERGE)
+	@JoinColumn(name="tipo_reto")
+	private TipoReto tipoReto;
 	
 	@Column(name="no_inscritos")
 	private int noInscritos;
+
+	@Column(name="cupo_maximo")
+	private int cupoMaximo;
 	
 	@Column(name = "fecha_inicio")
 	private String fechaInicio;
 
 	@Column(name = "fecha_fin")
-	private String fechafin;
+	private String fechaFin;
 	
-	 @OneToMany(mappedBy = "reto")
-	 List<RetoUsuario> retoUsuario;
+	 //@OneToMany(mappedBy = "reto")
+	 //List<RetoUsuario> retoUsuario;
 	
 	@Column(name = "created_by")
 	private String createdBy;
@@ -64,10 +67,25 @@ public class Reto {
 	
 	@Column(name = "updated")
 	@Temporal(TemporalType.TIMESTAMP)
-	private Date updated=new Date();
+	private Date updated = new Date();
 	
 	@Column(name = "activo")
-	private boolean activo=true;
+	private boolean activo = true;
+
+	//Nuevos campos
+	@Column(name = "dispositivo")
+	private String dispositivo;
+
+	@Column(name = "club")
+	private int club;
+
+	@Column(name="banner", columnDefinition="text")
+	private String banner;
+	@Column(name="icono", columnDefinition="text")
+	private String icono;
+
+	@Column(name = "max")
+	private int max;
 
 	public String getFechaInicio() {
 		return fechaInicio;
@@ -77,20 +95,20 @@ public class Reto {
 		this.fechaInicio = fechaInicio;
 	}
 
-	public String getFechafin() {
-		return fechafin;
+	public String getFechaFin() {
+		return fechaFin;
 	}
 
-	public void setFechafin(String fechafin) {
-		this.fechafin = fechafin;
+	public void setFechaFin(String fechaFin) {
+		this.fechaFin = fechaFin;
 	}
 
-	public Tipo getTipo() {
-		return tipo;
+	public TipoReto getTipoReto() {
+		return tipoReto;
 	}
 
-	public void setTipo(Tipo tipo) {
-		this.tipo = tipo;
+	public void setTipoReto(TipoReto tipoReto) {
+		this.tipoReto = tipoReto;
 	}
 
 	public String getDescripcion() {
@@ -153,6 +171,35 @@ public class Reto {
 		this.nombre = nombre;
 	}
 
-	
-	
+	public int getNoInscritos() { return noInscritos; }
+
+	public void setNoInscritos(int noInscritos) { this.noInscritos = noInscritos; }
+
+	public int getCupoMaximo() { return cupoMaximo; }
+
+	public void setCupoMaximo(int cupoMaximo) { this.cupoMaximo = cupoMaximo; }
+
+	/*public List<RetoUsuario> getRetoUsuario() { return retoUsuario; }*/
+
+	/*public void setRetoUsuario(List<RetoUsuario> retoUsuario) { this.retoUsuario = retoUsuario; }*/
+
+	public String getDispositivo() { return dispositivo; }
+
+	public void setDispositivo(String dispositivo) { this.dispositivo = dispositivo; }
+
+	public int getClub() { return club; }
+
+	public void setClub(int club) { this.club = club; }
+
+	public String getBanner() { return banner; }
+
+	public void setBanner(String banner) { this.banner = banner; }
+
+	public String getIcono() { return icono; }
+
+	public void setIcono(String icono) { this.icono = icono; }
+
+	public int getMax() { return max; }
+
+	public void setMax(int max) { this.max = max; }
 }

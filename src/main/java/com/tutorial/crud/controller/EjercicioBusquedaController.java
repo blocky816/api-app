@@ -26,8 +26,6 @@ public class EjercicioBusquedaController {
             ejercicioBusquedaService.save(request);
             return new ResponseEntity<>(new JSONObject("{'respuesta': 'Creado correctamente'}").toMap(), HttpStatus.OK);
         } catch (Exception e) {
-            System.out.println("Exception message: " + e.getMessage());
-            e.printStackTrace();
             return new ResponseEntity<>(new JSONObject("{'respuesta': 'Error interno'}").toMap(), HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
@@ -39,11 +37,8 @@ public class EjercicioBusquedaController {
             ejercicioBusquedaService.updateEjercicioBusqueda(id, request);
             return new ResponseEntity<>(new JSONObject("{'respuesta': 'Actualizado correctamente'}").toMap(), HttpStatus.OK);
         } catch (NullPointerException e){
-            System.out.println("Exception message: " + e.getMessage());
             return new ResponseEntity<>(new JSONObject("{'respuesta': 'El ejercicio no existe'}").toMap(), HttpStatus.INTERNAL_SERVER_ERROR);
         } catch (Exception e) {
-            System.out.println("Exception message: " + e.getMessage());
-            e.printStackTrace();
             return new ResponseEntity<>(new JSONObject("{'respuesta': 'Error interno'}").toMap(), HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
@@ -55,11 +50,8 @@ public class EjercicioBusquedaController {
             EjercicioBusqueda ejercicio = ejercicioBusquedaService.findById(id);
             return new ResponseEntity<>(ejercicio, HttpStatus.OK);
         } catch (NullPointerException e){
-            System.out.println("Exception message: " + e.getMessage());
             return new ResponseEntity<>(new JSONObject("{'respuesta': 'El ejercicio no existe'}").toMap(), HttpStatus.NOT_FOUND);
         } catch (Exception e) {
-            System.out.println("Exception message: " + e.getMessage());
-            e.printStackTrace();
             return new ResponseEntity<>(new JSONObject("{'respuesta': 'Error interno'}").toMap(), HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
@@ -71,11 +63,8 @@ public class EjercicioBusquedaController {
             List<EjercicioBusqueda> ejercicios = ejercicioBusquedaService.findAll();
             return new ResponseEntity<>(ejercicios, HttpStatus.OK);
         } catch (NullPointerException e){
-            System.out.println("Exception message: " + e.getMessage());
             return new ResponseEntity<>(new JSONObject("{'respuesta': 'El ejercicio no existe'}").toMap(), HttpStatus.NOT_FOUND);
         } catch (Exception e) {
-            System.out.println("Exception message: " + e.getMessage());
-            e.printStackTrace();
             return new ResponseEntity<>(new JSONObject("{'respuesta': 'Error interno'}").toMap(), HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
@@ -86,11 +75,8 @@ public class EjercicioBusquedaController {
             ejercicioBusquedaService.deleteEjercicioBusqueda(id);
             return new ResponseEntity<>(new JSONObject("{'respuesta': 'El ejercicio se elimino correctamente'}").toMap(), HttpStatus.OK);
         } catch (NullPointerException e){
-            System.out.println("Exception message: " + e.getMessage());
             return new ResponseEntity<>(new JSONObject("{'respuesta': 'El ejercicio no existe'}").toMap(), HttpStatus.NOT_FOUND);
         } catch (Exception e) {
-            System.out.println("Exception message: " + e.getMessage());
-            e.printStackTrace();
             return new ResponseEntity<>(new JSONObject("{'respuesta': 'Error interno'}").toMap(), HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }

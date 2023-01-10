@@ -53,8 +53,6 @@ ConversacionAsesorController {
             if(basculaClienteService.existsByIdCliente(basculaCliente.getIdCliente()) && basculaCliente.getActivo() == null){
                 BasculaCliente basculaClienteFound = basculaClienteService.findByIdCliente(basculaCliente.getIdCliente());
                 if (basculaClienteFound.getIntentos() >= 1 && cliente.getFormulario() == null) {
-                    System.out.println("CLIEnte encontrado en bascula: " + basculaCliente.getIdCliente());
-                    System.out.println("Intentos de pesaje: " + basculaClienteFound.getIntentos());
                     basculaClienteFound.setIntentos(basculaClienteFound.getIntentos() + 1);
                     basculaClienteService.save(basculaClienteFound);
                 }
