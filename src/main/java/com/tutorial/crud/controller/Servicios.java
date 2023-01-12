@@ -6121,13 +6121,13 @@ public class Servicios
 				Foto foto = this.addFoto(json.getString("UrlFoto"),record);
 
 				record.setURLFoto(foto);
-				record.setURLFoto(record.getURLFoto());
+				//record.setURLFoto(record.getURLFoto());
 				clienteService.save(record);
 
 			} catch(IOException e) {
 				// esto no devuleve nada no se contro JSONObject json = new JSONObject(IOUtils.toString(new URL("http://192.168.20.47/ServiciosClubAlpha/api/Miembro/"+record.getIdCliente())
-				System.out.println("json ID cliente: " + record.getIdCliente());
-				System.out.println("Message: " + e.getMessage());
+				//System.out.println("json ID cliente: " + record.getIdCliente());
+				//System.out.println("Message: " + e.getMessage());
 				try {
 					//Crear un objeto File se encarga de crear o abrir acceso a un archivo que se especifica en su constructor
 					File archivo = new File("errores_de_fotos.txt");
