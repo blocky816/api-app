@@ -12,6 +12,7 @@ package com.tutorial.crud.aopDao;
 import java.util.List;
 
 import com.tutorial.crud.entity.Cliente;
+import com.tutorial.crud.entity.EstatusMembresia;
 
 //Los metodos creado en el ...impl.java
 public interface ClienteDAO 
@@ -19,6 +20,6 @@ public interface ClienteDAO
 	public List<Cliente> findAll();
     public Cliente findById(int id);
     public Cliente findByIdMembresia(long id);
-    public void save(Cliente categoria);	
+    public void save(Cliente categoria);
 
 }

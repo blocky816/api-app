@@ -12,6 +12,7 @@ import java.util.List;
 
 import javax.persistence.EntityManager;
 
+import com.tutorial.crud.entity.EstatusMembresia;
 import org.hibernate.Session;
 import org.hibernate.query.Query;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -49,6 +50,7 @@ public class ClienteDAOImpl implements ClienteDAO{
 
         currentSession.merge(cliente);  
 	}
+
 	//Este último método guarda la informacion de CLIENTE
 	@Override
 	@Transactional

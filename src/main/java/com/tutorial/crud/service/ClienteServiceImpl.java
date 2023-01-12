@@ -17,6 +17,7 @@ import java.util.UUID;
 
 import javax.persistence.EntityManager;
 
+import com.tutorial.crud.entity.*;
 import org.hibernate.Session;
 import org.hibernate.query.Query;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -24,10 +25,8 @@ import org.springframework.stereotype.Service;
 
 import com.tutorial.crud.aopDao.ClienteDAO;
 import com.tutorial.crud.dto.ClienteDTOO;
-import com.tutorial.crud.entity.CAApartados;
-import com.tutorial.crud.entity.CASala;
-import com.tutorial.crud.entity.Cliente;
-@Service //marca la clase java que realiza algún servicio 
+
+@Service //marca la clase java que realiza algún servicio
 public class ClienteServiceImpl implements ClienteService {
 
 	@Autowired
@@ -35,7 +34,10 @@ public class ClienteServiceImpl implements ClienteService {
 	
 	@Autowired  //Inyecta a nuestro DAO y lo utiliza. 
 	private ClienteDAO clienteDAO;
-	//Método en el cual manda a llamar categoriaDAO y le asigna lo que tenga a la lista. 
+	//Método en el cual manda a llamar categoriaDAO y le asigna lo que tenga a la lista.
+
+	@Autowired
+	EstatusCobranzaService estatusCobranzaService;
 	@Override 
 	public List<Cliente> findAll() {
 		List<Cliente> listCliente= clienteDAO.findAll();
@@ -228,4 +230,32 @@ public class ClienteServiceImpl implements ClienteService {
 		}
 		return listaDTO;
 	}
+
+	@Override
+	public List<Cliente> findAllByEstatusMembresia() {
+		Session currentSession = entityManager.unwrap(Session.class);
+		EstatusCobranza estatusCobranza = estatusCobranzaService.findById(1);
+		System.out.println("EStatus cobranza : " + estatusCobranza.getNombre());
+		Query<Cliente> clientesActivos = currentSession.createQuery("from Cliente c where c.estatusCobranza = :o and c.IdCliente <> 0 ORDER BY c.IdCliente ASC", Cliente.class);
+		clientesActivos.setParameter("o", estatusCobranza);
+		clientesActivos.setMaxResults(5000);
+
+		List<Cliente> lista = clientesActivos.getResultList();
+
+		System.out.println("Lista de clinetes ectivos: " + lista.size());
+		/*List<Object[]> listResults = clientesActivos.getResultList();
+		List<ClienteDTOO> listaDTO= new ArrayList<ClienteDTOO>();
+		for (Object[] record : listResults) {
+			ClienteDTOO cliente=new ClienteDTOO();
+			cliente.setIdCliente((int) record[0]);
+			cliente.setNombre((String) record[2]);
+			cliente.setEstatusAccesos((String) record[7]);
+			listaDTO.add(cliente);
+
+		}*/
+
+		return lista;
+	}
+
+
 }

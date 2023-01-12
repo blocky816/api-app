@@ -11,6 +11,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.HttpURLConnection;
+import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLConnection;
 import java.nio.charset.Charset;
@@ -103,6 +104,7 @@ import com.tutorial.crud.service.*;
 
 import jcifs.smb.NtlmPasswordAuthentication;
 import jcifs.smb.SmbFile;
+
 
 
 
@@ -3216,6 +3218,12 @@ public class Servicios
 				InputStream is = file.getInputStream();
 				byte[] bytes = IOUtils.toByteArray(is);
 				Foto foto=new Foto(bytes);
+
+				if (cliente.getIdCliente() == 1) {
+					byte[]valueDecoded = Base64.encodeBase64(bytes);
+					String decodedString = new String(valueDecoded);
+					//System.out.println("String de Bytes " + decodedString);
+				}
 				foto.setFechaCreacion(new Date());
 				foto.setFechaModificacion(new Date());
 				foto.setActivo(true);
@@ -6097,5 +6105,63 @@ public class Servicios
 		response.put("respuesta", "COMPLEXBAND  asignado correctamente.");
 		return new ResponseEntity<>(response.toString(), HttpStatus.OK);
 	}
+
+
+
+	@GetMapping("/actualizarFotos")
+	@Transactional(rollbackOn =Exception.class)
+	public ResponseEntity<?> actualizarFotos() throws MalformedURLException {
+
+		List<Cliente> clientesList = clienteService.findAllByEstatusMembresia();
+
+		for(Cliente record: clientesList) {
+			try {
+				JSONObject json = new JSONObject(IOUtils.toString(new URL("http://192.168.20.47/ServiciosClubAlpha/api/Miembro/"+record.getIdCliente()), Charset.forName("UTF-8")));
+
+				Foto foto = this.addFoto(json.getString("UrlFoto"),record);
+
+				record.setURLFoto(foto);
+				record.setURLFoto(record.getURLFoto());
+				clienteService.save(record);
+
+			} catch(IOException e) {
+				// esto no devuleve nada no se contro JSONObject json = new JSONObject(IOUtils.toString(new URL("http://192.168.20.47/ServiciosClubAlpha/api/Miembro/"+record.getIdCliente())
+				System.out.println("json ID cliente: " + record.getIdCliente());
+				System.out.println("Message: " + e.getMessage());
+				try {
+					//Crear un objeto File se encarga de crear o abrir acceso a un archivo que se especifica en su constructor
+					File archivo = new File("errores_de_fotos.txt");
+
+					//Crear objeto FileWriter que sera el que nos ayude a escribir sobre archivo
+					FileWriter escribir = new FileWriter(archivo, true);
+
+					escribir.write("\nCLiente ID: " + e.getMessage());
+
+					//Cerramos la conexion
+					escribir.close();
+				} //Si existe un problema al escribir cae aqui
+				catch (Exception eFile) {
+					//System.out.println("Error al escribir");
+					continue;
+				}
+				//System.out.println("SAltando al siguiente...");
+				continue;
+			} catch (Exception ex) {
+				//System.out.println("FALLO otra cosa");
+				continue;
+			}
+		}
+		/*System.out.println("CLiente ID: " + clientesList.get(0).getIdCliente());
+		System.out.println("CLinete name: " + clientesList.get(0).getNombre() + " " + clientesList.get(0).getApellidoPaterno() + " " + clientesList.get(0).getApellidoMaterno());
+		byte[] valueDecoded = Base64.encodeBase64(clientesList.get(0).getURLFoto().getImagen());
+		String decodedString = new String(valueDecoded);
+		System.out.println("\nID IMGAEN de la foto de postgress: " + clientesList.get(0).getURLFoto().getId_foto());
+		System.out.println("\nString de Bytes de la foto de postgres: " + decodedString);*/
+		//Cliente found = clienteService.findById(1);
+		//return new ResponseEntity<>(found, HttpStatus.OK);
+		//return new ResponseEntity<>(clientesList.get(0), HttpStatus.OK);
+		return new ResponseEntity<>("Fotos actualizadas", HttpStatus.OK);
+	}
+
 }//fin de la clase
 

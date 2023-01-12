@@ -13,6 +13,7 @@ import java.util.Date;
 import java.util.List;
 import java.util.UUID;
 
+import com.tutorial.crud.entity.EstatusMembresia;
 import org.hibernate.query.Query;
 
 import com.tutorial.crud.dto.ClienteDTOO;
@@ -43,4 +44,6 @@ public interface ClienteService {
 	public List<ClienteDTOO> asistenciaClientes(UUID id);
 
 	public List<ClienteDTOO> asistenciaGimnasioClientes(UUID id);
+
+	public List<Cliente> findAllByEstatusMembresia();
 }
