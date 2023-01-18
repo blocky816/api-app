@@ -10,10 +10,10 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.net.HttpURLConnection;
-import java.net.MalformedURLException;
-import java.net.URL;
-import java.net.URLConnection;
+import java.net.*;
+import java.net.http.HttpClient;
+import java.net.http.HttpRequest;
+import java.net.http.HttpResponse;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.sql.Connection;
@@ -21,17 +21,13 @@ import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.time.Instant;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.time.ZoneId;
-import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.Date;
-import java.util.HashSet;
-import java.util.List;
-import java.util.NoSuchElementException;
-import java.util.Set;
-import java.util.UUID;
+import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -40,6 +36,7 @@ import com.tutorial.crud.repository.ClienteIntentosFiservRepository;
 import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.codec.digest.HmacUtils;
 import org.apache.commons.io.IOUtils;
+import org.apache.tomcat.jni.Local;
 import org.hibernate.Session;
 import org.hibernate.query.Query;
 import org.hibernate.tool.schema.internal.exec.ScriptTargetOutputToFile;
@@ -1803,12 +1800,10 @@ public class Servicios
 	public ResponseEntity<?> obtenerRecibo(@RequestBody Body body){
 		Connection conn = null;
 		ArrayList<com.tutorial.crud.dto.Recibo> listaReporte = new ArrayList<com.tutorial.crud.dto.Recibo>();
-		try {
+
+		/*try {
 			// Carga el driver de oracle
 			DriverManager.registerDriver(new com.microsoft.sqlserver.jdbc.SQLServerDriver());
-
-
-
 			conn = DriverManager.getConnection(dbURL, userData, passData);
 
 			PreparedStatement ps=conn.prepareStatement("DataFlowAlpha.dbo.sp_Consulta_Recibo_Conceptos ? ");
@@ -1857,8 +1852,75 @@ public class Servicios
 			} catch (SQLException ex) {
 				System.out.println("Error: " + ex.getMessage());
 			}
-		}
+		}*/
+
+		HttpClient client = HttpClient.newHttpClient();
+		HttpRequest request = HttpRequest.newBuilder()
+				.uri(URI.create("http://192.168.20.104:8000/alpha/obtenerRecibo"))
+				.POST(HttpRequest.BodyPublishers.ofString("{\"recibo\":\"" + body.getRecibo() + "\"}"))
+				.build();
+
 		try {
+
+			try {
+				Factura factura=facturaService.getByRecibo(body.getRecibo());
+				factura.setFacturado(true);
+				facturaService.save(factura);
+				return new ResponseEntity<>(factura, HttpStatus.OK);
+			}catch(NoSuchElementException e) {
+			}
+			HttpResponse<String> respuesta = client.send(request, HttpResponse.BodyHandlers.ofString());
+			//System.out.println(respuesta.body());
+
+			JSONArray jarray = new JSONArray(respuesta.body());
+			System.out.println("TAmanio de json array: " + jarray.length());
+			for(int i = 0;i < jarray.length(); i++ ){
+				com.tutorial.crud.dto.Recibo to=new com.tutorial.crud.dto.Recibo();
+
+				try {
+					SimpleDateFormat formato = new SimpleDateFormat("yyyy-mm-dd");
+					System.out.println("FECHA CAPTURA ANTES DE FORMATEO: " + jarray.getJSONObject(i).getString("fecha_captura"));
+					Date fechaCaptura = formato.parse(jarray.getJSONObject(i).getString("fecha_captura"));
+					System.out.println("Fecha captura despues de formateo: " + fechaCaptura);
+					to.setFechaCaptura(fechaCaptura);
+				} catch(ParseException parseException) {
+					System.out.println(parseException.getMessage());
+				}
+				to.setFolio(jarray.getJSONObject(i).getString("folio"));
+				to.setIdCliente(jarray.getJSONObject(i).getInt("idCliente"));
+				to.setNombreCliente(jarray.getJSONObject(i).getString("nombreCliente"));
+				to.setMembresia(Long.parseLong(jarray.getJSONObject(i).getString("membresia")));
+				to.setCodigoPostal(jarray.getJSONObject(i).getString("codigoPostal"));
+				to.setRfc(jarray.getJSONObject(i).getString("rfc"));
+				to.setIdVenta(jarray.getJSONObject(i).getInt("idVenta"));
+				to.setConcepto(jarray.getJSONObject(i).getString("concepto"));
+				to.setCosto(jarray.getJSONObject(i).getFloat("costo"));
+				to.setClave(jarray.getJSONObject(i).getString("clave"));
+				to.setPrecioUnitario(jarray.getJSONObject(i).getFloat("precioUnitario"));
+				to.setPrecioUnitarioIVA(jarray.getJSONObject(i).getFloat("precioUnitarioIVA"));
+				to.setTotal(jarray.getJSONObject(i).getFloat("total"));
+				to.setIdProducto(String.valueOf(jarray.getJSONObject(i).getInt("idProducto")));
+				this.update(to.getIdCliente());
+				Cliente cliente = clienteService.findById(to.getIdCliente());
+				if(cliente.getEmail()==null) {
+					to.setCorreo("");
+				}
+				to.setCorreo(cliente.getEmail());
+				listaReporte.add(to);
+				System.out.println("TO\n" + to);
+			}
+		} catch (JSONException e) {
+			System.out.println(e.getMessage());
+		} catch (IOException | InterruptedException e) {
+			// TODO Auto-generated catch block
+			System.out.println(e.getMessage());
+			e.printStackTrace();
+		}
+
+
+		//Globalsoft
+		try {
+			DriverManager.registerDriver(new com.microsoft.sqlserver.jdbc.SQLServerDriver());
 			conn = DriverManager.getConnection(dbURLGlobal, userGlobal, passGlobal);
 
 			PreparedStatement ps=conn.prepareStatement("exec globalsoft_pruebas.dbo.sp_Consulta_Recibo_Conceptos ? ");
@@ -1896,7 +1958,7 @@ public class Servicios
 			conn.close();
 		} catch (SQLException ex) {
 			System.out.println("Error: " + ex.getMessage());
-			ex.printStackTrace();
+			//ex.printStackTrace();
 		} finally {
 			try {
 				conn.close();
@@ -1907,17 +1969,14 @@ public class Servicios
 
 		return new ResponseEntity<>(listaReporte, HttpStatus.OK);
 	}
-	public ArrayList<ReciboSAT> obtenerReciboSAT( Body body){
+
+	public ArrayList<ReciboSAT> obtenerReciboSAT(Body body){
 		Connection conn = null;
 		ArrayList<ReciboSAT> listaReporte = new ArrayList<ReciboSAT>();
-		try {
+		//try {
 			// Carga el driver de oracle
-			DriverManager.registerDriver(new com.microsoft.sqlserver.jdbc.SQLServerDriver());
-
-
-
-			conn = DriverManager.getConnection(dbURL, userData, passData);
-
+			//DriverManager.registerDriver(new com.microsoft.sqlserver.jdbc.SQLServerDriver());
+			/*conn = DriverManager.getConnection(dbURL, userData, passData);
 			//conn = DriverManager.getConnection("jdbc:sqlserver://192.168.20.12;database=DataFlowAlpha", "extranet_user", "tyGDix##dJGJ5");
 			PreparedStatement ps=conn.prepareStatement("DataFlowAlpha.dbo.sp_Consulta_Recibo_Conceptos_SAT_Completo ? ");
 			ps.setString(1, body.getRecibo());
@@ -1929,7 +1988,7 @@ public class Servicios
         				return factura;
                 	}catch(NoSuchElementException e) {
                 	}*/
-			while (rs.next()) {
+			/*while (rs.next()) {
 				ReciboSAT to=new ReciboSAT();
 				to.setFechaCaptura(rs.getDate(1));
 				to.setFolio(rs.getString(2));
@@ -1973,8 +2032,70 @@ public class Servicios
 			} catch (SQLException ex) {
 				System.out.println("Error: " + ex.getMessage());
 			}
-		}
+		}*/
+
+		HttpClient client = HttpClient.newHttpClient();
+		HttpRequest request = HttpRequest.newBuilder()
+				.uri(URI.create("http://192.168.20.104:8000/alpha/obtenerRecibo_Sat_Completo"))
+				.POST(HttpRequest.BodyPublishers.ofString("{\"recibo\":\"" + body.getRecibo() + "\"}"))
+				.build();
+
 		try {
+			HttpResponse<String> respuesta = client.send(request, HttpResponse.BodyHandlers.ofString());
+			//System.out.println("RESPUESTA BODY: \n" + respuesta.body());
+			JSONArray jarray = new JSONArray(respuesta.body());
+			//System.out.println("TAmanio de json array: " + jarray.length());
+			for(int i = 0;i < jarray.length(); i++ ){
+				ReciboSAT to = new ReciboSAT();
+				try {
+					SimpleDateFormat formato = new SimpleDateFormat("yyyy-mm-dd");
+					Date fechaCaptura = formato.parse(jarray.getJSONObject(i).getString("fecha_captura"));
+					to.setFechaCaptura(fechaCaptura);
+				} catch(ParseException parseException) {
+					System.out.println(parseException.getMessage());
+				}
+				to.setFolio(jarray.getJSONObject(i).getString("folio"));
+				to.setIdCliente(jarray.getJSONObject(i).getInt("idCliente"));
+				to.setNombreCliente(jarray.getJSONObject(i).getString("nombreCliente"));
+				to.setCodigoPostal(jarray.getJSONObject(i).getString("codigoPostal"));
+				to.setRfc(jarray.getJSONObject(i).getString("rfc"));
+				to.setIdVenta(jarray.getJSONObject(i).getInt("idVenta"));
+				to.setConcepto(jarray.getJSONObject(i).getString("concepto"));
+				to.setCosto(jarray.getJSONObject(i).getFloat("costo"));
+				to.setClave(jarray.getJSONObject(i).getString("clave"));
+				to.setPrecioUnitario(jarray.getJSONObject(i).getFloat("precioUnitario"));
+				to.setPrecioUnitarioIVA(jarray.getJSONObject(i).getFloat("precioUnitarioIVA"));
+				to.setTotal(jarray.getJSONObject(i).getFloat("total"));
+				to.setIdProducto(String.valueOf(jarray.getJSONObject(i).getInt("idProducto")));
+				this.update(to.getIdCliente());
+				Cliente cliente = clienteService.findById(to.getIdCliente());
+				if(cliente!=null) {
+					if(cliente.getEmail()==null) {
+						to.setCorreo("");
+					}else {
+						to.setCorreo(cliente.getEmail());
+					}
+					to.setMembresia(cliente.getNoMembresia());
+				}
+				String observaciones = jarray.getJSONObject(i).getString("observaciones");
+				String[] observacionesSplit = observaciones.split("\\|");
+				to.setUnidad(observacionesSplit[1]);
+				to.setProductCode(observacionesSplit[0]);
+
+				listaReporte.add(to);
+				//System.out.println("TO\n" + to);
+			}
+		} catch (JSONException e) {
+			System.out.println(e.getMessage());
+		} catch (IOException | InterruptedException e) {
+			// TODO Auto-generated catch block
+			System.out.println(e.getMessage());
+		}
+
+
+		//GLobalsoft
+		try {
+			DriverManager.registerDriver(new com.microsoft.sqlserver.jdbc.SQLServerDriver());
 			conn = DriverManager.getConnection(dbURLGlobal, userGlobal, passGlobal);
 
 			PreparedStatement ps=conn.prepareStatement("exec globalsoft.dbo.sp_Consulta_Recibo_Conceptos ? ");
@@ -2014,7 +2135,7 @@ public class Servicios
 			conn.close();
 		} catch (SQLException ex) {
 			System.out.println("Error: " + ex.getMessage());
-			ex.printStackTrace();
+			//ex.printStackTrace();
 		} finally {
 			try {
 				conn.close();
@@ -2024,7 +2145,82 @@ public class Servicios
 		}
 
 		return listaReporte;
+		//return new ResponseEntity<>(listaReporte, HttpStatus.OK);
 	}
+
+	@PostMapping("/obtenerReciboSAT")
+	@ResponseBody
+	public ResponseEntity<?> obtenerReciboSATT(@RequestBody Body body){
+		Connection conn = null;
+		ArrayList<ReciboSAT> listaReporte = new ArrayList<ReciboSAT>();
+
+		HttpClient client = HttpClient.newHttpClient();
+		HttpRequest request = HttpRequest.newBuilder()
+				.uri(URI.create("http://192.168.20.104:8000/alpha/obtenerRecibo_Sat_Completo"))
+				.POST(HttpRequest.BodyPublishers.ofString("{\"recibo\":\"" + body.getRecibo() + "\"}"))
+				.build();
+
+		System.out.println("BODY GET RECIBO: " + body.getRecibo());
+		try {
+			HttpResponse<String> respuesta = client.send(request, HttpResponse.BodyHandlers.ofString());
+			//System.out.println("RESPUESTA BODY: \n" + respuesta.body());
+			JSONArray jarray = new JSONArray(respuesta.body());
+			System.out.println("TAmanio de json array: " + jarray.length());
+			for(int i = 0;i < jarray.length(); i++ ){
+				ReciboSAT to = new ReciboSAT();
+				try {
+					SimpleDateFormat formato = new SimpleDateFormat("yyyy-mm-dd");
+					Date fechaCaptura = formato.parse(jarray.getJSONObject(i).getString("fecha_captura"));
+					to.setFechaCaptura(fechaCaptura);
+				} catch(ParseException parseException) {
+					System.out.println(parseException.getMessage());
+				}
+				to.setFolio(jarray.getJSONObject(i).getString("folio"));
+				to.setIdCliente(jarray.getJSONObject(i).getInt("idCliente"));
+				to.setNombreCliente(jarray.getJSONObject(i).getString("nombreCliente"));
+				to.setCodigoPostal(jarray.getJSONObject(i).getString("codigoPostal"));
+				to.setRfc(jarray.getJSONObject(i).getString("rfc"));
+				to.setIdVenta(jarray.getJSONObject(i).getInt("idVenta"));
+				to.setConcepto(jarray.getJSONObject(i).getString("concepto"));
+				to.setCosto(jarray.getJSONObject(i).getFloat("costo"));
+				to.setClave(jarray.getJSONObject(i).getString("clave"));
+				to.setPrecioUnitario(jarray.getJSONObject(i).getFloat("precioUnitario"));
+				to.setPrecioUnitarioIVA(jarray.getJSONObject(i).getFloat("precioUnitarioIVA"));
+				to.setTotal(jarray.getJSONObject(i).getFloat("total"));
+				to.setIdProducto(String.valueOf(jarray.getJSONObject(i).getInt("idProducto")));
+				this.update(to.getIdCliente());
+				Cliente cliente = clienteService.findById(to.getIdCliente());
+				if(cliente!=null) {
+					if(cliente.getEmail()==null) {
+						to.setCorreo("");
+					}else {
+						to.setCorreo(cliente.getEmail());
+					}
+					to.setMembresia(cliente.getNoMembresia());
+				}
+				String observaciones = jarray.getJSONObject(i).getString("observaciones");
+				String[] observacionesSplit = observaciones.split("\\|");
+				to.setUnidad(observacionesSplit[1]);
+				to.setProductCode(observacionesSplit[0]);
+
+				listaReporte.add(to);
+				System.out.println("TO\n" + to);
+			}
+		} catch (JSONException e) {
+			System.out.println(e.getMessage());
+		} catch (IOException | InterruptedException e) {
+			// TODO Auto-generated catch block
+			System.out.println(e.getMessage());
+		}
+
+		//return listaReporte;
+		return new ResponseEntity<>(listaReporte, HttpStatus.OK);
+	}
+
+
+
+
+
 	@PostMapping("/facturarRecibo")
 	@ResponseBody
 	public ResponseEntity<?> facturarRecibo(@RequestBody Body body){
@@ -2416,8 +2612,8 @@ public class Servicios
 	@ResponseBody
 	public ResponseEntity<?> getClienteByMembresia(@PathVariable("idMembresia") String idMembresia){
 		Connection conn = null;
-		ClienteReferenciado to=new ClienteReferenciado();
-		try {
+		ClienteReferenciado to = new ClienteReferenciado();
+		/*try {
 			// Carga el driver de oracle
 			DriverManager.registerDriver(new com.microsoft.sqlserver.jdbc.SQLServerDriver());
 			conn = DriverManager.getConnection(dbURL, userData, passData);
@@ -2430,9 +2626,6 @@ public class Servicios
 			to.setIdCliente(rs.getInt(1));
 			to.setMembresia(rs.getString(2));
 			to.setNombreCompleto(rs.getString(3)+" "+rs.getString(4)+" "+rs.getString(5));
-
-
-
 			conn.close();
 		} catch (SQLException ex) {
 			System.out.println("Error: " + ex.getMessage());
@@ -2443,6 +2636,38 @@ public class Servicios
 			} catch (SQLException ex) {
 				System.out.println("Error: " + ex.getMessage());
 			}
+		}*/
+
+		HttpClient client = HttpClient.newHttpClient();
+		HttpRequest request = HttpRequest.newBuilder()
+				.uri(URI.create("http://192.168.20.104:8000/alpha/GetMiembroById_Pagos"))
+				.POST(HttpRequest.BodyPublishers.ofString("{\"idMembresia\":" + Long.parseLong(idMembresia) + "}"))
+				.build();
+
+		try {
+			HttpResponse<String> respuesta = client.send(request, HttpResponse.BodyHandlers.ofString());
+			//System.out.println("idMembresia: " + idMembresia);
+			//System.out.println("Tipo de dato de memebresia 1: " + ((Object)idMembresia).getClass().getSimpleName());
+
+			//System.out.println("Tipo de dato de memebresia 2 : " + ((Object)Long.parseLong(idMembresia)).getClass().getSimpleName());
+			//System.out.println("Respuesta body\n" + respuesta.body());
+			//System.out.println("RESPUESTA BODY: \n" + respuesta.body());
+			//JSONArray jarray = new JSONArray(respuesta.body());
+			//System.out.println("TAmanio de json array: " + jarray.length());
+			JSONObject jsonObject = new JSONObject(respuesta.body());
+
+
+			to.setIdCliente(jsonObject.getInt("idCliente"));
+			to.setMembresia(jsonObject.getString("membresia"));
+			to.setNombreCompleto(jsonObject.getString("nombre"));
+
+		} catch (JSONException e) {
+			System.out.println(e.getMessage());
+			return new ResponseEntity<>(e.getMessage(), HttpStatus.CONFLICT);
+		} catch (IOException | InterruptedException e) {
+			// TODO Auto-generated catch block
+			System.out.println(e.getMessage());
+			return new ResponseEntity<>(e.getMessage(), HttpStatus.CONFLICT);
 		}
 		return new ResponseEntity<>(to, HttpStatus.OK);
 	}
@@ -3215,6 +3440,11 @@ public class Servicios
 			//Create file and get file stream
 			SmbFile file = new SmbFile(path,auth);
 			if(file.exists()){
+				System.out.println("FILE: " + file);
+				System.out.println("FILE get NAme: " + file.getName());
+				System.out.println("FILE getDAte(): " + file.getDate());
+				LocalDateTime fecha = LocalDateTime.ofInstant(Instant.ofEpochMilli(file.getDate()), TimeZone.getDefault().toZoneId());
+				System.out.println("FILE date en fecha normal: " + fecha);
 				InputStream is = file.getInputStream();
 				byte[] bytes = IOUtils.toByteArray(is);
 				Foto foto=new Foto(bytes);
