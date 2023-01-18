@@ -365,13 +365,13 @@ public class CitasController
 		if(club.equals("Club Alpha 3") || club.equals("Club Alpha 2") ||club.equals("CIMERA")){
 			listaClases = currentSession.createNativeQuery("select id,nombre,clases.tecnico,tipo_actividad,color, lugar,"
         			+ "clases.duracion,nivel,clases.hora,cupo_actual,cupo_maximo,clases.rango,clases.disponible,clases.dia,"
-        			+ " clases.paga, clases.id_apartados from clases  where dia='"+dia+"'  and club='"+club+"' and"
+        			+ " clases.paga, clases.id_apartados from clases  where dia='"+dia+"'  and (club='"+club+"' or nombre like '%HEALTH%') and"
         			+ " disponible=true  and   TO_TIMESTAMP(clases.dia||split_part(clases.rango, '-', 2),'YYYY-MM-DDHH24:MI')>CURRENT_TIMESTAMP "
         			+ "order by to_timestamp(split_part(clases.rango, '-', 1),'HH24:MI');",CAClase.class);
 		}else {
 			listaClases = currentSession.createNativeQuery("select id,nombre,clases.tecnico,tipo_actividad,color, lugar,"
         			+ "clases.duracion,nivel,clases.hora,cupo_actual,cupo_maximo,clases.rango,clases.disponible,clases.dia,"
-        			+ " clases.paga, clases.id_apartados from clases  where dia='"+dia+"'  and club='"+club+"' and"
+        			+ " clases.paga, clases.id_apartados from clases  where dia='"+dia+"'  and (club='"+club+"' or nombre like '%HEALTH%') and"
         			+ " disponible=true and segmentacion="+admin+" and  "
         			+ " TO_TIMESTAMP(clases.dia||split_part(clases.rango, '-', 2),'YYYY-MM-DDHH24:MI')>CURRENT_TIMESTAMP "
         			+ "order by to_timestamp(split_part(clases.rango, '-', 1),'HH24:MI');",CAClase.class);
