@@ -248,7 +248,8 @@ public class ToallaController
 
         for (Toalla toalla: toallaList){
             if (toalla.getFechaFin() == null && toalla.getAsignacion() == false){
-                int idProd = 1260;
+                //int idProd = 1260;
+                int idProd = 0;
                 Date fecha = toalla.getFechaInicio();
 
                 if (toalla.getIdCliente() == 0) {

@@ -238,7 +238,7 @@ public class ClienteServiceImpl implements ClienteService {
 		System.out.println("EStatus cobranza : " + estatusCobranza.getNombre());
 		Query<Cliente> clientesActivos = currentSession.createQuery("from Cliente c where c.estatusCobranza = :o and c.IdCliente <> 0 ORDER BY c.IdCliente ASC", Cliente.class);
 		clientesActivos.setParameter("o", estatusCobranza);
-		//clientesActivos.setMaxResults(5000);
+		clientesActivos.setMaxResults(3);
 
 		List<Cliente> lista = clientesActivos.getResultList();
 
