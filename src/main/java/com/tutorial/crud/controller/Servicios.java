@@ -1856,7 +1856,7 @@ public class Servicios
 
 		HttpClient client = HttpClient.newHttpClient();
 		HttpRequest request = HttpRequest.newBuilder()
-				.uri(URI.create("http://192.168.20.104:8000/alpha/obtenerRecibo"))
+				.uri(URI.create("http://192.168.20.104:5000/alpha/obtenerRecibo"))
 				.POST(HttpRequest.BodyPublishers.ofString("{\"recibo\":\"" + body.getRecibo() + "\"}"))
 				.build();
 
@@ -1873,15 +1873,13 @@ public class Servicios
 			//System.out.println(respuesta.body());
 
 			JSONArray jarray = new JSONArray(respuesta.body());
-			System.out.println("TAmanio de json array: " + jarray.length());
+
 			for(int i = 0;i < jarray.length(); i++ ){
 				com.tutorial.crud.dto.Recibo to=new com.tutorial.crud.dto.Recibo();
 
 				try {
 					SimpleDateFormat formato = new SimpleDateFormat("yyyy-mm-dd");
-					System.out.println("FECHA CAPTURA ANTES DE FORMATEO: " + jarray.getJSONObject(i).getString("fecha_captura"));
 					Date fechaCaptura = formato.parse(jarray.getJSONObject(i).getString("fecha_captura"));
-					System.out.println("Fecha captura despues de formateo: " + fechaCaptura);
 					to.setFechaCaptura(fechaCaptura);
 				} catch(ParseException parseException) {
 					System.out.println(parseException.getMessage());
@@ -1907,19 +1905,18 @@ public class Servicios
 				}
 				to.setCorreo(cliente.getEmail());
 				listaReporte.add(to);
-				System.out.println("TO\n" + to);
 			}
 		} catch (JSONException e) {
 			System.out.println(e.getMessage());
 		} catch (IOException | InterruptedException e) {
 			// TODO Auto-generated catch block
 			System.out.println(e.getMessage());
-			e.printStackTrace();
+			//e.printStackTrace();
 		}
 
 
 		//Globalsoft
-		try {
+		/*try {
 			DriverManager.registerDriver(new com.microsoft.sqlserver.jdbc.SQLServerDriver());
 			conn = DriverManager.getConnection(dbURLGlobal, userGlobal, passGlobal);
 
@@ -1965,7 +1962,7 @@ public class Servicios
 			} catch (SQLException ex) {
 				System.out.println("Error: " + ex.getMessage());
 			}
-		}
+		}*/
 
 		return new ResponseEntity<>(listaReporte, HttpStatus.OK);
 	}
@@ -2036,15 +2033,15 @@ public class Servicios
 
 		HttpClient client = HttpClient.newHttpClient();
 		HttpRequest request = HttpRequest.newBuilder()
-				.uri(URI.create("http://192.168.20.104:8000/alpha/obtenerRecibo_Sat_Completo"))
+				.uri(URI.create("http://192.168.20.104:5000/alpha/obtenerRecibo_Sat_Completo"))
 				.POST(HttpRequest.BodyPublishers.ofString("{\"recibo\":\"" + body.getRecibo() + "\"}"))
 				.build();
 
 		try {
 			HttpResponse<String> respuesta = client.send(request, HttpResponse.BodyHandlers.ofString());
-			//System.out.println("RESPUESTA BODY: \n" + respuesta.body());
+
 			JSONArray jarray = new JSONArray(respuesta.body());
-			//System.out.println("TAmanio de json array: " + jarray.length());
+
 			for(int i = 0;i < jarray.length(); i++ ){
 				ReciboSAT to = new ReciboSAT();
 				try {
@@ -2156,14 +2153,14 @@ public class Servicios
 
 		HttpClient client = HttpClient.newHttpClient();
 		HttpRequest request = HttpRequest.newBuilder()
-				.uri(URI.create("http://192.168.20.104:8000/alpha/obtenerRecibo_Sat_Completo"))
+				.uri(URI.create("http://192.168.20.104:5000/alpha/obtenerRecibo_Sat_Completo"))
 				.POST(HttpRequest.BodyPublishers.ofString("{\"recibo\":\"" + body.getRecibo() + "\"}"))
 				.build();
 
 		System.out.println("BODY GET RECIBO: " + body.getRecibo());
 		try {
 			HttpResponse<String> respuesta = client.send(request, HttpResponse.BodyHandlers.ofString());
-			//System.out.println("RESPUESTA BODY: \n" + respuesta.body());
+			System.out.println("RESPUESTA BODY: \n" + respuesta.body());
 			JSONArray jarray = new JSONArray(respuesta.body());
 			System.out.println("TAmanio de json array: " + jarray.length());
 			for(int i = 0;i < jarray.length(); i++ ){
@@ -2640,20 +2637,13 @@ public class Servicios
 
 		HttpClient client = HttpClient.newHttpClient();
 		HttpRequest request = HttpRequest.newBuilder()
-				.uri(URI.create("http://192.168.20.104:8000/alpha/GetMiembroById_Pagos"))
+				.uri(URI.create("http://192.168.20.104:5000/alpha/GetMiembroById_Pagos"))
 				.POST(HttpRequest.BodyPublishers.ofString("{\"idMembresia\":" + Long.parseLong(idMembresia) + "}"))
 				.build();
 
 		try {
 			HttpResponse<String> respuesta = client.send(request, HttpResponse.BodyHandlers.ofString());
-			//System.out.println("idMembresia: " + idMembresia);
-			//System.out.println("Tipo de dato de memebresia 1: " + ((Object)idMembresia).getClass().getSimpleName());
 
-			//System.out.println("Tipo de dato de memebresia 2 : " + ((Object)Long.parseLong(idMembresia)).getClass().getSimpleName());
-			//System.out.println("Respuesta body\n" + respuesta.body());
-			//System.out.println("RESPUESTA BODY: \n" + respuesta.body());
-			//JSONArray jarray = new JSONArray(respuesta.body());
-			//System.out.println("TAmanio de json array: " + jarray.length());
 			JSONObject jsonObject = new JSONObject(respuesta.body());
 
 
@@ -4655,11 +4645,9 @@ public class Servicios
 	public ResponseEntity<?> getReportePromociones(){
 		Connection conn = null;
 		ArrayList<ReportePromocion> listaReporte = new ArrayList<ReportePromocion>();
-		try {
+		/*try {
 			// Carga el driver de oracle
 			DriverManager.registerDriver(new com.microsoft.sqlserver.jdbc.SQLServerDriver());
-
-
 
 			conn = DriverManager.getConnection(dbURL, userData, passData);
 
@@ -4701,6 +4689,66 @@ public class Servicios
 			} catch (SQLException ex) {
 				System.out.println("Error: " + ex.getMessage());
 			}
+		}*/
+
+		HttpClient client = HttpClient.newHttpClient();
+		HttpRequest request = HttpRequest.newBuilder()
+				.uri(URI.create("http://192.168.20.104:8000/alpha/obtenerRecibo"))
+				.GET()
+				.build();
+
+		try {
+			HttpResponse<String> respuesta = client.send(request, HttpResponse.BodyHandlers.ofString());
+			//System.out.println(respuesta.body());
+
+			JSONArray jarray = new JSONArray(respuesta.body());
+			System.out.println("TAmanio de json array: " + jarray.length());
+			for(int i = 0;i < jarray.length(); i++ ){
+				ReportePromocion to = new ReportePromocion();
+
+				try {
+					SimpleDateFormat formato = new SimpleDateFormat("yyyy-mm-dd");
+					Date fechaInicio = formato.parse(jarray.getJSONObject(i).getString("fecha_captura"));
+					Date fechaFin = formato.parse(jarray.getJSONObject(i).getString("fecha_captura"));
+					Date idCapturoFecha = formato.parse(jarray.getJSONObject(i).getString("fecha_captura"));
+					Date reciboFecha = formato.parse(jarray.getJSONObject(i).getString("fecha_captura"));
+					to.setFechaInicio(fechaInicio);
+					to.setFechaFin(fechaFin);
+					to.setIdCapturoFecha(idCapturoFecha);
+					to.setReciboFecha(reciboFecha);
+				} catch(ParseException parseException) {
+					System.out.println(parseException.getMessage());
+				}
+				to.setIdPromocion(jarray.getJSONObject(i).getInt("fecha_captura"));
+				to.setPromocion(jarray.getJSONObject(i).getString("fecha_captura"));
+				to.setConcepto(jarray.getJSONObject(i).getString("fecha_captura"));
+
+
+				to.setSubImporte(jarray.getJSONObject(i).getFloat("fecha_captura"));
+				to.setIva(jarray.getJSONObject(i).getFloat("fecha_captura"));
+				to.setRecibo(jarray.getJSONObject(i).getString("fecha_captura"));
+
+				to.setIdOrdenDeVenta(jarray.getJSONObject(i).getInt("fecha_captura"));
+				to.setTotal(jarray.getJSONObject(i).getFloat("fecha_captura"));
+				to.setRestante(jarray.getJSONObject(i).getFloat("fecha_captura"));
+				to.setPagado(jarray.getJSONObject(i).getFloat("fecha_captura"));
+				to.setDescripcion(jarray.getJSONObject(i).getString("fecha_captura"));
+				to.setClub(jarray.getJSONObject(i).getString("fecha_captura"));
+				to.setIdCliente(jarray.getJSONObject(i).getInt("fecha_captura"));
+				to.setCliente(jarray.getJSONObject(i).getString("fecha_captura"));
+				to.setMembresia(jarray.getJSONObject(i).getLong("fecha_captura"));
+				to.setObservaciones(jarray.getJSONObject(i).getString("fecha_captura"));
+				listaReporte.add(to);
+				System.out.println("TO\n" + to);
+			}
+		} catch (JSONException e) {
+			System.out.println(e.getMessage());
+			return new ResponseEntity<>(listaReporte, HttpStatus.INTERNAL_SERVER_ERROR);
+		} catch (IOException | InterruptedException e) {
+			// TODO Auto-generated catch block
+			System.out.println(e.getMessage());
+			//e.printStackTrace();
+			return new ResponseEntity<>(listaReporte, HttpStatus.INTERNAL_SERVER_ERROR);
 		}
 
 		return new ResponseEntity<>(listaReporte, HttpStatus.OK);
