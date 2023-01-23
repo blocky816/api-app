@@ -413,13 +413,13 @@ public class ParkingController
 
 			HttpClient client = HttpClient.newHttpClient();
 			HttpRequest request = HttpRequest.newBuilder()
-					.uri(URI.create("http://192.168.20.104:5000/parking/nuevo/" + horarioId))
+					.uri(URI.create("http://192.168.20.104:8000/parking/nuevo/" + horarioId))
 					.GET()
 					.build();
 
 			HttpResponse<String> respuesta = client.send(request, HttpResponse.BodyHandlers.ofString());
 
-			System.out.println(respuesta.body());
+			//System.out.println(respuesta.body());
 
 			JSONArray jarray = new JSONArray(respuesta.body());
 
@@ -451,7 +451,9 @@ public class ParkingController
 			}
 			ParkingUsuario usuario = null;
 			try {
-				usuario=lista.get(lista.size()-1);
+				//usuario=lista.get(lista.size()-1);
+				usuario = lista.get(0);
+				System.out.println("USUARIO GET 0" + lista.get(0));
 			}catch(IndexOutOfBoundsException e) {
 				List<ParkingUsuario> parkingUsuario=parkingUsuarioService.findByIdCliente(clienteService.findById(horarioId));
 				for(int i=0;i<parkingUsuario.size();i++) {
@@ -478,9 +480,8 @@ public class ParkingController
 			}else {
 				Long idChip = 0L;
 				try {
-					String[] split  = usuario.getObservaciones().split(",");
-					System.out.println("idChaip: " + split[1]);
-					idChip = Long.parseLong(split[1]);
+					System.out.println("Chip antes de conversion: " + idChip);
+					idChip = Long.parseLong(usuario.getObservaciones());
 					System.out.println("CHIP : " + idChip);
 				} catch(NumberFormatException e) {
 					json.put("respuesta", "error en el id del chip");
