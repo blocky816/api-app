@@ -413,7 +413,7 @@ public class ParkingController
 
 			HttpClient client = HttpClient.newHttpClient();
 			HttpRequest request = HttpRequest.newBuilder()
-					.uri(URI.create("http://192.168.20.104:8000/parking/nuevo/" + horarioId))
+					.uri(URI.create("http://192.168.20.107:8000/parking/nuevo/" + horarioId))
 					.GET()
 					.build();
 

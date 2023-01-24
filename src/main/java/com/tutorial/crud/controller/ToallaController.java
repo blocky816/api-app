@@ -249,7 +249,7 @@ public class ToallaController
         for (Toalla toalla: toallaList){
             if (toalla.getFechaFin() == null && toalla.getAsignacion() == false){
                 //int idProd = 1260;
-                int idProd = 0;
+                int idProd = 2699;
                 Date fecha = toalla.getFechaInicio();
 
                 if (toalla.getIdCliente() == 0) {
@@ -274,7 +274,7 @@ public class ToallaController
                 if (toalla.getSancion() == null || "NO".equals(toalla.getSancion())) {
 
                     try {
-                        URL url = new URL("http://192.168.20.44/ServiciosClubAlpha/api/OrdenDeVenta/Registra");
+                        URL url = new URL("http://192.168.20.107:8000/ServiciosClubAlpha/api/OrdenDeVenta/Registra");
                         String postData = body2;
                         HttpURLConnection conn = (HttpURLConnection) url.openConnection();
                         conn.setRequestMethod("POST");

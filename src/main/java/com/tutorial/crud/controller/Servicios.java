@@ -1856,7 +1856,7 @@ public class Servicios
 
 		HttpClient client = HttpClient.newHttpClient();
 		HttpRequest request = HttpRequest.newBuilder()
-				.uri(URI.create("http://192.168.20.104:8000/alpha/obtenerRecibo"))
+				.uri(URI.create("http://192.168.20.107:8000/alpha/obtenerRecibo"))
 				.POST(HttpRequest.BodyPublishers.ofString("{\"recibo\":\"" + body.getRecibo() + "\"}"))
 				.build();
 
@@ -2033,7 +2033,7 @@ public class Servicios
 
 		HttpClient client = HttpClient.newHttpClient();
 		HttpRequest request = HttpRequest.newBuilder()
-				.uri(URI.create("http://192.168.20.104:8000/alpha/obtenerRecibo_Sat_Completo"))
+				.uri(URI.create("http://192.168.20.107:8000/alpha/obtenerRecibo_Sat_Completo"))
 				.POST(HttpRequest.BodyPublishers.ofString("{\"recibo\":\"" + body.getRecibo() + "\"}"))
 				.build();
 
@@ -2637,7 +2637,7 @@ public class Servicios
 
 		HttpClient client = HttpClient.newHttpClient();
 		HttpRequest request = HttpRequest.newBuilder()
-				.uri(URI.create("http://192.168.20.104:8000/alpha/GetMiembroById_Pagos"))
+				.uri(URI.create("http://192.168.20.107:8000/alpha/GetMiembroById_Pagos"))
 				.POST(HttpRequest.BodyPublishers.ofString("{\"idMembresia\":" + Long.parseLong(idMembresia) + "}"))
 				.build();
 
@@ -4694,7 +4694,7 @@ public class Servicios
 
 		HttpClient client = HttpClient.newHttpClient();
 		HttpRequest request = HttpRequest.newBuilder()
-				.uri(URI.create("http://192.168.20.104:8000/alpha/obtenerRecibo"))
+				.uri(URI.create("http://192.168.20.107:8000/alpha/obtenerRecibo"))
 				.GET()
 				.build();
 
