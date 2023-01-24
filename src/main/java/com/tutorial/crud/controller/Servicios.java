@@ -2657,6 +2657,7 @@ public class Servicios
 		} catch (IOException | InterruptedException e) {
 			// TODO Auto-generated catch block
 			System.out.println(e.getMessage());
+			e.printStackTrace();
 			return new ResponseEntity<>(e.getMessage(), HttpStatus.CONFLICT);
 		}
 		return new ResponseEntity<>(to, HttpStatus.OK);
@@ -2666,7 +2667,7 @@ public class Servicios
 	public String update(@PathVariable("horarioId") int horarioId){
 
 		try {
-			JSONObject json = new JSONObject(IOUtils.toString(new URL("http://192.168.20.47/ServiciosClubAlpha/api/Miembro/"+horarioId), Charset.forName("UTF-8")));
+			JSONObject json = new JSONObject(IOUtils.toString(new URL("http://192.168.20.107:8000/ServiciosClubAlpha/api/Miembro/"+horarioId), Charset.forName("UTF-8")));
 
 			NuevoUsuario nuevoUsuario=new NuevoUsuario();
 			nuevoUsuario.setCliente(json.getString("Nombre")+" "+json.getString("ApellidoPaterno")+" "+json.getString("ApellidoMaterno"));
@@ -6394,7 +6395,7 @@ public class Servicios
 
 		for(Cliente record: clientesList) {
 			try {
-				JSONObject json = new JSONObject(IOUtils.toString(new URL("http://192.168.20.47/ServiciosClubAlpha/api/Miembro/"+record.getIdCliente()), Charset.forName("UTF-8")));
+				JSONObject json = new JSONObject(IOUtils.toString(new URL("http://192.168.20.107:8000/ServiciosClubAlpha/api/Miembro/"+record.getIdCliente()), Charset.forName("UTF-8")));
 
 				Foto foto = this.addFoto(json.getString("UrlFoto"),record);
 

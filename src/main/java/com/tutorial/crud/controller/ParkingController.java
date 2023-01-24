@@ -2861,7 +2861,7 @@ public class ParkingController
 	 	public String update(int horarioId){
 			
 			try {
-				JSONObject json = new JSONObject(IOUtils.toString(new URL("http://192.168.20.47/ServiciosClubAlpha/api/Miembro/"+horarioId), Charset.forName("UTF-8")));
+				JSONObject json = new JSONObject(IOUtils.toString(new URL("http://192.168.20.107:8000/ServiciosClubAlpha/api/Miembro/"+horarioId), Charset.forName("UTF-8")));
 				
 				NuevoUsuario nuevoUsuario=new NuevoUsuario();
 				nuevoUsuario.setCliente(json.getString("Nombre")+" "+json.getString("ApellidoPaterno")+" "+json.getString("ApellidoMaterno"));
