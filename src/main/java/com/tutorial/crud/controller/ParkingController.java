@@ -1397,7 +1397,10 @@ public class ParkingController
 				return new ResponseEntity<>(json.toString(), HttpStatus.BAD_REQUEST);
 			}
 		}else {
-			if(Integer.parseInt(body.getRaw())>1000000 && body.getIdTipoAcceso()==4) {
+			System.out.println("RAW: " + "\"" + body.getRaw() + "\"");
+			int raw = Integer.parseInt(body.getRaw().trim().replaceFirst("^0+(?!$)", ""));
+
+			if(raw > 1000000 && body.getIdTipoAcceso()==4) {
 				QRCortesia estacionamientoExterno=qrCortesiaService.getByIdRegistro(body.getRaw());
 				Caseta caseta=casetaService.getOne(body.getIdCaseta()).get();
 				 TipoAcceso tipoAcceso=tipoAccesoService.getOne(body.getIdTipoAcceso()).get();
@@ -1443,16 +1446,11 @@ public class ParkingController
 				}catch(IndexOutOfBoundsException e) {
 					System.out.println("\u001B[31m" + "Error en la linea 1188 ParkingController no se encontro un id_registro="+body.getRaw()+" y club "+club + "\u001B[0m");
 				}
-				 
 			}
-			
-			
 		}
 		JSONObject json=new JSONObject();
 		json.put("respuesta", "ocurrio un error en el endpoint registrarEvento");
 		return new ResponseEntity<>(json.toString(), HttpStatus.OK);
-		
-		
 	}
 	
 	 @GetMapping("/chipsActivos/{idCaseta}")
