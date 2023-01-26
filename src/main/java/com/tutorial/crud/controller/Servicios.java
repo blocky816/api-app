@@ -2735,7 +2735,19 @@ public class Servicios
 					categoriaService.save(categoria);
 					cliente.setCategoria(categoria);
 				}
-				Club club=clubService.findById(json.getJSONObject("Club").getInt("Id"));
+				int idCLub = json.getJSONObject("Club").getInt("Id");
+				Club club = null;
+				switch (idCLub) {
+					case 7:  club = clubService.findById(3);
+						break;
+					case 8:  club = clubService.findById(5);
+						break;
+					case 9:  club = clubService.findById(4);
+						break;
+					case 6:  club = clubService.findById(2);
+						break;
+				}
+
 				if(club!=null)
 					cliente.setClub(club);
 				else {

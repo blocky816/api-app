@@ -232,7 +232,7 @@ public class ProductoController {
 				idCliente = item.getString("idCliente");
 				membresia = item.getString("Membresia");
 				//estatus = String.valueOf(item.get("Estatus"));
-				estatus = "Cliente Vigente";
+				estatus = item.getString("Estatus");
 				cliente = item.getString("Cliente");
 				clienteTipo = item.getString("ClienteTipo");
 				estatusCobranza = item.getString("EstatusCobranza");
