@@ -28,6 +28,7 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.util.*;
+import java.util.concurrent.TimeUnit;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -1576,7 +1577,7 @@ public class Servicios
 		configuracion o = configuracionService.findByServiceName("getPasesById").get();
 
 		JSONArray json = new JSONArray(e.conectaApiClubPOST(body2,o.getEndpointAlpha()));
-		//System.out.println("JSON GET PASES: " + json);
+
 		for(int i=0;i<json.length();i++) {
 			JSONObject obj = json.getJSONObject(i);
 			int concepto = obj.getInt("IDProdServ");
@@ -1590,22 +1591,14 @@ public class Servicios
 					pase.setIdProd(1746);
 				}
 			}
-			//pase.setCantidad(obj.getInt("Cantidad"));
 			pase.setCantidad(Math.round(obj.getFloat("Cantidad")));
 			pase.setIdVentaDetalle(obj.getInt("VentaDetalle"));
 			pase.setConcepto(obj.getString("Concepto"));
-			//pase.setF_compra(new Date(obj.getLong("FechaCaptura")));
 
-			try {
-				//System.out.println("FechaCaptura string: " + obj.getString("FechaCaptura"));
-				SimpleDateFormat formato = new SimpleDateFormat("yyyy-MM-dd");
-				Date fechaCompra = formato.parse(obj.getString("FechaCaptura"));
-				//System.out.println("DATE parseada: " + fechaCompra);
-				pase.setF_compra(fechaCompra);
-			} catch(ParseException e) {
-				System.out.println(e.getMessage());
-			}
-
+			Date fechaCompra = new Date(TimeUnit.MILLISECONDS.toMillis(obj.getLong("FechaCaptura")));
+			//System.out.println("Long: " + obj.getLong("FechaCaptura"));
+			//System.out.println("Fecha parseada = " + fechaCompra);
+			pase.setF_compra(fechaCompra);
 			pase.setActivo(true);
 			pase.setCliente(clienteService.findById(paseid));
 			pase.setCreated(new Date());
@@ -1615,7 +1608,6 @@ public class Servicios
 			pase.setCreatedBy(String.valueOf(paseid));
 		}
 		return json.toString();
-		//return "json.toString(";
 	}
 
 	/**

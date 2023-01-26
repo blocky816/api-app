@@ -3197,10 +3197,12 @@ public class CitasController
 					pase.setIdProd(1746);
 				}
 			}
-			pase.setCantidad(obj.getInt("Cantidad"));
+			pase.setCantidad(Math.round(obj.getInt("Cantidad")));
 			pase.setIdVentaDetalle(obj.getInt("VentaDetalle"));
 			pase.setConcepto(obj.getString("Concepto"));
-			pase.setF_compra(new Date(obj.getLong("FechaCaptura")));
+
+			Date fechaCompra = new Date(TimeUnit.MILLISECONDS.toMillis(obj.getLong("FechaCaptura")));
+			pase.setF_compra(fechaCompra);
 			pase.setActivo(true);
 			pase.setCliente(clienteService.findById(paseid));
 			pase.setCreated(new Date());
