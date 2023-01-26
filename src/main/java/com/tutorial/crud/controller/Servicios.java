@@ -1574,24 +1574,38 @@ public class Servicios
 				+ "\"Token\":\"77D5BDD4-1FEE-4A47-86A0-1E7D19EE1C74\"\n"
 				+ "}";
 		configuracion o = configuracionService.findByServiceName("getPasesById").get();
-		JSONArray json=new JSONArray(e.conectaApiClubPOST(body2,o.getEndpointAlpha()));
+
+		JSONArray json = new JSONArray(e.conectaApiClubPOST(body2,o.getEndpointAlpha()));
+		//System.out.println("JSON GET PASES: " + json);
 		for(int i=0;i<json.length();i++) {
-			JSONObject obj=json.getJSONObject(i);
-			int concepto=obj.getInt("IDProdServ");
-			PaseUsuario pase=new PaseUsuario();
+			JSONObject obj = json.getJSONObject(i);
+			int concepto = obj.getInt("IDProdServ");
+			PaseUsuario pase = new PaseUsuario();
 			pase.setIdProd(concepto);
-			if((concepto>=1834 && concepto<=1846) || (concepto==1746 || concepto==1747)) {
+			if((concepto >= 1834 && concepto <= 1846) || (concepto == 1746 || concepto == 1747)) {
 				pase.setCantidad(0);
 				pase.setDisponibles(0);
 				pase.setConsumido(0);
-				if(concepto==1747) {
+				if(concepto == 1747) {
 					pase.setIdProd(1746);
 				}
 			}
-			pase.setCantidad(obj.getInt("Cantidad"));
+			//pase.setCantidad(obj.getInt("Cantidad"));
+			pase.setCantidad(Math.round(obj.getFloat("Cantidad")));
 			pase.setIdVentaDetalle(obj.getInt("VentaDetalle"));
 			pase.setConcepto(obj.getString("Concepto"));
-			pase.setF_compra(new Date(obj.getLong("FechaCaptura")));
+			//pase.setF_compra(new Date(obj.getLong("FechaCaptura")));
+
+			try {
+				//System.out.println("FechaCaptura string: " + obj.getString("FechaCaptura"));
+				SimpleDateFormat formato = new SimpleDateFormat("yyyy-MM-dd");
+				Date fechaCompra = formato.parse(obj.getString("FechaCaptura"));
+				//System.out.println("DATE parseada: " + fechaCompra);
+				pase.setF_compra(fechaCompra);
+			} catch(ParseException e) {
+				System.out.println(e.getMessage());
+			}
+
 			pase.setActivo(true);
 			pase.setCliente(clienteService.findById(paseid));
 			pase.setCreated(new Date());
@@ -1601,6 +1615,7 @@ public class Servicios
 			pase.setCreatedBy(String.valueOf(paseid));
 		}
 		return json.toString();
+		//return "json.toString(";
 	}
 
 	/**
@@ -2709,7 +2724,8 @@ public class Servicios
 				e.printStackTrace();
 			}
 
-			SimpleDateFormat formato = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss");
+			//SimpleDateFormat formato = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss");
+			SimpleDateFormat formato = new SimpleDateFormat("yyyy-MM-dd");
 			Cliente cliente=clienteService.findById(horarioId);
 			if(cliente!=null) {
 				cliente.setApellidoMaterno(json.getString("ApellidoMaterno"));
