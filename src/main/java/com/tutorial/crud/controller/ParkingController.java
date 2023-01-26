@@ -453,7 +453,7 @@ public class ParkingController
 			try {
 				//usuario=lista.get(lista.size()-1);
 				usuario = lista.get(0);
-				System.out.println("USUARIO GET 0" + lista.get(0));
+				//System.out.println("USUARIO GET 0" + lista.get(0));
 			}catch(IndexOutOfBoundsException e) {
 				List<ParkingUsuario> parkingUsuario=parkingUsuarioService.findByIdCliente(clienteService.findById(horarioId));
 				for(int i=0;i<parkingUsuario.size();i++) {
@@ -480,16 +480,18 @@ public class ParkingController
 			}else {
 				Long idChip = 0L;
 				try {
-					System.out.println("Chip antes de conversion: " + idChip);
+					//System.out.println("Chip antes de conversion: " + idChip);
+					//System.out.println("USUARIO.getObservaciones: " + usuario.getObservaciones());
 					idChip = Long.parseLong(usuario.getObservaciones());
-					System.out.println("CHIP : " + idChip);
+					//System.out.println("CHIP : " + idChip);
 				} catch(NumberFormatException e) {
 					json.put("respuesta", "error en el id del chip");
 					return new ResponseEntity<>(json.toString(), HttpStatus.BAD_REQUEST);
 				}
+
 				//RegistroTag registroTag= registroTagService.findByIdChip(Long.parseLong(usuario.getObservaciones()));
 				RegistroTag registroTag= registroTagService.findByIdChip(idChip);
-				System.out.println(usuario.getObservaciones());
+				//System.out.println(usuario.getObservaciones());
 				try {
 					if(registroTag.isActivo()) {
 						json.put("respuesta", "El chip ingresado ya se encuentra activo");
@@ -2903,7 +2905,8 @@ public class ParkingController
 					e.printStackTrace();
 				}
 
-        		SimpleDateFormat formato = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss");
+        		//SimpleDateFormat formato = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss");
+				SimpleDateFormat formato = new SimpleDateFormat("yyyy-MM-dd");
             	Cliente cliente=clienteService.findById(horarioId);
             	if(cliente!=null) {
             		cliente.setApellidoMaterno(json.getString("ApellidoMaterno"));

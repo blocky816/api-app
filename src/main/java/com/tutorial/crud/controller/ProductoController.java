@@ -219,35 +219,51 @@ public class ProductoController {
         	String j = e.conectaApiClubPOST(body, o.getEndpointAlpha());
         	JSONArray a = new JSONArray(j);
         	String idCliente, membresia,email,x[],estatus,cliente,clienteTipo,estatusCobranza,nivel;
-     
         	for(int i = 0; i<a.length(); i++) {
         		JSONObject item = a.getJSONObject(i);
-        		idCliente = String.valueOf(item.get("IDCliente"));
+        		/*idCliente = String.valueOf(item.get("IDCliente"));
             	membresia = String.valueOf(item.get("Membresia"));
-            	estatus = String.valueOf(item.get("Estatus"));
+            	//estatus = String.valueOf(item.get("Estatus"));
+				estatus = "Cliente Vigente";
             	cliente = String.valueOf(item.get("Cliente"));
             	clienteTipo = String.valueOf(item.get("ClienteTipo"));
             	estatusCobranza = String.valueOf(item.get("EstatusCobranza"));
-            	nivel = String.valueOf(item.get("Nivel1"));
+            	nivel = String.valueOf(item.get("Nivel1"));*/
+				idCliente = item.getString("idCliente");
+				membresia = item.getString("Membresia");
+				//estatus = String.valueOf(item.get("Estatus"));
+				estatus = "Cliente Vigente";
+				cliente = item.getString("Cliente");
+				clienteTipo = item.getString("ClienteTipo");
+				estatusCobranza = item.getString("EstatusCobranza");
+				nivel = item.getString("Nivel1");
             	try {
             		o = configuracionService.findByServiceName("getConsultaMiembroID").get();
             		String getClienteById = e.conectaApiClubGET(o.getEndpointAlpha()+idCliente);
                 	JSONObject json = new JSONObject(getClienteById);
+					//System.out.println("CLIENTE: " + idCliente + "\n" + json);
                 	email = String.valueOf(json.get("EMail"));
                 	x = String.valueOf(json.get("FechaNacimiento")).split("T");
                 	x = x[0].split("-");
+					//System.out.println("SPLIt x: " + x);
                 	if(usuarioService.existsByNombreUsuario(idCliente)) {
-                		logJava.info(idCliente + ", Ya estaba agregado");
+                		//logJava.info(idCliente + ", Ya estaba agregado");
+						System.out.println(idCliente + " Ya estaba agregado");
                 	}else {
                 	Usuario usuario = new Usuario(membresia,idCliente, email,passwordEncoder.encode(idCliente +"."+ x[0] + x[1] + x[2]), estatus,cliente,clienteTipo,estatusCobranza,nivel);
                 	Set<Rol> roles = new HashSet<>();
                 	roles.add(rolService.getByRolNombre(RolNombre.ROLE_USER).get());
                 	usuario.setRoles(roles);
                 	usuarioService.save(usuario);
-                	logJava.info(idCliente + ", Ha sido agregado");
+                	//logJava.info(idCliente + ", Ha sido agregado");
+						System.out.println(idCliente + " Ha sido agregado");
                 	}
-            	}catch(Exception e) {
-            		logJava.error(idCliente + ", No se ha agregado: " + e);
+            	} catch(NumberFormatException e) {
+					System.out.println("Error al parsear: " + e.getMessage());
+				} catch(Exception e) {
+            		//logJava.error(idCliente + ", No se ha agregado: " + e);
+					System.out.println("Error: " + e.getMessage());
+					System.out.println(idCliente + " No se ha agregado");
             	}
             }
         return null;
