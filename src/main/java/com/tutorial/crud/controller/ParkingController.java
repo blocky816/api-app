@@ -505,7 +505,7 @@ public class ParkingController
 				System.out.println(registroTag);
 				usuario.setRegistroTag(registroTag);
 				registroTag.setParking(usuario);
-				registroTagService.save(registroTag);
+
 
 				ParkingUsuarioDTO vista=new ParkingUsuarioDTO();
 				ClienteVista clienteVista=new ClienteVista();
@@ -531,6 +531,9 @@ public class ParkingController
 				parkingUsuarioService.save(usuario);
 				//conn.close();
 
+				registroTag.setActivo(true);
+				registroTag.setFechaFin(calendar.getTime());
+				registroTagService.save(registroTag);
 
 				return new ResponseEntity<>(vista, HttpStatus.OK);
 			}
