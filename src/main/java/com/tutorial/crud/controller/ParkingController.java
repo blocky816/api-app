@@ -436,7 +436,7 @@ public class ParkingController
 
 				to.setIdProd(jarray.getJSONObject(i).getInt("idProd"));
 				to.setConcepto(jarray.getJSONObject(i).getString("concepto"));
-				to.setIdVentaDetalle(jarray.getJSONObject(i).getInt("idVentaDetalle"));
+				to.setIdVentaDetalle(jarray.getJSONObject(i).getInt("idVentaDetalle") * 10);
 				to.setObservaciones(jarray.getJSONObject(i).getString("observaciones"));
 				to.setEstadoCobranza(jarray.getJSONObject(i).getString("estadoCobranza"));
 				to.setCorreo(jarray.getJSONObject(i).getString("correo"));
