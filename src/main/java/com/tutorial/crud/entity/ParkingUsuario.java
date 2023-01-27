@@ -60,7 +60,7 @@ public class ParkingUsuario {
 	@Column(name = "capturado")
 	private boolean capturado;
 	
-	@OneToMany(mappedBy = "parkingUsuario", cascade = CascadeType.ALL)
+	@OneToMany(mappedBy = "parkingUsuario", cascade = CascadeType.MERGE)
     List<Carro> carro;
 
 	private String club;
