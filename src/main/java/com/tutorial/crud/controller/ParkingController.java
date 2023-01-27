@@ -436,7 +436,7 @@ public class ParkingController
 
 				to.setIdProd(jarray.getJSONObject(i).getInt("idProd"));
 				to.setConcepto(jarray.getJSONObject(i).getString("concepto"));
-				to.setIdVentaDetalle(jarray.getJSONObject(i).getInt("idVentaDetalle") * 10);
+				to.setIdVentaDetalle(jarray.getJSONObject(i).getInt("idVentaDetalle"));
 				to.setObservaciones(jarray.getJSONObject(i).getString("observaciones"));
 				to.setEstadoCobranza(jarray.getJSONObject(i).getString("estadoCobranza"));
 				to.setCorreo(jarray.getJSONObject(i).getString("correo"));
@@ -500,7 +500,7 @@ public class ParkingController
 				System.out.println(registroTag);
 				usuario.setRegistroTag(registroTag);
 				registroTag.setParking(usuario);
-				//registroTagService.save(registroTag);
+				registroTagService.save(registroTag);
 
 				ParkingUsuarioDTO vista=new ParkingUsuarioDTO();
 
@@ -525,9 +525,9 @@ public class ParkingController
 				calendar.add(Calendar.YEAR, 1);
 				vista.setVigencia(calendar.getTime());
 
-				registroTag.setActivo(true);
-				registroTag.setFechaFin(calendar.getTime());
-				registroTagService.save(registroTag);
+				//registroTag.setActivo(true);
+				//registroTag.setFechaFin(calendar.getTime());
+				//registroTagService.save(registroTag);
 				parkingUsuarioService.save(usuario);
 				//conn.close();
 
@@ -722,7 +722,7 @@ public class ParkingController
 		Query<ParkingUsuario> listaUsuarios;
         	
         	listaUsuarios = currentSession.createNativeQuery("Select * from parking_usuario WHERE"
-        			+ " ID_VENTA_DETALLE=(SELECT MAX(ID_VENTA_DETALLE) FROM parking_usuario where idcliente="+carrodto.getIdCliente()+")"
+        			+ " ID_VENTA_DETALLE=(SELECT MIN(ID_VENTA_DETALLE) FROM parking_usuario where idcliente="+carrodto.getIdCliente()+")"
         			+ "  and capturado=false;",ParkingUsuario.class);
        try {
     	   List<ParkingUsuario> lista= listaUsuarios.getResultList();
