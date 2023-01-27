@@ -500,7 +500,7 @@ public class ParkingController
 				System.out.println(registroTag);
 				usuario.setRegistroTag(registroTag);
 				registroTag.setParking(usuario);
-				registroTagService.save(registroTag);
+				//registroTagService.save(registroTag);
 
 				ParkingUsuarioDTO vista=new ParkingUsuarioDTO();
 
@@ -524,6 +524,10 @@ public class ParkingController
 				calendar.setTime(usuario.getFechaCaptura());
 				calendar.add(Calendar.YEAR, 1);
 				vista.setVigencia(calendar.getTime());
+
+				registroTag.setActivo(true);
+				registroTag.setFechaFin(calendar.getTime());
+				registroTagService.save(registroTag);
 				parkingUsuarioService.save(usuario);
 				//conn.close();
 
