@@ -210,6 +210,5 @@ public class ParkingUsuario {
 		return "ParkingUsuario [idVentaDetalle=" + idVentaDetalle + ", cliente=" + cliente.getIdCliente() + ", concepto=" + concepto
 				+ ", idProd=" + idProd + ", cantidad=" + cantidad + ", f_compra=" + fechaCaptura + ", pk=" + pk + "]";
 	}
-	
-	
+
 }

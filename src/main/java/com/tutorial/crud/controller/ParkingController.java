@@ -453,9 +453,8 @@ public class ParkingController
 			try {
 				//usuario=lista.get(lista.size()-1);
 				usuario = lista.get(0);
-				//System.out.println("USUARIO GET 0" + lista.get(0));
 			}catch(IndexOutOfBoundsException e) {
-				List<ParkingUsuario> parkingUsuario=parkingUsuarioService.findByIdCliente(clienteService.findById(horarioId));
+				List<ParkingUsuario> parkingUsuario = parkingUsuarioService.findByIdCliente(clienteService.findById(horarioId));
 				for(int i=0;i<parkingUsuario.size();i++) {
 					if(!parkingUsuario.get(i).isCapturado()) {
 						usuario=parkingUsuario.get(i);
@@ -480,10 +479,7 @@ public class ParkingController
 			}else {
 				Long idChip = 0L;
 				try {
-					//System.out.println("Chip antes de conversion: " + idChip);
-					//System.out.println("USUARIO.getObservaciones: " + usuario.getObservaciones());
 					idChip = Long.parseLong(usuario.getObservaciones());
-					//System.out.println("CHIP : " + idChip);
 				} catch(NumberFormatException e) {
 					json.put("respuesta", "error en el id del chip");
 					return new ResponseEntity<>(json.toString(), HttpStatus.BAD_REQUEST);
@@ -491,7 +487,6 @@ public class ParkingController
 
 				//RegistroTag registroTag= registroTagService.findByIdChip(Long.parseLong(usuario.getObservaciones()));
 				RegistroTag registroTag= registroTagService.findByIdChip(idChip);
-				//System.out.println(usuario.getObservaciones());
 				try {
 					if(registroTag.isActivo()) {
 						json.put("respuesta", "El chip ingresado ya se encuentra activo");
@@ -505,9 +500,10 @@ public class ParkingController
 				System.out.println(registroTag);
 				usuario.setRegistroTag(registroTag);
 				registroTag.setParking(usuario);
-
+				registroTagService.save(registroTag);
 
 				ParkingUsuarioDTO vista=new ParkingUsuarioDTO();
+
 				ClienteVista clienteVista=new ClienteVista();
 				clienteVista.setClienteTipo(usuario.getCliente().getTipoCliente().getNombre());
 				clienteVista.setClub(usuario.getCliente().getClub().getNombre());
@@ -531,18 +527,15 @@ public class ParkingController
 				parkingUsuarioService.save(usuario);
 				//conn.close();
 
-				registroTag.setActivo(true);
-				registroTag.setFechaFin(calendar.getTime());
-				registroTagService.save(registroTag);
 
 				return new ResponseEntity<>(vista, HttpStatus.OK);
 			}
 			//return new ResponseEntity<>(lista, HttpStatus.OK);
 
 		} catch (JSONException e) {
-			System.out.println("Error: " + e.getMessage());
+			System.out.println("Error de json: " + e.getMessage());
 		} catch(IOException | InterruptedException ex) {
-			System.out.println(ex.getMessage());
+			System.out.println("Error de IO exception: " + ex.getMessage());
 		}
 		return new ResponseEntity<>(null, HttpStatus.BAD_REQUEST);
 	}
