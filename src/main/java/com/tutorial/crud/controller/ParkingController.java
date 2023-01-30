@@ -525,9 +525,9 @@ public class ParkingController
 				calendar.add(Calendar.YEAR, 1);
 				vista.setVigencia(calendar.getTime());
 
-				//registroTag.setActivo(true);
-				//registroTag.setFechaFin(calendar.getTime());
-				//registroTagService.save(registroTag);
+				registroTag.setActivo(true);
+				registroTag.setFechaFin(calendar.getTime());
+				registroTagService.save(registroTag);
 				parkingUsuarioService.save(usuario);
 				//conn.close();
 
@@ -722,8 +722,9 @@ public class ParkingController
 		Query<ParkingUsuario> listaUsuarios;
         	
         	listaUsuarios = currentSession.createNativeQuery("Select * from parking_usuario WHERE"
-        			+ " ID_VENTA_DETALLE=(SELECT MIN(ID_VENTA_DETALLE) FROM parking_usuario where idcliente="+carrodto.getIdCliente()+")"
-        			+ "  and capturado=false;",ParkingUsuario.class);
+        			+ " ID_VENTA_DETALLE = (SELECT ID_VENTA_DETALLE FROM parking_usuario where idcliente = "+carrodto.getIdCliente() +
+					" and capturado = false and extract(MONTH from age(CURRENT_DATE::timestamp with time zone, f_compra::timestamp with time zone)) < 1)"
+        			+ " and capturado=false;",ParkingUsuario.class);
        try {
     	   List<ParkingUsuario> lista= listaUsuarios.getResultList();
 	   		Carro carro=new Carro();
