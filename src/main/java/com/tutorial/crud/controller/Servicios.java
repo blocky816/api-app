@@ -2671,7 +2671,7 @@ public class Servicios
 	}
 	@GetMapping("/updateCliente/{horarioId}")
 	@ResponseBody
-	public String update(@PathVariable("horarioId") int horarioId){
+	public ResponseEntity<?> update(@PathVariable("horarioId") int horarioId){
 
 		try {
 			JSONObject json = new JSONObject(IOUtils.toString(new URL("http://192.168.20.107:8000/ServiciosClubAlpha/api/Miembro/"+horarioId), Charset.forName("UTF-8")));
@@ -2990,9 +2990,11 @@ public class Servicios
 
 		}catch(Exception e) {
 			e.printStackTrace();
+			return new ResponseEntity<>(HttpStatus.CONFLICT);
 		}
 
-		return "almacenado";
+		//return "almacenado";
+		return new ResponseEntity<>("almacenado", HttpStatus.OK);
 	}//Fin del metodo
 
 	/**
