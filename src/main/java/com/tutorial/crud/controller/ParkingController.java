@@ -723,7 +723,7 @@ public class ParkingController
         	
         	listaUsuarios = currentSession.createNativeQuery("Select * from parking_usuario WHERE"
         			+ " ID_VENTA_DETALLE = (SELECT ID_VENTA_DETALLE FROM parking_usuario where idcliente = "+carrodto.getIdCliente() +
-					" and capturado = false and extract(MONTH from age(CURRENT_DATE::timestamp with time zone, f_compra::timestamp with time zone)) < 1)"
+					" and capturado = false and extract(MONTH from age(CURRENT_DATE, f_compra)) < 1)"
         			+ " and capturado=false;",ParkingUsuario.class);
        try {
     	   List<ParkingUsuario> lista= listaUsuarios.getResultList();
@@ -750,6 +750,7 @@ public class ParkingController
 	   		return new ResponseEntity<>(json.toString(), HttpStatus.OK);
        }catch(Exception e) {
     	   e.printStackTrace();
+		   System.out.println("Error al resgitrar carro: " + e.getMessage());
     	   JSONObject json=new JSONObject();
     	   json.put("respuesta", "ocurrio un error buscando los datos");
     	   
