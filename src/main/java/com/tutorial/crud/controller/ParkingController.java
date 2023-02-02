@@ -427,7 +427,7 @@ public class ParkingController
 				ParkingUsuario to = new ParkingUsuario();
 
 				try {
-					SimpleDateFormat formato = new SimpleDateFormat("yyyy-mm-dd");
+					SimpleDateFormat formato = new SimpleDateFormat("yyyy-MM-dd");
 					Date fechaCaptura = formato.parse(jarray.getJSONObject(i).getString("fechaCaptura"));
 					to.setFechaCaptura(fechaCaptura);
 				} catch (ParseException parseException) {

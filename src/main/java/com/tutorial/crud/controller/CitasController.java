@@ -3347,6 +3347,9 @@ public class CitasController
 			}
 		}
 
+		/*Nuevo codigo*/
+
+
 		return paseUsuarioService.getByIdCliente(idCliente);
 	}
 }//fin de la clase
