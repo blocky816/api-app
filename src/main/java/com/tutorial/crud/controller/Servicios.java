@@ -2052,7 +2052,7 @@ public class Servicios
 			for(int i = 0;i < jarray.length(); i++ ){
 				ReciboSAT to = new ReciboSAT();
 				try {
-					SimpleDateFormat formato = new SimpleDateFormat("yyyy-mm-dd");
+					SimpleDateFormat formato = new SimpleDateFormat("yyyy-MM-dd");
 					Date fechaCaptura = formato.parse(jarray.getJSONObject(i).getString("fecha_captura"));
 					to.setFechaCaptura(fechaCaptura);
 				} catch(ParseException parseException) {
@@ -2160,7 +2160,7 @@ public class Servicios
 
 		HttpClient client = HttpClient.newHttpClient();
 		HttpRequest request = HttpRequest.newBuilder()
-				.uri(URI.create("http://192.168.20.104:8000/alpha/obtenerRecibo_Sat_Completo"))
+				.uri(URI.create("http://192.168.20.107:8000/alpha/obtenerRecibo_Sat_Completo"))
 				.POST(HttpRequest.BodyPublishers.ofString("{\"recibo\":\"" + body.getRecibo() + "\"}"))
 				.build();
 
@@ -2173,7 +2173,7 @@ public class Servicios
 			for(int i = 0;i < jarray.length(); i++ ){
 				ReciboSAT to = new ReciboSAT();
 				try {
-					SimpleDateFormat formato = new SimpleDateFormat("yyyy-mm-dd");
+					SimpleDateFormat formato = new SimpleDateFormat("yyyy-MM-dd");
 					Date fechaCaptura = formato.parse(jarray.getJSONObject(i).getString("fecha_captura"));
 					to.setFechaCaptura(fechaCaptura);
 				} catch(ParseException parseException) {
