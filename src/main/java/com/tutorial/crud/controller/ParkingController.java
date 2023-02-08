@@ -1462,46 +1462,48 @@ public class ParkingController
 		@Transactional
 		public ResponseEntity<?> chipActivos(@PathVariable("idCaseta") int idCaseta){
 
-		timeNow = LocalDateTime.now().withNano(0);
+		     timeNow = LocalDateTime.now().withNano(0);
 
-		 if (timeNow.isAfter(timeBefore.plusSeconds(1800))){
 			 Caseta caseta=casetaService.getOne(idCaseta).get();
 			 String nombre=caseta.getClub().getNombre();
 			 Session currentSession = entityManager.unwrap(Session.class);
 			 Query<RegistroTag> listaApartadosUsuario;
 			 List<RegistroTag> results;
 			 if(caseta.getId()==5) {
-				 listaApartadosUsuario = currentSession.createNativeQuery("update registro_Tag set activo=false where (id_parking in "
-						 + "(select id_venta_Detalle from parking_usuario where estado_cobranza='Etapa 2' or estado_cobranza='Etapa 3'  or "
-						 + "estado_cobranza='Baja' AND id_venta_Detalle is not null ) or current_date>fecha_fin) and"
-						 + " (club='Futbol City' or club='CIMERA')", RegistroTag.class);
-				 listaApartadosUsuario.executeUpdate();
+				 if (timeNow.isAfter(timeBefore.plusSeconds(1800))) {
+					 listaApartadosUsuario = currentSession.createNativeQuery("update registro_Tag set activo=false where (id_parking in "
+							 + "(select id_venta_Detalle from parking_usuario where estado_cobranza='Etapa 2' or estado_cobranza='Etapa 3'  or "
+							 + "estado_cobranza='Baja' AND id_venta_Detalle is not null ) or current_date>fecha_fin) and"
+							 + " (club='Futbol City' or club='CIMERA')", RegistroTag.class);
+					 listaApartadosUsuario.executeUpdate();
 				/*currentSession.createNativeQuery("SELECT id,CASE WHEN estado_cobranza='Etapa 2' or estado_cobranza='Etapa 3'"
 						+ "  or estado_cobranza='Baja' or current_date>fecha_fin or REGISTRO_TAG.activo is false THEN false else true end as activo, REGISTRO_TAG.club,fecha_fin,"
 						+ "id_chip,id_parking FROM REGISTRO_TAG join parking_usuario on id_venta_Detalle=id_parking WHERE ID_PARKING is not null"
 						+ " and (REGISTRO_TAG.club='Futbol City' or REGISTRO_TAG.club='CIMERA')", RegistroTag.class);*/
+					 timeBefore = LocalDateTime.now().withNano(0);
+				 }
 				 listaApartadosUsuario=currentSession.createNativeQuery("SELECT * FROM REGISTRO_TAG  WHERE ID_PARKING is not null"
 						 + " and (club='Futbol City' or club='CIMERA')", RegistroTag.class);
 				 results = listaApartadosUsuario.getResultList();
-				 timeBefore = LocalDateTime.now().withNano(0);
 			 }else {
-				 listaApartadosUsuario = currentSession.createNativeQuery("update registro_Tag set activo=false where (id_parking in "
-						 + "(select id_venta_Detalle from parking_usuario where estado_cobranza='Etapa 2' or estado_cobranza='Etapa 3'  or "
-						 + "estado_cobranza='Baja' AND id_venta_Detalle is not null ) or current_date>fecha_fin) and"
-						 + " (club='"+nombre+"' or club='CIMERA')", RegistroTag.class);
-				 listaApartadosUsuario.executeUpdate();
+				 if (timeNow.isAfter(timeBefore.plusSeconds(1800))) {
+					 listaApartadosUsuario = currentSession.createNativeQuery("update registro_Tag set activo=false where (id_parking in "
+							 + "(select id_venta_Detalle from parking_usuario where estado_cobranza='Etapa 2' or estado_cobranza='Etapa 3'  or "
+							 + "estado_cobranza='Baja' AND id_venta_Detalle is not null ) or current_date>fecha_fin) and"
+							 + " (club='"+nombre+"' or club='CIMERA')", RegistroTag.class);
+					 listaApartadosUsuario.executeUpdate();
 				/*listaApartadosUsuario = currentSession.createNativeQuery("SELECT id,CASE WHEN estado_cobranza='Etapa 2' or estado_cobranza='Etapa 3'"
 						+ "  or estado_cobranza='Baja' or current_date>fecha_fin or REGISTRO_TAG.activo is false THEN false else true end as activo, REGISTRO_TAG.club,fecha_fin,"
 						+ "id_chip,id_parking FROM REGISTRO_TAG join parking_usuario on id_venta_Detalle=id_parking WHERE ID_PARKING is not null"
 						+ " and (REGISTRO_TAG.club='"+nombre+"' or REGISTRO_TAG.club='CIMERA')", RegistroTag.class);*/
+					 timeBefore = LocalDateTime.now().withNano(0);
+				 }
 				 listaApartadosUsuario = currentSession.createNativeQuery("SELECT * FROM REGISTRO_TAG  WHERE ID_PARKING is not null"
 						 + " and (club='"+nombre+"' or club='CIMERA')", RegistroTag.class);
 				 results = listaApartadosUsuario.getResultList();
-				 timeBefore = LocalDateTime.now().withNano(0);
 			 }
 			 return new ResponseEntity<>(results, HttpStatus.OK);
-		 }
-		 return new ResponseEntity<>("No se puede ejecutar la operacion no ha pasado media hora despues de: " + timeBefore, HttpStatus.CONFLICT);
+		 //return new ResponseEntity<>("No se puede ejecutar la operacion no ha pasado media hora despues de: " + timeBefore, HttpStatus.CONFLICT);
 	}
 	 
 	 @GetMapping("/listaChips")
@@ -2573,11 +2575,9 @@ public class ParkingController
 		{
     	   Connection conn = null;
          	ArrayList<PaseUsuario> listaReporte = new ArrayList<PaseUsuario>();
-	        try {
+	        //try {
 	            // Carga el driver de oracle
-	        	DriverManager.registerDriver(new com.microsoft.sqlserver.jdbc.SQLServerDriver());
-	            
-
+	        	/*DriverManager.registerDriver(new com.microsoft.sqlserver.jdbc.SQLServerDriver());
 	        	
 	            conn = DriverManager.getConnection(dbURL, userData, passData);
 	            
@@ -2661,7 +2661,80 @@ public class ParkingController
 	            } catch (SQLException ex) {
 	                System.out.println("Error: " + ex.getMessage());
 	            }
-	        }
+	        }*/
+
+			String body2 = "{\n"
+					+ "\"IdCliente\":"+ idCliente +",\n"
+					+ "\"Token\":\"77D5BDD4-1FEE-4A47-86A0-1E7D19EE1C74\"\n"
+					+ "}";
+			configuracion o = configuracionService.findByServiceName("getPasesById").get();
+			JSONArray json = new JSONArray(e.conectaApiClubPOST(body2,o.getEndpointAlpha()));
+
+			for(int i = 0; i < json.length(); i++) {
+				JSONObject obj = json.getJSONObject(i);
+				PaseUsuario to=new PaseUsuario();
+				Optional<PaseUsuario> optional=paseUsuarioService.getOne(obj.getInt("VentaDetalle"));
+
+				if(!optional.isPresent()) {
+					to.setActivo(true);
+					to.setIdProd(obj.getInt("IDProdServ"));
+					Date fechaCompra = new Date(TimeUnit.MILLISECONDS.toMillis(obj.getLong("FechaCaptura")));
+					to.setF_compra(fechaCompra);
+					to.setConcepto(obj.getString("Concepto"));
+					to.setIdVentaDetalle(obj.getInt("VentaDetalle"));
+					to.setCliente(clienteService.findById(idCliente));
+					to.setCantidad(obj.getInt("Cantidad"));
+					to.setConsumido(0);
+					to.setCreated(new Date());
+					to.setDisponibles(obj.getInt("Cantidad"));
+					to.setUpdated(new Date());
+					Object principal = SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+					String username;
+					if (principal instanceof UserDetails) {
+						username = ((UserDetails)principal).getUsername();
+					} else {
+						username = principal.toString();
+					}
+					to.setUpdatedBy(username);
+					to.setCreatedBy(username);
+					listaReporte.add(to);
+				}
+
+
+
+
+
+
+				/*JSONObject obj = json.getJSONObject(i);
+				int concepto = obj.getInt("IDProdServ");
+				PaseUsuario pase = new PaseUsuario();
+				pase.setIdProd(concepto);
+				if ((concepto >= 1834 && concepto <= 1846) || (concepto == 1746 || concepto == 1747)) {
+					pase.setCantidad(0);
+					pase.setDisponibles(0);
+					pase.setConsumido(0);
+					if (concepto == 1747) {
+						pase.setIdProd(1746);
+					}
+				}
+				pase.setCantidad(Math.round(obj.getFloat("Cantidad")));
+				pase.setIdVentaDetalle(obj.getInt("VentaDetalle"));
+				pase.setConcepto(obj.getString("Concepto"));
+
+				Date fechaCompra = new Date(TimeUnit.MILLISECONDS.toMillis(obj.getLong("FechaCaptura")));
+				//System.out.println("Long: " + obj.getLong("FechaCaptura"));
+				//System.out.println("Fecha parseada = " + fechaCompra);
+				pase.setF_compra(fechaCompra);
+				pase.setActivo(true);
+				pase.setCliente(clienteService.findById(idCliente));
+				pase.setCreated(new Date());
+				pase.setUpdated(new Date());
+				paseUsuarioService.save(pase);
+				pase.setUpdatedBy(String.valueOf(idCliente));
+				pase.setCreatedBy(String.valueOf(idCliente));*/
+			}
+
+
 	    	for(int i=0;i<listaReporte.size();i++) {
 		    	PaseUsuario paseUsuario=new PaseUsuario();
 	    		paseUsuario.setIdVentaDetalle(listaReporte.get(i).getIdVentaDetalle());		    	
