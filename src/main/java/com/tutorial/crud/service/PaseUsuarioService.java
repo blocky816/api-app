@@ -107,7 +107,8 @@ public class PaseUsuarioService {
 	
 	public List<PaseUsuario> getByIdClienteQR(int usuario) {
 		Session currentSession = entityManager.unwrap(Session.class);
-		Query<PaseUsuario> listaPaseUsuario = currentSession.createQuery("FROM PaseUsuario p where p.cliente.IdCliente=:o and (p.idProd=1808 or p.idProd=1856) and p.disponibles>0 and p.activo=true order by idVentaDetalle", PaseUsuario.class);
+		Query<PaseUsuario> listaPaseUsuario = currentSession.createQuery("FROM PaseUsuario p where p.cliente.IdCliente=:o and (p.idProd=2503) and p.disponibles>0 and p.activo=true order by idVentaDetalle", PaseUsuario.class);
+		//Query<PaseUsuario> listaPaseUsuario = currentSession.createQuery("FROM PaseUsuario p where p.cliente.IdCliente=:o and (p.idProd=1808 or p.idProd=1856) and p.disponibles>0 and p.activo=true order by idVentaDetalle", PaseUsuario.class);
 		listaPaseUsuario.setParameter("o",usuario);
 		List<PaseUsuario> results = listaPaseUsuario.getResultList();
 		
