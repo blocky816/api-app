@@ -1401,9 +1401,15 @@ public class ParkingController
 				return new ResponseEntity<>(json.toString(), HttpStatus.BAD_REQUEST);
 			}
 		}else {
-			System.out.println("RAW: " + "\"" + body.getRaw() + "\"");
-			int raw = Integer.parseInt(body.getRaw().trim().replaceFirst("^0+(?!$)", ""));
-
+			int raw = 0;
+			try {
+				raw = Integer.parseInt(body.getRaw().trim().replaceFirst("^0+(?!$)", ""));
+			}
+			catch(Exception ex){
+				ex.printStackTrace();
+				System.out.println("Error al parsear:["+body.getRaw()+"]");
+			}
+			if (raw!=0)
 			if(raw > 1000000 && body.getIdTipoAcceso()==4) {
 				QRCortesia estacionamientoExterno=qrCortesiaService.getByIdRegistro(body.getRaw());
 				Caseta caseta=casetaService.getOne(body.getIdCaseta()).get();
@@ -1498,7 +1504,7 @@ public class ParkingController
 						+ " and (REGISTRO_TAG.club='"+nombre+"' or REGISTRO_TAG.club='CIMERA')", RegistroTag.class);*/
 					 timeBefore = LocalDateTime.now().withNano(0);
 				 }
-				 listaApartadosUsuario = currentSession.createNativeQuery("SELECT * FROM REGISTRO_TAG  WHERE ID_PARKING is not null and activo = true"
+				 listaApartadosUsuario = currentSession.createNativeQuery("SELECT * FROM REGISTRO_TAG  WHERE ID_PARKING is not null"
 						 + " and (club='"+nombre+"' or club='CIMERA') and activo = true", RegistroTag.class);
 				 results = listaApartadosUsuario.getResultList();
 			 }
