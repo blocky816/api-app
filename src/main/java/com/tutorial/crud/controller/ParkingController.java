@@ -1482,7 +1482,7 @@ public class ParkingController
 						+ " and (REGISTRO_TAG.club='Futbol City' or REGISTRO_TAG.club='CIMERA')", RegistroTag.class);*/
 					 timeBefore = LocalDateTime.now().withNano(0);
 				 }
-				 listaApartadosUsuario=currentSession.createNativeQuery("SELECT * FROM REGISTRO_TAG  WHERE ID_PARKING is not null"
+				 listaApartadosUsuario=currentSession.createNativeQuery("SELECT * FROM REGISTRO_TAG  WHERE ID_PARKING is not null and activo = true"
 						 + " and (club='Futbol City' or club='CIMERA')", RegistroTag.class);
 				 results = listaApartadosUsuario.getResultList();
 			 }else {
@@ -1498,7 +1498,7 @@ public class ParkingController
 						+ " and (REGISTRO_TAG.club='"+nombre+"' or REGISTRO_TAG.club='CIMERA')", RegistroTag.class);*/
 					 timeBefore = LocalDateTime.now().withNano(0);
 				 }
-				 listaApartadosUsuario = currentSession.createNativeQuery("SELECT * FROM REGISTRO_TAG  WHERE ID_PARKING is not null"
+				 listaApartadosUsuario = currentSession.createNativeQuery("SELECT * FROM REGISTRO_TAG  WHERE ID_PARKING is not null and activo = true"
 						 + " and (club='"+nombre+"' or club='CIMERA')", RegistroTag.class);
 				 results = listaApartadosUsuario.getResultList();
 			 }
