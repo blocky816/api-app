@@ -105,7 +105,6 @@ import jcifs.smb.SmbFile;
 
 
 
-
 /**
  * 	Esta clase permite hacer uso de todos los service para crear, actualizar y obtener las entidades mapeadas
  * @author: Daniel García Velasco y Abimael Rueda Galindo
@@ -6417,18 +6416,23 @@ public class Servicios
 
 		for(Cliente record: clientesList) {
 			try {
-				JSONObject json = new JSONObject(IOUtils.toString(new URL("http://192.168.20.107:8000/ServiciosClubAlpha/api/Miembro/"+record.getIdCliente()), Charset.forName("UTF-8")));
+				String fotoBase64 = IOUtils.toString(new URL("http://192.168.20.107:8000/fotografia/usuario/"+record.getIdCliente() + ".jpg"), Charset.forName("UTF-8"));
 
-				Foto foto = this.addFoto(json.getString("UrlFoto"),record);
+				String fotoSinComillas = fotoBase64.replaceAll("\"", "");
+				byte[] bytes = Base64.decodeBase64(fotoSinComillas.getBytes());
 
+				Foto foto = new Foto(bytes);
+
+				foto.setImagen(bytes);
+				foto.setFechaCreacion(new Date());
+				foto.setFechaModificacion(new Date());
+				foto.setActivo(true);
+				foto.setCliente(record);
 				record.setURLFoto(foto);
-				//record.setURLFoto(record.getURLFoto());
 				clienteService.save(record);
 
 			} catch(IOException e) {
-				// esto no devuleve nada no se contro JSONObject json = new JSONObject(IOUtils.toString(new URL("http://192.168.20.47/ServiciosClubAlpha/api/Miembro/"+record.getIdCliente())
-				//System.out.println("json ID cliente: " + record.getIdCliente());
-				//System.out.println("Message: " + e.getMessage());
+				System.out.println("IO EXCEPTION => " + e.getMessage());
 				try {
 					//Crear un objeto File se encarga de crear o abrir acceso a un archivo que se especifica en su constructor
 					File archivo = new File("errores_de_fotos.txt");
@@ -6448,7 +6452,7 @@ public class Servicios
 				//System.out.println("SAltando al siguiente...");
 				continue;
 			} catch (Exception ex) {
-				//System.out.println("FALLO otra cosa");
+				System.out.println("Error interno: " + ex.getMessage());
 				continue;
 			}
 		}
@@ -6461,6 +6465,8 @@ public class Servicios
 		//Cliente found = clienteService.findById(1);
 		//return new ResponseEntity<>(found, HttpStatus.OK);
 		//return new ResponseEntity<>(clientesList.get(0), HttpStatus.OK);
+		//return new ResponseEntity<>("Fotos actualizadas", HttpStatus.OK);
+		//System.out.println("IMG: " + new String(clientesList.get(0).getURLFoto().getImagen()));
 		return new ResponseEntity<>("Fotos actualizadas", HttpStatus.OK);
 	}
 
