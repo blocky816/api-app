@@ -253,6 +253,9 @@ public class ParkingController
 	@Value("${my.property.copiaOculta2}")
 	String copiaOculta;
 
+	@Autowired
+	ConfiguracionSancionService configuracionSancionService;
+
 	private static LocalDateTime timeBefore = LocalDateTime.now().withNano(0);
 	private static LocalDateTime timeNow;
 		
@@ -474,7 +477,8 @@ public class ParkingController
 			}
 			if(parkingUsuarioService.getOne(usuario.getIdVentaDetalle()).isPresent() && parkingUsuarioService.getOne(idVentaDetalle).get().isCapturado()) {
 				//conn.close();
-				json.put("respuesta", "el usuario no tiene un chip pagado");
+				//json.put("respuesta", "el usuario no tiene un chip pagado");
+				json.put("respuesta", "el chip tag ya fue asignado");
 				return new ResponseEntity<>(json.toString(), HttpStatus.BAD_REQUEST);
 			}else {
 				Long idChip = 0L;
@@ -1621,7 +1625,9 @@ public class ParkingController
 					String horaSalida=amonestacionNueva.getHoraSalida();
 					int idClub=parkingUsuario.getCliente().getClub().getIdClub();
 					String fechaInicio=amonestacionNueva.obtenerHoraEntrada();
-					
+
+					ConfiguracionSancion sancion2 = configuracionSancionService.findByConcepto("Parking segunda ocasion");
+					ConfiguracionSancion sancion3 = configuracionSancionService.findByConcepto("Parking tercera ocasion");
 					
 					switch(amonestacionesPorChip.size()) {
 					case 1:
@@ -1640,7 +1646,7 @@ public class ParkingController
 								+ "\"IDCliente\":"+idCliente+",  \r\n"
 								+ "\"IDClub\":"+idClub+",   \r\n"
 								+ "\"Cantidad\":1, \r\n"
-								+ "\"IDProductoServicio\":2585,  \r\n"
+								+ "\"IDProductoServicio\":" + sancion2 + ",  \r\n"
 								+ "\"Observaciones\":\" hora entrada: "+horaEntrada+" hora salida: "+horaSalida+"\" ,   \r\n"
 								+ "\"DescuentoPorciento\":0,  \r\n"
 								+ "\"FechaInicio\":\""+fechaInicio+"\", \r\n"
@@ -1669,7 +1675,7 @@ public class ParkingController
 								+ "\"IDCliente\":"+idCliente+",  \r\n"
 								+ "\"IDClub\":"+idClub+",   \r\n"
 								+ "\"Cantidad\":1, \r\n"
-								+ "\"IDProductoServicio\":2586,  \r\n"
+								+ "\"IDProductoServicio\":" + sancion3 +  ",  \r\n"
 								+ "\"Observaciones\":\" hora entrada: "+horaEntrada+" hora salida: "+horaSalida+"\" ,   \r\n"
 								+ "\"DescuentoPorciento\":0,  \r\n"
 								+ "\"FechaInicio\":\""+fechaInicio+"\", \r\n"

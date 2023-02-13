@@ -56,6 +56,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -2842,12 +2843,12 @@ public class Servicios
 					tipoMembresiaService.save(tipoMembresia);
 					cliente.setTipoMembresia(tipoMembresia);
 				}
-				if(cliente.getURLFoto()==null) {
+				/*if(cliente.getURLFoto()==null) {
 					Foto foto=this.addFoto(json.getString("UrlFoto"),cliente);
 					cliente.setURLFoto(foto);
 				}else {
 					cliente.setURLFoto(cliente.getURLFoto());
-				}
+				}*/
 				cliente.setFechaNacimiento(formato.parse(json.getString("FechaNacimiento")) );
 				cliente.setFechaFinAcceso(formato.parse(json.getString("FechaFinAcceso")) );
 				cliente.setInicioActividades(formato.parse(json.getString("InicioActividades")));
@@ -2874,7 +2875,19 @@ public class Servicios
 					categoriaService.save(categoria);
 					cliente.setCategoria(categoria);
 				}
-				Club club=clubService.findById(json.getJSONObject("Club").getInt("Id"));
+				//Club club=clubService.findById(json.getJSONObject("Club").getInt("Id"));
+                int idCLub = json.getJSONObject("Club").getInt("Id");
+                Club club = null;
+                switch (idCLub) {
+                    case 7:  club = clubService.findById(3);
+                        break;
+                    case 8:  club = clubService.findById(5);
+                        break;
+                    case 9:  club = clubService.findById(4);
+                        break;
+                    case 6:  club = clubService.findById(2);
+                        break;
+                }
 				if(club!=null)
 					cliente.setClub(club);
 				else {
@@ -2976,7 +2989,7 @@ public class Servicios
 				cliente.setFechaNacimiento(formato.parse(json.getString("FechaNacimiento")) );
 				cliente.setFechaFinAcceso(formato.parse(json.getString("FechaFinAcceso")) );
 				cliente.setInicioActividades(formato.parse(json.getString("InicioActividades")));
-				this.addFoto(json.getString("UrlFoto"),cliente);
+				//this.addFoto(json.getString("UrlFoto"),cliente);
 				clienteService.save(cliente);
 				List<ParkingUsuario> pu=parkingUsuarioService.findByIdCliente(cliente);
 				for(int i=0;i<pu.size();i++) {
@@ -6416,6 +6429,8 @@ public class Servicios
 
 		for(Cliente record: clientesList) {
 			try {
+                this.update(record.getIdCliente());
+                //System.out.println("Se actualizo cliente");
 				String fotoBase64 = IOUtils.toString(new URL("http://192.168.20.107:8000/fotografia/usuario/"+record.getIdCliente() + ".jpg"), Charset.forName("UTF-8"));
 
 				String fotoSinComillas = fotoBase64.replaceAll("\"", "");
@@ -6468,6 +6483,15 @@ public class Servicios
 		//return new ResponseEntity<>("Fotos actualizadas", HttpStatus.OK);
 		//System.out.println("IMG: " + new String(clientesList.get(0).getURLFoto().getImagen()));
 		return new ResponseEntity<>("Fotos actualizadas", HttpStatus.OK);
+	}
+
+	@Scheduled(cron = "0 0 3 * * *")
+	public void updateCustomer() throws MalformedURLException {
+		try {
+			this.actualizarFotos();
+		} catch (Exception e) {
+			System.out.println(e.getMessage());
+		}
 	}
 
 }//fin de la clase

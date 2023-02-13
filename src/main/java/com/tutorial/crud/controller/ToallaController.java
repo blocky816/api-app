@@ -15,7 +15,8 @@ import java.util.List;
 import java.util.concurrent.TimeUnit;
 
 import com.tutorial.crud.aopDao.endpoints;
-import com.tutorial.crud.entity.configuracion;
+import com.tutorial.crud.entity.*;
+import com.tutorial.crud.service.*;
 import org.hibernate.PropertyAccessException;
 import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -31,15 +32,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.tutorial.crud.entity.Toalla;
 import com.tutorial.crud.security.entity.Usuario;
-import com.tutorial.crud.entity.Cliente;
-import com.tutorial.crud.entity.RHEmpleado;
-import com.tutorial.crud.service.ClienteService;
-import com.tutorial.crud.service.RHEmpleadoService;
-import com.tutorial.crud.service.ToallaService;
-
-import com.tutorial.crud.service.configuracionService;
 
 
 @RestController
@@ -58,6 +51,9 @@ public class ToallaController
 
     @Autowired
     configuracionService configuracionService;
+
+    @Autowired
+    ConfiguracionSancionService configuracionSancionService;
 
     endpoints e = new endpoints();
 
@@ -246,10 +242,13 @@ public class ToallaController
         List<Toalla> toallaList = toallaService.findAll();
         List<Toalla> toallasNoDevueltas = new ArrayList<>();
 
+        //int idProd = 2699;
+        ConfiguracionSancion sancion = configuracionSancionService.findByConcepto("Toallas");
+        int idProd = sancion.getCodigo();
         for (Toalla toalla: toallaList){
             if (toalla.getFechaFin() == null && toalla.getAsignacion() == false){
                 //int idProd = 1260;
-                int idProd = 2699;
+
                 Date fecha = toalla.getFechaInicio();
 
                 if (toalla.getIdCliente() == 0) {
