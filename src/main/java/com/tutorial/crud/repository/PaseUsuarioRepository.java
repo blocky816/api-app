@@ -13,4 +13,6 @@ import java.util.UUID;
 public interface PaseUsuarioRepository extends JpaRepository<PaseUsuario, Integer> {
 
 	Optional<List<PaseUsuario>> findByActivo(boolean activo);
+
+	PaseUsuario findByIdVentaDetalle(int idVentaDetalle);
 }

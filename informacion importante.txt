@@ -14,6 +14,10 @@ n4DinbL3 --e-commerce
 --crear respaldo de la base de datos
 pg_dump -U postgres -W -h localhost app > app.sql
 
+-- crear respaldo de una sola tabla
+https://www.damianculotta.com.ar/bases-de-datos/backup-de-tablas-especificas-en-postgresql/
+pg_dump -h localhost -p 5432 -U postgres -t rh_empleado -F p -b -v -f "/home/administrador/app.sql" app
+
 
 --importar el respaldo de la base de datos
 sudo service postgresql stop

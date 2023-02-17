@@ -123,4 +123,8 @@ public class PaseUsuarioService {
 		
 		return results;
 	}
+
+	public PaseUsuario findByIdVentaDetalle(int idVentaDetalle) {
+		return paseUsuarioRepository.findByIdVentaDetalle(idVentaDetalle);
+	}
 }

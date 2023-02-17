@@ -2797,7 +2797,7 @@ public class CitasController
 		@ResponseBody
 		public List<PaseUsuario> getPase(@PathVariable("idCliente") int idCliente)
 		{
-    	    Connection conn = null;
+    	    /*Connection conn = null;
          	ArrayList<PaseUsuario> listaReporte = new ArrayList<PaseUsuario>();
 	        try {
 	            // Carga el driver de oracle
@@ -2918,7 +2918,50 @@ public class CitasController
 		    	}
 	    	}
 	    	
-	    	return paseUsuarioService.getByIdCliente(idCliente);
+	    	return paseUsuarioService.getByIdCliente(idCliente);*/
+
+			String body2 = "{\n"
+					+ "\"IdCliente\":"+idCliente+",\n"
+					+ "\"Token\":\"77D5BDD4-1FEE-4A47-86A0-1E7D19EE1C74\"\n"
+					+ "}";
+			configuracion o = configuracionService.findByServiceName("getPasesById").get();
+
+			JSONArray json = new JSONArray(e.conectaApiClubPOST(body2,o.getEndpointAlpha()));
+
+			ArrayList<PaseUsuario> listaReporte = new ArrayList<PaseUsuario>();
+			for(int i=0;i<json.length();i++) {
+				JSONObject obj = json.getJSONObject(i);
+				int concepto = obj.getInt("IDProdServ");
+				PaseUsuario pase = new PaseUsuario();
+				pase.setIdProd(concepto);
+				if(obj.getString("Concepto").equals("SP Mensualidad Gym") || obj.getString("Concepto").equals("SP Mensualidad Gym Estudiante")) {
+					pase.setDisponibles(0);
+					pase.setCantidad(0);
+					//pase.setIdProd(1746);
+				}else {
+					pase.setDisponibles(obj.getInt("Cantidad"));
+					pase.setCantidad(obj.getInt("Cantidad"));
+					pase.setSubgrupo("QR");
+				}
+				pase.setIdVentaDetalle(obj.getInt("VentaDetalle"));
+				pase.setConcepto(obj.getString("Concepto"));
+
+				Date fechaCompra = new Date(TimeUnit.MILLISECONDS.toMillis(obj.getLong("FechaCaptura")));
+				//System.out.println("Long: " + obj.getLong("FechaCaptura"));
+				//System.out.println("Fecha parseada = " + fechaCompra);
+				pase.setF_compra(fechaCompra);
+				pase.setActivo(true);
+				pase.setCliente(clienteService.findById(idCliente));
+				pase.setCreated(new Date());
+				pase.setUpdated(new Date());
+				pase.setUpdatedBy(String.valueOf(idCliente));
+				pase.setCreatedBy(String.valueOf(idCliente));
+				paseUsuarioService.save(pase);
+				listaReporte.add(pase);
+
+			}
+			return paseUsuarioService.getByIdCliente(idCliente);
+			//return json.toString();
 		}
        
        @RequestMapping(value="confirmarAsistencia", method=RequestMethod.POST)
