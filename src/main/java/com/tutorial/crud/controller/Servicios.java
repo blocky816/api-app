@@ -1,15 +1,7 @@
 package com.tutorial.crud.controller;
 
 import java.awt.image.BufferedImage;
-import java.io.BufferedInputStream;
-import java.io.BufferedWriter;
-import java.io.ByteArrayOutputStream;
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.FileWriter;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
+import java.io.*;
 import java.net.*;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
@@ -2713,7 +2705,8 @@ public class Servicios
 				usuario.setRoles(roles);
 				usuarioService.save(usuario);
 			}catch(Exception e) {
-				e.printStackTrace();
+				//e.printStackTrace();
+				System.out.println("Error crear usuario: " + e.getMessage());
 			}
 
 			//SimpleDateFormat formato = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss");
@@ -2843,12 +2836,13 @@ public class Servicios
 					tipoMembresiaService.save(tipoMembresia);
 					cliente.setTipoMembresia(tipoMembresia);
 				}
-				/*if(cliente.getURLFoto()==null) {
-					Foto foto=this.addFoto(json.getString("UrlFoto"),cliente);
+
+				Foto foto = this.actualizarFotos(cliente.getIdCliente());
+				if (foto != null){
+					foto.setCliente(cliente);
 					cliente.setURLFoto(foto);
-				}else {
-					cliente.setURLFoto(cliente.getURLFoto());
-				}*/
+				}
+
 				cliente.setFechaNacimiento(formato.parse(json.getString("FechaNacimiento")) );
 				cliente.setFechaFinAcceso(formato.parse(json.getString("FechaFinAcceso")) );
 				cliente.setInicioActividades(formato.parse(json.getString("InicioActividades")));
@@ -2990,6 +2984,12 @@ public class Servicios
 				cliente.setFechaFinAcceso(formato.parse(json.getString("FechaFinAcceso")) );
 				cliente.setInicioActividades(formato.parse(json.getString("InicioActividades")));
 				//this.addFoto(json.getString("UrlFoto"),cliente);
+				Foto foto = this.actualizarFotos(cliente.getIdCliente());
+				if (foto != null){
+					foto.setCliente(cliente);
+					cliente.setURLFoto(foto);
+				}
+
 				clienteService.save(cliente);
 				List<ParkingUsuario> pu=parkingUsuarioService.findByIdCliente(cliente);
 				for(int i=0;i<pu.size();i++) {
@@ -3001,7 +3001,8 @@ public class Servicios
 
 
 		}catch(Exception e) {
-			e.printStackTrace();
+			//e.printStackTrace();
+			System.out.println("Error al actualizar cliente: " + e.getMessage());
 			return new ResponseEntity<>(HttpStatus.CONFLICT);
 		}
 
@@ -6421,15 +6422,15 @@ public class Servicios
 
 
 
-	@GetMapping("/actualizarFotos")
-	@Transactional(rollbackOn =Exception.class)
-	public ResponseEntity<?> actualizarFotos() throws MalformedURLException {
+	/*@GetMapping("/actualizarFotos")
+	@Transactional(rollbackOn = Exception.class)
+	public ResponseEntity<?> actualizarFotos(int idCliente) throws MalformedURLException {
 
 		List<Cliente> clientesList = clienteService.findAllByEstatusMembresia();
 
 		for(Cliente record: clientesList) {
 			try {
-                this.update(record.getIdCliente());
+				this.update(record.getIdCliente());
                 //System.out.println("Se actualizo cliente");
 				String fotoBase64 = IOUtils.toString(new URL("http://192.168.20.107:8000/fotografia/usuario/"+record.getIdCliente() + ".jpg"), Charset.forName("UTF-8"));
 
@@ -6482,13 +6483,47 @@ public class Servicios
 		//return new ResponseEntity<>(clientesList.get(0), HttpStatus.OK);
 		//return new ResponseEntity<>("Fotos actualizadas", HttpStatus.OK);
 		//System.out.println("IMG: " + new String(clientesList.get(0).getURLFoto().getImagen()));
-		return new ResponseEntity<>("Fotos actualizadas", HttpStatus.OK);
+		/*return new ResponseEntity<>("Fotos actualizadas", HttpStatus.OK);
+	}*/
+
+	@GetMapping("/actualizarFotos/{idCliente}")
+	//@Transactional(rollbackOn = Exception.class)
+	public Foto actualizarFotos(@PathVariable("idCliente") int idCliente) throws MalformedURLException {
+
+			try {
+				String fotoBase64 = IOUtils.toString(new URL("http://192.168.20.107:8000/fotografia/usuario/" + idCliente + ".jpg"), Charset.forName("UTF-8"));
+
+				String fotoSinComillas = fotoBase64.replaceAll("\"", "");
+				byte[] bytes = Base64.decodeBase64(fotoSinComillas.getBytes());
+
+				Foto foto = new Foto(bytes);
+
+				foto.setFechaCreacion(new Date());
+				foto.setFechaModificacion(new Date());
+				foto.setActivo(true);
+				/*foto.setCliente(record);
+				record.setURLFoto(foto);
+				clienteService.save(record);*/
+				return foto;
+				//return new ResponseEntity<>(foto, HttpStatus.OK);
+
+			} catch(IOException e) {
+				System.out.println("IO EXCEPTION => " + e.getMessage());
+			} catch (Exception ex) {
+				System.out.println("Error interno: " + ex.getMessage());
+			}
+		return null;
+		//return new ResponseEntity<>("Error de foto", HttpStatus.INTERNAL_SERVER_ERROR);
 	}
 
 	@Scheduled(cron = "0 0 3 * * *")
 	public void updateCustomer() throws MalformedURLException {
 		try {
-			this.actualizarFotos();
+			List<Cliente> clientesList = clienteService.findAllByEstatusMembresia();
+
+			for(Cliente record: clientesList) {
+				this.update(record.getIdCliente());
+			}
 		} catch (Exception e) {
 			System.out.println(e.getMessage());
 		}

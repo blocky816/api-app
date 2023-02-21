@@ -238,21 +238,11 @@ public class ClienteServiceImpl implements ClienteService {
 		System.out.println("EStatus cobranza : " + estatusCobranza.getNombre());
 		Query<Cliente> clientesActivos = currentSession.createQuery("from Cliente c where c.estatusCobranza = :o and c.IdCliente <> 0 ORDER BY c.IdCliente ASC", Cliente.class);
 		clientesActivos.setParameter("o", estatusCobranza);
-		//clientesActivos.setMaxResults(3);
+		//clientesActivos.setMaxResults(1);
 
 		List<Cliente> lista = clientesActivos.getResultList();
 
-		System.out.println("Lista de clinetes ectivos: " + lista.size());
-		/*List<Object[]> listResults = clientesActivos.getResultList();
-		List<ClienteDTOO> listaDTO= new ArrayList<ClienteDTOO>();
-		for (Object[] record : listResults) {
-			ClienteDTOO cliente=new ClienteDTOO();
-			cliente.setIdCliente((int) record[0]);
-			cliente.setNombre((String) record[2]);
-			cliente.setEstatusAccesos((String) record[7]);
-			listaDTO.add(cliente);
-
-		}*/
+		//System.out.println("Lista de clinetes ectivos: " + lista.size());
 
 		return lista;
 	}
