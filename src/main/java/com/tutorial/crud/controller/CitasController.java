@@ -2934,7 +2934,7 @@ public class CitasController
 				int concepto = obj.getInt("IDProdServ");
 				PaseUsuario pase = new PaseUsuario();
 				pase.setIdProd(concepto);
-				if(obj.getString("Concepto").equals("SP Mensualidad Gym") || obj.getString("Concepto").equals("SP Mensualidad Gym Estudiante")) {
+				if(obj.getString("Concepto").matches(".*SP.*Gym.*")) {
 					pase.setDisponibles(0);
 					pase.setCantidad(0);
 					//pase.setIdProd(1746);

@@ -81,7 +81,7 @@ public class PaseUsuarioService {
 
 	public List<PaseUsuario> getPasesGimnasio(int usuario) {
 		Session currentSession = entityManager.unwrap(Session.class);
-		Query<PaseUsuario> listaPaseUsuario = currentSession.createQuery("FROM PaseUsuario p where (p.cliente.IdCliente=:o and p.idProd=1746) and p.activo=true order by idVentaDetalle", PaseUsuario.class);
+		Query<PaseUsuario> listaPaseUsuario = currentSession.createQuery("FROM PaseUsuario p where (p.cliente.IdCliente=:o and p.concepto like 'SP % Gym %') and p.activo=true order by idVentaDetalle", PaseUsuario.class);
 		listaPaseUsuario.setParameter("o",usuario);
 		List<PaseUsuario> results = listaPaseUsuario.getResultList();
 		
