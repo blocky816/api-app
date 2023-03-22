@@ -363,11 +363,19 @@ public class CitasController
 		Session currentSession = entityManager.unwrap(Session.class);
         Query<CAClase> listaClases;
 		if(club.equals("Club Alpha 3") || club.equals("Club Alpha 2") ||club.equals("CIMERA")){
-			listaClases = currentSession.createNativeQuery("select id,nombre,clases.tecnico,tipo_actividad,color, lugar,"
-        			+ "clases.duracion,nivel,clases.hora,cupo_actual,cupo_maximo,clases.rango,clases.disponible,clases.dia,"
-        			+ " clases.paga, clases.id_apartados from clases  where dia='"+dia+"'  and (club='"+club+"' or nombre like '%HEALTH%') and"
-        			+ " disponible=true  and   TO_TIMESTAMP(clases.dia||split_part(clases.rango, '-', 2),'YYYY-MM-DDHH24:MI')>CURRENT_TIMESTAMP "
-        			+ "order by to_timestamp(split_part(clases.rango, '-', 1),'HH24:MI');",CAClase.class);
+			if(club.equals("Club Alpha 2")){
+				listaClases = currentSession.createNativeQuery("select id,nombre,clases.tecnico,tipo_actividad,color, lugar,"
+						+ "clases.duracion,nivel,clases.hora,cupo_actual,cupo_maximo,clases.rango,clases.disponible,clases.dia,"
+						+ " clases.paga, clases.id_apartados from clases  where dia='"+dia+"'  and (nombre like '%HEALTH%' or club = 'Club Alpha 3') and"
+						+ " disponible=true  and   TO_TIMESTAMP(clases.dia||split_part(clases.rango, '-', 2),'YYYY-MM-DDHH24:MI')>CURRENT_TIMESTAMP "
+						+ "order by to_timestamp(split_part(clases.rango, '-', 1),'HH24:MI');",CAClase.class);
+			}else {
+				listaClases = currentSession.createNativeQuery("select id,nombre,clases.tecnico,tipo_actividad,color, lugar,"
+						+ "clases.duracion,nivel,clases.hora,cupo_actual,cupo_maximo,clases.rango,clases.disponible,clases.dia,"
+						+ " clases.paga, clases.id_apartados from clases  where dia='" + dia + "'  and (club='" + club + "' or nombre like '%HEALTH%') and"
+						+ " disponible=true  and   TO_TIMESTAMP(clases.dia||split_part(clases.rango, '-', 2),'YYYY-MM-DDHH24:MI')>CURRENT_TIMESTAMP "
+						+ "order by to_timestamp(split_part(clases.rango, '-', 1),'HH24:MI');", CAClase.class);
+			}
 		}else {
 			listaClases = currentSession.createNativeQuery("select id,nombre,clases.tecnico,tipo_actividad,color, lugar,"
         			+ "clases.duracion,nivel,clases.hora,cupo_actual,cupo_maximo,clases.rango,clases.disponible,clases.dia,"
@@ -847,7 +855,7 @@ public class CitasController
    	}
    
 	@RequestMapping(value="crearApartados", method=RequestMethod.POST)
-   	@Transactional(rollbackFor = SQLException.class)
+   	//@Transactional(rollbackFor = SQLException.class)
 	public ResponseEntity<String> crearApartados(@RequestBody(required = false) Body body) {
 		
    		if(body==null) {
@@ -992,6 +1000,8 @@ public class CitasController
 	   		int paga=apartado.getHorario().getActividad().getPaga();
    	        if(paga>0) {
 		   		List<PaseUsuario> paseUsuario=this.getPase(body.getUsuario());
+				System.out.println("PASE USUARIO => " + paseUsuario.size());
+				System.out.println("PASE USUARIO => " + paseUsuario);
 		   		boolean ban=false;
 		   		int k = 0;
 		   		for(int i=0;i<paseUsuario.size();i++) {
@@ -1005,7 +1015,7 @@ public class CitasController
 		   				}
 		   			}
 		   		}try {
-		   			
+					System.out.println("Valor de ban == " + ban);
 			   		if(ban==true) {
 			   			/*try {
 				   			tiempoMenorHora(apartado);			   				
@@ -1028,18 +1038,18 @@ public class CitasController
 			   		}
 		   		} catch (IOException  e) {
 	   				json.put("Respuesta", "Ya tiene apartada esta clase");
-	   				TransactionAspectSupport.currentTransactionStatus().setRollbackOnly();
+	   				//TransactionAspectSupport.currentTransactionStatus().setRollbackOnly();
 	   				
 	   			
 	   				return new ResponseEntity<String>(json.toString(), HttpStatus.CONFLICT); 
 	   			} catch (RuntimeException  e) {
 	   				json.put("Respuesta", "No hay cupo disponible");
-	   				TransactionAspectSupport.currentTransactionStatus().setRollbackOnly();
+	   				//TransactionAspectSupport.currentTransactionStatus().setRollbackOnly();
 	   			
 	   				return new ResponseEntity<String>(json.toString(), HttpStatus.CONFLICT); 
 	   			} catch (Exception e) {
 	   				json.put("Respuesta", "No Tiene Pases para Apartar esta cita");
-	   				TransactionAspectSupport.currentTransactionStatus().setRollbackOnly();
+	   				//TransactionAspectSupport.currentTransactionStatus().setRollbackOnly();
 	   				
 	   				return new ResponseEntity<String>(json.toString(), HttpStatus.CONFLICT); 
 				}
@@ -1048,19 +1058,19 @@ public class CitasController
 	   			if(cliente.getClub().getIdClub()==4) {
 	   				String actividad=horario1.getActividad().getNombre();
 	   				if(actividad.equals("GIMNASIO") || actividad.equals("CROSSFIT")) {
-				   		paseUsuarioService.cancelarPasesVencidos(body.getUsuario());
+						List<PaseUsuario> paseUsuario=this.getPase(body.getUsuario());
+						paseUsuarioService.cancelarPasesVencidos(body.getUsuario());
 				   		paseUsuarioService.activarPases(body.getUsuario());
-		   				List<PaseUsuario> paseUsuario=this.getPase(body.getUsuario());
 		   				paseUsuario=paseUsuarioService.getPasesGimnasio(body.getUsuario());
-				   		
+						System.out.println("IDCLIENTE: " + body.getUsuario());
+						System.out.println("PASE USUARIO: " + paseUsuario);
 		   				try {
 		   					if(paseUsuario.isEmpty()) {
 		   						throw new Exception("El usuario no tiene pases para GIMNASIO");
 		   					}
 		   				}catch(Exception e){
 			   				json.put("Respuesta", "El usuario no tiene pases para GIMNASIO");
-			   				TransactionAspectSupport.currentTransactionStatus().setRollbackOnly();
-			   			
+			   				//TransactionAspectSupport.currentTransactionStatus().setRollbackOnly();
 			   				return new ResponseEntity<String>(json.toString(), HttpStatus.CONFLICT); 
 		   				}
 		   				
@@ -1328,7 +1338,6 @@ public class CitasController
    				}
    				apartadosUsuarioService.crearApartado(body, horario1, apartado, apartadosUsuario);
    				json.put("Respuesta", "Se aparto la Clase Correctamente");
-   			
 
    				confirmarAsistencia(body);
    				return new ResponseEntity<String>(json.toString(), HttpStatus.OK); 
@@ -1537,7 +1546,8 @@ public class CitasController
    					break;
 	   			}
 	   		}
-	   		
+			System.out.println("ban de cancelar cita: " + ban);
+			System.out.println("Indice k: " + k);
 	   		if(ban==true) {	   			
 	   			try {
 		   			PaseConsumido paseConsumido=paseConsumidoService.getOne(apartadosUsuario, paseUsuario.get(k));
@@ -2931,34 +2941,41 @@ public class CitasController
 			ArrayList<PaseUsuario> listaReporte = new ArrayList<PaseUsuario>();
 			for(int i=0;i<json.length();i++) {
 				JSONObject obj = json.getJSONObject(i);
-				int concepto = obj.getInt("IDProdServ");
-				PaseUsuario pase = new PaseUsuario();
-				pase.setIdProd(concepto);
-				if(obj.getString("Concepto").matches(".*SP.*Gym.*")) {
-					pase.setDisponibles(0);
-					pase.setCantidad(0);
-					//pase.setIdProd(1746);
-				}else {
-					pase.setDisponibles(obj.getInt("Cantidad"));
-					pase.setCantidad(obj.getInt("Cantidad"));
-					pase.setSubgrupo("QR");
+
+				PaseUsuario paseExists = paseUsuarioService.findByIdVentaDetalle(obj.getInt("VentaDetalle"));
+
+				if (paseExists == null){
+					System.out.println("El idVentaDetalle: " + obj.getInt("VentaDetalle") + " es nuevo");
+					int concepto = obj.getInt("IDProdServ");
+					PaseUsuario pase = new PaseUsuario();
+					pase.setIdProd(concepto);
+					if(obj.getString("Concepto").matches(".*SP.*Gym.*")) {
+						pase.setDisponibles(0);
+						pase.setCantidad(0);
+						//pase.setIdProd(1746);
+					}else {
+						pase.setDisponibles(obj.getInt("Cantidad"));
+						pase.setCantidad(obj.getInt("Cantidad"));
+						pase.setSubgrupo("QR");
+					}
+					pase.setIdVentaDetalle(obj.getInt("VentaDetalle"));
+					pase.setConcepto(obj.getString("Concepto"));
+
+					Date fechaCompra = new Date(TimeUnit.MILLISECONDS.toMillis(obj.getLong("FechaCaptura")));
+					//System.out.println("Long: " + obj.getLong("FechaCaptura"));
+					//System.out.println("Fecha parseada = " + fechaCompra);
+					pase.setF_compra(fechaCompra);
+					pase.setActivo(true);
+					pase.setCliente(clienteService.findById(idCliente));
+					pase.setCreated(new Date());
+					pase.setUpdated(new Date());
+					pase.setUpdatedBy(String.valueOf(idCliente));
+					pase.setCreatedBy(String.valueOf(idCliente));
+					paseUsuarioService.save(pase);
+					listaReporte.add(pase);
+				} else {
+					System.out.println("El idVentaDetalle: " + obj.getInt("VentaDetalle") + " ya existe");
 				}
-				pase.setIdVentaDetalle(obj.getInt("VentaDetalle"));
-				pase.setConcepto(obj.getString("Concepto"));
-
-				Date fechaCompra = new Date(TimeUnit.MILLISECONDS.toMillis(obj.getLong("FechaCaptura")));
-				//System.out.println("Long: " + obj.getLong("FechaCaptura"));
-				//System.out.println("Fecha parseada = " + fechaCompra);
-				pase.setF_compra(fechaCompra);
-				pase.setActivo(true);
-				pase.setCliente(clienteService.findById(idCliente));
-				pase.setCreated(new Date());
-				pase.setUpdated(new Date());
-				pase.setUpdatedBy(String.valueOf(idCliente));
-				pase.setCreatedBy(String.valueOf(idCliente));
-				paseUsuarioService.save(pase);
-				listaReporte.add(pase);
-
 			}
 			return paseUsuarioService.getByIdCliente(idCliente);
 			//return json.toString();
@@ -2978,7 +2995,7 @@ public class CitasController
    		        			+ " clases.paga, clases.id_apartados from clases  where id_apartados='"+body.getId()+"'  "
    		        			+ "order by to_timestamp(clases.hora,'HH24:MI');",CAClase.class);   				
    		        	List<CAClase> lista= listaClases.getResultList();
-   					if(lista.get(0).getPaga()==0) {   						
+                    if(lista.get(0).getPaga()==0) {
    						if(registroGimnasioService.accedio(body.getUsuario(), body.getId())) {
    							json.put("Respuesta", "Este usuario ya había accedido a la clase");
    		   	   	   			return new ResponseEntity<String>(json.toString(), HttpStatus.CONFLICT); 	
@@ -3068,6 +3085,7 @@ public class CitasController
    	   			}
 				if(clienteService.findCitas(new Date(),terminal.obtenerSala(),body.getUsuario())) {
 					CAApartados apartado=clienteService.findApartados(new Date(), terminal.obtenerSala(), body.getUsuario());
+
 					if(body.getIdVentaDetalle()==0) {
 						
 						if(registroGimnasioService.accedio(body.getUsuario(), apartado.getId())) {
@@ -3133,8 +3151,8 @@ public class CitasController
 	   	   			}
 	   	   			json.put("Respuesta", "Acceso permitido");
 	   	   			
-	   	   			return new ResponseEntity<String>(json.toString(), HttpStatus.OK); 
-				}   				
+	   	   			return new ResponseEntity<String>(json.toString(), HttpStatus.OK);
+                }
    	   			json.put("Respuesta", "No tiene permitido acceder a esta sala");
    	   			
    	   			return new ResponseEntity<String>(json.toString(), HttpStatus.CONFLICT); 
