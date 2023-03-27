@@ -529,9 +529,9 @@ public class ParkingController
 				calendar.add(Calendar.YEAR, 1);
 				vista.setVigencia(calendar.getTime());
 
-				registroTag.setActivo(true);
-				registroTag.setFechaFin(calendar.getTime());
-				registroTagService.save(registroTag);
+				//registroTag.setActivo(true);
+				//registroTag.setFechaFin(calendar.getTime());
+				//registroTagService.save(registroTag);
 				parkingUsuarioService.save(usuario);
 				//conn.close();
 
