@@ -1492,12 +1492,8 @@ public class ParkingController
 						+ " and (REGISTRO_TAG.club='Futbol City' or REGISTRO_TAG.club='CIMERA')", RegistroTag.class);*/
 					 timeBefore = LocalDateTime.now().withNano(0);
 				 }
-				 /*listaApartadosUsuario=currentSession.createNativeQuery("SELECT * FROM REGISTRO_TAG  WHERE ID_PARKING is not null and activo = true"
+				 listaApartadosUsuario=currentSession.createNativeQuery("SELECT * FROM REGISTRO_TAG  WHERE ID_PARKING is not null and activo = true"
 						 + " and (club='Futbol City' or club='CIMERA') and activo = true", RegistroTag.class);
-				 results = listaApartadosUsuario.getResultList();*/
-				 listaApartadosUsuario = currentSession.createNativeQuery("SELECT RT.* FROM REGISTRO_TAG RT\n" +
-						 "            join parking_usuario pu on RT.id_parking = pu.id_venta_detalle\n" +
-						 "            join cliente c on c.idcliente = pu.idcliente where  RT.club='CIMERA' or RT.club = 'Futbol City' or c.tipocliente in (6,37,102,34,26,36,65)", RegistroTag.class);
 				 results = listaApartadosUsuario.getResultList();
 			 }else {
 				 if (timeNow.isAfter(timeBefore.plusSeconds(1800))) {
@@ -1512,19 +1508,9 @@ public class ParkingController
 						+ " and (REGISTRO_TAG.club='"+nombre+"' or REGISTRO_TAG.club='CIMERA')", RegistroTag.class);*/
 					 timeBefore = LocalDateTime.now().withNano(0);
 				 }
-				 if (caseta.getClub().getIdClub()==3) {
-					 listaApartadosUsuario = currentSession.createNativeQuery("SELECT * FROM REGISTRO_TAG  WHERE ID_PARKING is not null"
-							 + "and activo = true", RegistroTag.class);
-					 results = listaApartadosUsuario.getResultList();
-				 } else {
-					 listaApartadosUsuario = currentSession.createNativeQuery("SELECT RT.* FROM REGISTRO_TAG RT\n" +
-							 "            join parking_usuario pu on RT.id_parking = pu.id_venta_detalle\n" +
-							 "            join cliente c on c.idcliente = pu.idcliente where c.idclub =  5 or c.tipocliente in (6,37,102,34,26,36,65)", RegistroTag.class);
-					 results = listaApartadosUsuario.getResultList();
-				 }
-				 /*listaApartadosUsuario = currentSession.createNativeQuery("SELECT * FROM REGISTRO_TAG  WHERE ID_PARKING is not null"
+				 listaApartadosUsuario = currentSession.createNativeQuery("SELECT * FROM REGISTRO_TAG  WHERE ID_PARKING is not null"
 						 + " and (club='"+nombre+"' or club='CIMERA') and activo = true", RegistroTag.class);
-				 results = listaApartadosUsuario.getResultList();*/
+				 results = listaApartadosUsuario.getResultList();
 			 }
 			 return new ResponseEntity<>(results, HttpStatus.OK);
 		 //return new ResponseEntity<>("No se puede ejecutar la operacion no ha pasado media hora despues de: " + timeBefore, HttpStatus.CONFLICT);
