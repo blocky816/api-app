@@ -9,7 +9,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.sql.Date;
 import java.util.List;
 import java.util.Optional;
 
@@ -61,18 +60,18 @@ public class PaseUsuarioService {
 	
 	public boolean cancelarPasesVencidos(int usuario) {
 		Session currentSession = entityManager.unwrap(Session.class);
-		  // your code
-		  String hql = "update PaseUsuario p set p.activo=false where p.cliente.IdCliente in (SELECT c.IdCliente FROM Cliente c WHERE c.FechaFinAcceso<=current_date()) and p.concepto='SP Mensualidad Gym'";
-		  Query<?> query = currentSession.createQuery(hql);
-		  // your code end
-		  query.executeUpdate();
-		  return true;
+		String hql = "update PaseUsuario p set p.activo=false where p.cliente.IdCliente in (SELECT c.IdCliente FROM Cliente c WHERE c.FechaFinAcceso<=current_date()) and p.concepto like 'SP % Gym %'";
+		//String hql = "update PaseUsuario p set p.activo = false where p.idVentaDetalle = 410750";
+		Query query = currentSession.createQuery(hql);
+		query.executeUpdate();
+
+		return true;
 	}
 	
 	public boolean activarPases(int usuario) {
 		Session currentSession = entityManager.unwrap(Session.class);
 		  // your code
-		  String hql = "update PaseUsuario p set p.activo=true where p.cliente.IdCliente in (SELECT c.IdCliente FROM Cliente c WHERE c.FechaFinAcceso>=current_date()) and p.concepto='SP Mensualidad Gym'";
+		  String hql = "update PaseUsuario p set p.activo=true where p.cliente.IdCliente in (SELECT c.IdCliente FROM Cliente c WHERE c.FechaFinAcceso>=current_date()) and p.concepto like 'SP % Gym %'";
 		  Query<?> query = currentSession.createQuery(hql);
 		  // your code end
 		  query.executeUpdate();
@@ -84,7 +83,6 @@ public class PaseUsuarioService {
 		Query<PaseUsuario> listaPaseUsuario = currentSession.createQuery("FROM PaseUsuario p where (p.cliente.IdCliente=:o and p.concepto like 'SP % Gym %') and p.activo=true order by idVentaDetalle", PaseUsuario.class);
 		listaPaseUsuario.setParameter("o",usuario);
 		List<PaseUsuario> results = listaPaseUsuario.getResultList();
-		
 		return results;
 	}
 	public List<PaseUsuario> getPasesAlberca(int usuario) {

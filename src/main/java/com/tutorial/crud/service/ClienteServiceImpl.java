@@ -71,6 +71,7 @@ public class ClienteServiceImpl implements ClienteService {
 		List<CAApartados> lista = listaApartadosUsuario.getResultList();
 		SimpleDateFormat formato = new SimpleDateFormat("yyyy-MM-dd HH:mm");
 		List<CAApartados> lista2=new ArrayList<CAApartados>();
+
 		for(int i=0;i<lista.size();i++) {
 			String rango =lista.get(i).getHorario().getRango();
 			String[] hora=rango.split("-");
@@ -85,7 +86,7 @@ public class ClienteServiceImpl implements ClienteService {
 				e.printStackTrace();
 			}	
 		}
-		if(lista2.size()>0) 
+		if(lista2.size()>0)
 			return true;
 		return false;
 		/*Session currentSession = entityManager.unwrap(Session.class);
@@ -191,7 +192,7 @@ public class ClienteServiceImpl implements ClienteService {
 					e.printStackTrace();
 				}	
 			}
-			if(lista2.size()>0) 
+			if(lista2.size()>0)
 				return lista2.get(0);
 			return null;
 	}

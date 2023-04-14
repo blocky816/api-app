@@ -2940,7 +2940,11 @@ public class CitasController
 					System.out.println("El idVentaDetalle: " + obj.getInt("VentaDetalle") + " es nuevo");
 					int concepto = obj.getInt("IDProdServ");
 					PaseUsuario pase = new PaseUsuario();
+
 					pase.setIdProd(concepto);
+					if(concepto == 2942) pase.setIdProd(2939);
+					if(concepto == 2941) pase.setIdProd(2938);
+
 					if(obj.getString("Concepto").matches(".*SP.*Gym.*")) {
 						pase.setDisponibles(0);
 						pase.setCantidad(0);

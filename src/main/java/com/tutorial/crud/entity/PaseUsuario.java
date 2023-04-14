@@ -101,9 +101,9 @@ public class PaseUsuario {
 		this.updated = updated;
 	}
 
-	public boolean esActivo() {
+	/*public boolean esActivo() {
 		return activo;
-	}
+	}*/
 
 	public void setActivo(boolean activo) {
 		this.activo = activo;
@@ -186,6 +186,9 @@ public class PaseUsuario {
 	}
 
 
+	public boolean getActivo() {
+		return activo;
+	}
 
 	@Override
 	public String toString() {
