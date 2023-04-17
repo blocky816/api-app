@@ -6,6 +6,7 @@ import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.FileWriter;
 import java.io.OutputStream;
+import java.nio.charset.Charset;
 import java.util.*;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -2671,7 +2672,7 @@ public void enviar_pesaje(float liquidosCorporales, float masaOsea, float adipos
     		+ "                border-radius: 4px;\r\n"
     		+ "                box-sizing: border-box;\r\n"
     		+ "                padding: 0 45px;\r\n"
-    		+ "                margin: 40px auto;\r\n"
+    		+ "                margin: 20px auto;\r\n"
     		+ "                overflow: hidden;\r\n"
     		+ "                font-family: 'Open Sans', sans-serif;\r\n"
     		+ "                color: #4f5365;\r\n"
@@ -2878,7 +2879,7 @@ public void enviar_pesaje(float liquidosCorporales, float masaOsea, float adipos
     		+ "                        <table>\r\n"
     		+ "                            <tr>\r\n"
     		+ "                                <td width=\"125\" style=\" border-right: 0\">\r\n"
-    		+ "                                    <img width=\"125\" height=\"125\" src=\"https://cdn-icons-png.flaticon.com/512/822/822133.png\"/>\r\n"
+    		+ "                                    <img width=\"125\" height=\"125\" src=\"file:rutinas/pesaje/pesocorporal.png\"/>\r\n"
     		+ "                                </td>\r\n"
     		+ "                                <td style=\" border-right: 0\">\r\n"
     		+ "                                    <h3 align=\"left\" style=\"color: brown;\">"+pesoCorporal+" KG</h3>\r\n"
@@ -2894,7 +2895,7 @@ public void enviar_pesaje(float liquidosCorporales, float masaOsea, float adipos
     		+ "                        <table>\r\n"
     		+ "                            <tr>\r\n"
     		+ "                                <td width=\"125\" style=\" border-right: 0\">\r\n"
-    		+ "                                    <img width=\"120 \" height=\"120\" src=\"https://cdn-icons-png.flaticon.com/512/425/425820.png\"/>\r\n"
+    		+ "                                    <img width=\"120 \" height=\"120\" src=\"file:rutinas/pesaje/grasacorporal.png\"/>\r\n"
     		+ "                                </td>\r\n"
     		+ "                                <td style=\" border-right: 0\">\r\n"
     		+ "                                    <h3 align=\"left\" style=\"color: brown;\">"+grasaCorporal+" %</h3>\r\n"
@@ -2910,7 +2911,7 @@ public void enviar_pesaje(float liquidosCorporales, float masaOsea, float adipos
     		+ "                        <table>\r\n"
     		+ "                            <tr>\r\n"
     		+ "                                <td width=\"125\" style=\" border-right: 0\">\r\n"
-    		+ "                                    <img width=\"120 \" height=\"120\" src=\"https://cdn-icons-png.flaticon.com/512/2690/2690150.png\"/>\r\n"
+    		+ "                                    <img width=\"120 \" height=\"120\" src=\"file:rutinas/pesaje/masamuscular.png\"/>\r\n"
     		+ "                                </td>\r\n"
     		+ "                                <td style=\" border-right: 0\">\r\n"
     		+ "                                    <h3 align=\"left\" style=\"color: brown;\">"+masaMuscular+" KG</h3>\r\n"
@@ -2927,7 +2928,7 @@ public void enviar_pesaje(float liquidosCorporales, float masaOsea, float adipos
     		+ "                        <table>\r\n"
     		+ "                            <tr>\r\n"
     		+ "                                <td width=\"125\" style=\" border-right: 0\">\r\n"
-    		+ "                                    <img width=\"120 \" height=\"120\" src=\"grasas.png\"/>\r\n"
+    		+ "                                    <img width=\"120 \" height=\"120\" src=\"file:rutinas/pesaje/adiposidadvisceral.png\"/>\r\n"
     		+ "                                </td>\r\n"
     		+ "                                <td style=\" border-right: 0\">\r\n"
     		+ "                                    <h3 align=\"left\" style=\"color: brown;\">Nivel de Grasa: "+adiposidadVisceral+"</h3>\r\n"
@@ -2943,7 +2944,7 @@ public void enviar_pesaje(float liquidosCorporales, float masaOsea, float adipos
     		+ "                        <table>\r\n"
     		+ "                            <tr>\r\n"
     		+ "                                <td width=\"125\" style=\" border-right: 0\">\r\n"
-    		+ "                                    <img width=\"120 \" height=\"120\" src=\"https://cdn-icons-png.flaticon.com/512/2861/2861090.png\"/>\r\n"
+    		+ "                                    <img width=\"120 \" height=\"120\" src=\"file:rutinas/pesaje/masaosea.png\"/>\r\n"
     		+ "                                </td>\r\n"
     		+ "                                <td style=\" border-right: 0\">\r\n"
     		+ "                                    <h3 align=\"left\" style=\"color: brown;\">"+masaOsea+" KG</h3>\r\n"
@@ -2959,7 +2960,7 @@ public void enviar_pesaje(float liquidosCorporales, float masaOsea, float adipos
     		+ "                        <table>\r\n"
     		+ "                            <tr>\r\n"
     		+ "                                <td width=\"125\" style=\" border-right: 0\">\r\n"
-    		+ "                                    <img width=\"120 \" height=\"120\" src=\"https://cdn-icons-png.flaticon.com/512/1694/1694412.png\"/>\r\n"
+    		+ "                                    <img width=\"120 \" height=\"120\" src=\"file:rutinas/pesaje/liquidoscorporales.png\"/>\r\n"
     		+ "                                </td>\r\n"
     		+ "                                <td style=\" border-right: 0\">\r\n"
     		+ "                                    <h3 align=\"left\" style=\"color: brown;\">"+liquidosCorporales+"%</h3>\r\n"
@@ -2982,7 +2983,7 @@ public void enviar_pesaje(float liquidosCorporales, float masaOsea, float adipos
         if (!file.exists()) {
             file.createNewFile();
         }
-        FileWriter fw = new FileWriter(file);
+        FileWriter fw = new FileWriter(file, Charset.forName("UTF-8"));
         BufferedWriter bw = new BufferedWriter(fw);
         bw.write(mensaje);
         bw.close();
