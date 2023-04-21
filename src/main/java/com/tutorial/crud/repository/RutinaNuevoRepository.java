@@ -10,5 +10,5 @@ import java.util.List;
 public interface RutinaNuevoRepository extends JpaRepository<RutinaNuevo, Integer> {
     List<RutinaNuevo> findAllByActivo(Boolean activo);
 
-    List<RutinaNuevo> findAllByActivoAndTipoPlantilla(Boolean activo, String tipoPlantilla);
+    List<RutinaNuevo> findAllByActivoAndTipoPlantillaOrderByNombreRutina(Boolean activo, String tipoPlantilla);
 }
