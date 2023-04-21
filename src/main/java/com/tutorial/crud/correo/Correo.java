@@ -3186,6 +3186,10 @@ public void enviar_pesaje(float liquidosCorporales, float masaOsea, float adipos
 				"            box-sizing: border-box;\n" +
 				"        }\n" +
 				"\n" +
+				"@page {\n" +
+				"  size: A4 portrait;\n" +
+				"  margin: 0;\n" +
+				"}" +
 				"        body {\n" +
 				"            margin: 0;\n" +
 				"            font-family: sans-serif;\n" +
@@ -3279,8 +3283,8 @@ public void enviar_pesaje(float liquidosCorporales, float masaOsea, float adipos
 				"        /* CONTENIDO PRINCIPAL */\n" +
 				"\n" +
 				"        .main {\n" +
-				"            margin-left: auto;\n" +
-				"            margin-right: auto;\n" +
+				"            /*margin-left: auto;*/\n" +
+				"            /*margin-right: auto;*/\n" +
 				"            /*height: 300px;*/\n" +
 				"        }\n" +
 				"\n" +

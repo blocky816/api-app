@@ -9,7 +9,9 @@ import org.hibernate.query.Query;
 import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -480,6 +482,21 @@ public class RutinaNuevoController {
     }
 
 
+    @GetMapping(value = "/image/{id}", produces = MediaType.IMAGE_PNG_VALUE)
+    public ResponseEntity<byte[]> image(@PathVariable Integer id) {
+
+        Optional<EjercicioNuevo> ejercicioNuevo = ejercicioNuevoService.findById(id);
+
+        if (!ejercicioNuevo.isPresent()){
+            return new ResponseEntity<>(null, HttpStatus.NOT_FOUND);
+
+        } else{
+            byte[] imageByte = Base64.getDecoder().decode(ejercicioNuevo.get().getImagen().getBytes());
+            HttpHeaders headers = new HttpHeaders();
+            ResponseEntity<byte[]> response = new ResponseEntity<>(imageByte, HttpStatus.CREATED);
+            return response;
+        }
+    }
 
     //--------------------------------------- WEB SERVICE AGENDA----------------------------------------------------
     @RequestMapping(value="crearHorarioAgenda", method=RequestMethod.POST)
