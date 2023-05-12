@@ -1590,10 +1590,11 @@ public class ParkingController
 						 && !tipoCliente.equals("EMPLEADOS ADMINISTRATIVOS Y OPERATIVOS")  && !tipoCliente.equals("EMPLEADOS CIM")
 						 && !tipoCliente.equals("EMPLEADOS DIRECTIVOS") && !tipoCliente.equals("EMPLEADOS FAMILIARES DIRECTOS") 
 						 && !tipoCliente.equals("EMPLEADOS PLATINUM")));*/
-				boolean excepciones=!tipoCliente.equals("EQUIPO PUEBLA") && !tipoCliente.equals("PRACTICANTES")
+				/*boolean excepciones=!tipoCliente.equals("EQUIPO PUEBLA") && !tipoCliente.equals("PRACTICANTES")
 						 && !tipoCliente.equals("EMPLEADOS ADMINISTRATIVOS Y OPERATIVOS")  && !tipoCliente.equals("EMPLEADOS CIM")
 						 && !tipoCliente.equals("EMPLEADOS DIRECTIVOS") && !tipoCliente.equals("EMPLEADOS FAMILIARES DIRECTOS") 
-						 && !tipoCliente.equals("EMPLEADOS PLATINUM") && !club.equals("Futbol City") ;
+						 && !tipoCliente.equals("EMPLEADOS PLATINUM") && !club.equals("Futbol City") ;*/
+				boolean excepciones = !tipoCliente.contains("Empleados");
 				if(horas>=4 && club.equals("CIMERA") && idVentaDetalle>0 &&  excepciones)  {
 					List<Amonestaciones>amonestacionesPorChip=new ArrayList<Amonestaciones>();
 					Amonestaciones amonestacionNueva=new Amonestaciones();				
@@ -1757,6 +1758,8 @@ public class ParkingController
 				        		+ "<li>El chip permanecerá desactivado hasta cubrir la sanción administrativa.</li>\r\n";
 						if(parkingUsuario.getCliente().getClub().getIdClub()==3)
 							correo.enviar_correo2(asunto,idCliente,nombre,horaEntrada,horaSalida,texto,cabecera);
+						else if (parkingUsuario.getCliente().getClub().getIdClub()==2)
+							correo.enviar_correo6(asunto,idCliente,nombre,horaEntrada,horaSalida,texto,cabecera);
 						else
 							correo.enviar_correo4(asunto,idCliente,nombre,horaEntrada,horaSalida,texto,cabecera);
 					break;
@@ -1789,6 +1792,8 @@ public class ParkingController
 								+ "<li>El chip permanecerá desactivado hasta cubrir la sanción administrativa.</li>";
 						if(parkingUsuario.getCliente().getClub().getIdClub()==3)
 							correo.enviar_correo2(asunto,idCliente,nombre,horaEntrada,horaSalida,texto,cabecera);
+						else if (parkingUsuario.getCliente().getClub().getIdClub()==2)
+							correo.enviar_correo6(asunto,idCliente,nombre,horaEntrada,horaSalida,texto,cabecera);
 						else
 							correo.enviar_correo4(asunto,idCliente,nombre,horaEntrada,horaSalida,texto,cabecera);
 					break;
@@ -1821,6 +1826,8 @@ public class ParkingController
 								+ "<li>El chip permanecerá desactivado hasta cubrir la sanción administrativa.</li>";
 						if(parkingUsuario.getCliente().getClub().getIdClub()==3)
 							correo.enviar_correo2(asunto,idCliente,nombre,horaEntrada,horaSalida,texto,cabecera);
+						else if (parkingUsuario.getCliente().getClub().getIdClub()==2)
+							correo.enviar_correo6(asunto,idCliente,nombre,horaEntrada,horaSalida,texto,cabecera);
 						else
 							correo.enviar_correo4(asunto,idCliente,nombre,horaEntrada,horaSalida,texto,cabecera);
 					break;
@@ -1832,6 +1839,8 @@ public class ParkingController
 						asunto=asunto+" por cuarta ocasion";
 						if(parkingUsuario.getCliente().getClub().getIdClub()==3)
 							correo.enviar_correo3(asunto,idCliente,nombre,horaEntrada,horaSalida);
+						else if (parkingUsuario.getCliente().getClub().getIdClub()==2)
+							correo.enviar_correo7(asunto,idCliente,nombre,horaEntrada,horaSalida);
 						else
 							correo.enviar_correo5(asunto,idCliente,nombre,horaEntrada,horaSalida);
 						
