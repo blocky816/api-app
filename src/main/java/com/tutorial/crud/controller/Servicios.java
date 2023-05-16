@@ -2840,7 +2840,7 @@ public class Servicios
 				}
 
 				// FOTOS
-				String fotoBase64 = json.getString("image_256");
+				String fotoBase64 = json.getString("image_128");
 				byte[] bytes = Base64.decodeBase64(fotoBase64.getBytes());
 				Foto foto = new Foto(bytes);
 				foto.setFechaCreacion(new Date());
@@ -3011,7 +3011,7 @@ public class Servicios
 				}*/
 
 				// FOTOS
-				String fotoBase64 = json.getString("image_256");
+				String fotoBase64 = json.getString("image_128");
 				byte[] bytes = Base64.decodeBase64(fotoBase64.getBytes());
 				Foto foto = new Foto(bytes);
 				foto.setFechaCreacion(new Date());
@@ -6546,7 +6546,7 @@ public class Servicios
 		return null;
 		//return new ResponseEntity<>("Error de foto", HttpStatus.INTERNAL_SERVER_ERROR);
 	}
-	
+
 
 	@Scheduled(cron = "0 0 3 * * *")
 	public void updateCustomer() throws MalformedURLException {
