@@ -29,7 +29,7 @@ public class RutinaNuevoService {
         return rutinaNuevoRepository.findById(id);
     }
 
-    public List<RutinaNuevo> findAllByActivoAndTipoPlantilla(Boolean activo, String tipoPlantilla) {
-        return rutinaNuevoRepository.findAllByActivoAndTipoPlantillaOrderByNombreRutina(activo, tipoPlantilla);
+    public List<RutinaNuevo> findAllByActivoAndTipoPlantilla() {
+        return rutinaNuevoRepository.findAllByActivoAndTipoPlantilla();
     }
 }

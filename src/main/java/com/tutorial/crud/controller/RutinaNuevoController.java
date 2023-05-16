@@ -242,7 +242,7 @@ public class RutinaNuevoController {
     @ResponseBody
     public ResponseEntity<?> getPlantillaById() {
 
-        List<RutinaNuevo> rutinaNuevos = rutinaNuevoService.findAllByActivoAndTipoPlantilla(true, "General");
+        List<RutinaNuevo> rutinaNuevos = rutinaNuevoService.findAllByActivoAndTipoPlantilla();
 
         List<RutinaNuevoDTO> rutinasGenerales = new ArrayList<>();
         for (RutinaNuevo rutinaIterator: rutinaNuevos) {
