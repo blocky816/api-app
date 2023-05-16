@@ -2665,6 +2665,7 @@ public class Servicios
 	@ResponseBody
 	public ResponseEntity<?> update(@PathVariable("horarioId") int horarioId){
 
+		System.out.println("IDCLIENTE A ACTUALIZAR => " + horarioId);
 		try {
 			JSONObject json = new JSONObject(IOUtils.toString(new URL("http://192.168.20.107:8000/ServiciosClubAlpha/api/Miembro/"+horarioId), Charset.forName("UTF-8")));
 
@@ -2681,7 +2682,7 @@ public class Servicios
 			x = String.valueOf(json.get("FechaNacimiento")).split("T");
 			x = x[0].split("-");
 			nuevoUsuario.setPassword(horarioId +"."+ x[0] + x[1] + x[2]);
-
+			System.out.println("PAse fechade nacimeinto");
 			Usuario usuario;
 			try {
 				usuario=usuarioService.getByNombreUsuario(nuevoUsuario.getNombreUsuario()).get() ;
@@ -2705,7 +2706,7 @@ public class Servicios
 				usuario.setRoles(roles);
 				usuarioService.save(usuario);
 			}catch(Exception e) {
-				//e.printStackTrace();
+				e.printStackTrace();
 				System.out.println("Error crear usuario: " + e.getMessage());
 			}
 
@@ -2713,6 +2714,7 @@ public class Servicios
 			SimpleDateFormat formato = new SimpleDateFormat("yyyy-MM-dd");
 			Cliente cliente=clienteService.findById(horarioId);
 			if(cliente!=null) {
+				System.out.println("CLiente no es nulo.");
 				cliente.setApellidoMaterno(json.getString("ApellidoMaterno"));
 				cliente.setApellidoPaterno(json.getString("ApellidoPaterno"));
 				Categoria categoria=categoriaService.findById(json.getJSONObject("Categoria").getInt("Id"));
@@ -2837,15 +2839,28 @@ public class Servicios
 					cliente.setTipoMembresia(tipoMembresia);
 				}
 
-				Foto foto = this.actualizarFotos(cliente.getIdCliente());
+				// FOTOS
+				String fotoBase64 = json.getString("image_256");
+				byte[] bytes = Base64.decodeBase64(fotoBase64.getBytes());
+				Foto foto = new Foto(bytes);
+				foto.setFechaCreacion(new Date());
+				foto.setFechaModificacion(new Date());
+				foto.setActivo(true);
+				foto.setCliente(cliente);
+				cliente.setURLFoto(foto);
+				/*Foto foto = this.actualizarFotos(cliente.getIdCliente());
 				if (foto != null){
 					foto.setCliente(cliente);
 					cliente.setURLFoto(foto);
-				}
+				}*/
 
 				cliente.setFechaNacimiento(formato.parse(json.getString("FechaNacimiento")) );
 				cliente.setFechaFinAcceso(formato.parse(json.getString("FechaFinAcceso")) );
-				cliente.setInicioActividades(formato.parse(json.getString("InicioActividades")));
+				try {
+					cliente.setInicioActividades(formato.parse(json.getString("InicioActividades")));
+				} catch (ParseException e) {
+					cliente.setInicioActividades(null);
+				}
 				clienteService.save(cliente);
 				List<ParkingUsuario> pu=parkingUsuarioService.findByIdCliente(cliente);
 				for(int i=0;i<pu.size();i++) {
@@ -2853,6 +2868,7 @@ public class Servicios
 					parkingUsuarioService.save(pu.get(i));
 				}
 			}else {
+				System.out.println("Es cliente nuevo ");
 				cliente=new Cliente();
 				cliente.setApellidoMaterno(json.getString("ApellidoMaterno"));
 				cliente.setApellidoPaterno(json.getString("ApellidoPaterno"));
@@ -2982,13 +2998,27 @@ public class Servicios
 				cliente.setFechaModificacion(new Date());
 				cliente.setFechaNacimiento(formato.parse(json.getString("FechaNacimiento")) );
 				cliente.setFechaFinAcceso(formato.parse(json.getString("FechaFinAcceso")) );
-				cliente.setInicioActividades(formato.parse(json.getString("InicioActividades")));
+				try {
+					cliente.setInicioActividades(formato.parse(json.getString("InicioActividades")));
+				} catch (ParseException e) {
+					cliente.setInicioActividades(null);
+				}
 				//this.addFoto(json.getString("UrlFoto"),cliente);
-				Foto foto = this.actualizarFotos(cliente.getIdCliente());
+				/*Foto foto = this.actualizarFotos(cliente.getIdCliente());
 				if (foto != null){
 					foto.setCliente(cliente);
 					cliente.setURLFoto(foto);
-				}
+				}*/
+
+				// FOTOS
+				String fotoBase64 = json.getString("image_256");
+				byte[] bytes = Base64.decodeBase64(fotoBase64.getBytes());
+				Foto foto = new Foto(bytes);
+				foto.setFechaCreacion(new Date());
+				foto.setFechaModificacion(new Date());
+				foto.setActivo(true);
+				foto.setCliente(cliente);
+				cliente.setURLFoto(foto);
 
 				clienteService.save(cliente);
 				List<ParkingUsuario> pu=parkingUsuarioService.findByIdCliente(cliente);
@@ -3003,6 +3033,7 @@ public class Servicios
 		}catch(Exception e) {
 			//e.printStackTrace();
 			System.out.println("Error al actualizar cliente: " + e.getMessage());
+			e.printStackTrace();
 			return new ResponseEntity<>(HttpStatus.CONFLICT);
 		}
 
@@ -3018,7 +3049,7 @@ public class Servicios
 	 * @return objeto Cliente añadido
 	 */
 
-	@PostMapping("/domiciliarCliente")
+		@PostMapping("/domiciliarCliente")
 	public ResponseEntity<?> domiciliarCliente(@RequestBody Body body){
 		JSONObject resp=new JSONObject();
 		try {
@@ -6196,7 +6227,8 @@ public class Servicios
 					}
 					System.out.println(importe);
 					Cliente cliente=clienteService.findById(listaClientes.get(i).getIdCliente());
-					cliente.setMonto(importe);
+					//cliente.setMonto(Math.round(importe));
+					cliente.setMonto((float) (Math.round(importe * 100.0) / 100.0));
 					clienteService.save(cliente);
 				}catch(Exception e) {
 
@@ -6487,7 +6519,6 @@ public class Servicios
 	}*/
 
 	@GetMapping("/actualizarFotos/{idCliente}")
-	//@Transactional(rollbackOn = Exception.class)
 	public Foto actualizarFotos(@PathVariable("idCliente") int idCliente) throws MalformedURLException {
 
 			try {
@@ -6515,6 +6546,7 @@ public class Servicios
 		return null;
 		//return new ResponseEntity<>("Error de foto", HttpStatus.INTERNAL_SERVER_ERROR);
 	}
+	
 
 	@Scheduled(cron = "0 0 3 * * *")
 	public void updateCustomer() throws MalformedURLException {
