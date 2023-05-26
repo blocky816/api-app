@@ -60,6 +60,7 @@ public class MainSecurity extends WebSecurityConfigurerAdapter {
                 .authorizeRequests()
                 .antMatchers("/auth/**").permitAll()
                 .antMatchers("/citas/redimirPase").permitAll()
+                .antMatchers("/alpha/recibosMes/**").permitAll()//esto hay que comentarlo
                 .antMatchers("/citas/actualizarPasesRedimidos").permitAll()
                 .antMatchers("/citas/crearHorario").permitAll()
                 .antMatchers("/parking/registrarEvento").permitAll()

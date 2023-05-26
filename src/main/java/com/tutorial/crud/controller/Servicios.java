@@ -2224,6 +2224,7 @@ public class Servicios
 		Calendar ca=Calendar.getInstance();
 		Calendar fecha = Calendar.getInstance();
 		int mesActual = fecha.get(Calendar.MONTH)+1;
+		int diaActual = fecha.get(Calendar.DAY_OF_MONTH);
 		int mesRecibo,idCliente;
 		JSONObject json=new JSONObject();
 		ArrayList<ReciboSAT>reciboValido=this.obtenerReciboSAT(body);
@@ -2249,7 +2250,8 @@ public class Servicios
 			}
 		}
 		mesRecibo = ca.get(Calendar.MONTH)+1;
-		if(mesRecibo!=mesActual) {
+		System.out.println("El día actual es: "+diaActual);
+		if((mesRecibo!=mesActual)&&(diaActual>2)) {
 			json.put("respuesta", "El mes actual no coincide con el mes del recibo, fecha del recibo "+reciboValido.get(0).getFechaCaptura());
 			return new ResponseEntity<>(json.toString(), HttpStatus.CONFLICT);
 		}
@@ -3113,7 +3115,7 @@ public class Servicios
 				try {
 					System.out.println(e.conectaApiClubPOST(body2,o.getEndpointAlpha()));
 				}catch(Exception e) {
-
+					e.printStackTrace();
 				}
 
 				cliente.setCargoDomiciliacion(true);
@@ -4967,7 +4969,7 @@ public class Servicios
 					to.setProductCode(observacionesSplit[0].trim());
 					listaReporte.add(to);
 				}
-
+			System.out.println("Agregando factura de Odoo "+observaciones);
 			}
 
 			conn.close();
@@ -5022,6 +5024,8 @@ public class Servicios
 			try {
 				conn.close();
 			} catch (SQLException ex) {
+
+				ex.printStackTrace();
 				System.out.println("Error: " + ex.getMessage());
 			}
 		}
@@ -5068,6 +5072,7 @@ public class Servicios
 		if(today.before(caAux)) {
 			date=new Date(ca.getTime().getTime());
 			fechaComoCadena = formato.format(date);
+			--mesActual;
 			factura.setDate(fechaComoCadena);
 
 		}else {
@@ -5156,6 +5161,11 @@ public class Servicios
 			MensajeError mensaje=new MensajeError();
 			mensaje.setMsg("Fallo en la factura global la clave de los productos no cumple con el formato correcto");
 			mensaje.setProductosFallidos(itemFallidos);
+			System.out.println("Mi mensaje de fallidos fue: "+mensaje.getMsg());
+			for(ItemFallido producto: mensaje.getProductosFallidos()){
+				System.out.println("Fallo Producto:"+producto.getProducto() + " - ID:"+producto.getIdProducto() + " - Folio:"+producto.getFolio());
+			}
+
 			return new ResponseEntity<>(mensaje, HttpStatus.INTERNAL_SERVER_ERROR);
 		}
 		//factura.setItems(items);
@@ -5198,6 +5208,7 @@ public class Servicios
 			catch(Exception e)
 			{
 				System.out.println(e);
+				e.printStackTrace();
 			}
 			object=new JSONObject(json);
 			respuesta2 = consultarAPI(query, object);
@@ -5205,6 +5216,7 @@ public class Servicios
 			try {
 				uuid=respuesta2.getString("Id");
 			}catch(Exception e) {
+				e.printStackTrace();
 				return new ResponseEntity<>(respuesta2.toString(), HttpStatus.CONFLICT);
 
 			}double total = 0;
@@ -5230,7 +5242,7 @@ public class Servicios
 
 
 		}
-		System.out.println(new Date());
+		System.out.println("Terminado en "+new Date());
 		return new ResponseEntity<>(respuesta2.toString(), HttpStatus.OK);
 
 	}
@@ -5457,7 +5469,7 @@ public class Servicios
 		ArrayList<Item> items=new ArrayList<Item>();
 		for(int i=0;i<recibo.size();i++) {
 			ReciboSAT producto=recibo.get(i);
-			if(!producto.getProductCode().equals("0")) {
+			if((!producto.getProductCode().equals("0")) && (producto.getTotal()>0)) {
 
 				Item item=new Item();
 				item.setDescription(producto.getConcepto());
@@ -6184,15 +6196,15 @@ public class Servicios
 	@GetMapping("/actualizarDomiciliacion")
 	@Transactional(rollbackOn =Exception.class)
 	public ResponseEntity<?> actualizarDomiciliacion(){
-		Connection conn = null;
+		//Connection conn = null;
 		try {
 			Session currentSession = entityManager.unwrap(Session.class);
 			currentSession.createNativeQuery("delete from cliente_domiciliado").executeUpdate();
-			DriverManager.registerDriver(new com.microsoft.sqlserver.jdbc.SQLServerDriver());
+			/*DriverManager.registerDriver(new com.microsoft.sqlserver.jdbc.SQLServerDriver());
 			conn = DriverManager.getConnection(dbURL, userData, passData);
 
 			PreparedStatement ps=conn.prepareStatement("EXEC DataFlowAlpha.dbo.sp_Generar_Archivo_Domiciliacion_fiserv ");
-			List<ClienteDomiciliado>lista=new ArrayList<ClienteDomiciliado>();
+			//List<ClienteDomiciliado>lista=new ArrayList<ClienteDomiciliado>();
 			ResultSet rs =ps.executeQuery();
 			while (rs.next()) {
 				ClienteDomiciliado to=new ClienteDomiciliado();
@@ -6203,9 +6215,9 @@ public class Servicios
 				clienteDomiciliadoService.save(to);
 				lista.add(to);
 
-			}
+			}*/
 
-			conn.close();
+			//conn.close();
 			currentSession.createNativeQuery("update cliente set monto=0 where domiciliado is true").executeUpdate();
 			Query<ClienteDomiciliado> query;
 			query=currentSession.createNativeQuery("select id_cliente,membresia,nombre,0 as monto from domiciliacion where monto=0 and domiciliado='FISERV'",ClienteDomiciliado.class);
@@ -6235,20 +6247,20 @@ public class Servicios
 				}
 			}
 			return new ResponseEntity<>("datos almacenados", HttpStatus.OK);
-		} catch (SQLException ex) {
+		}/* catch (SQLException ex) {
 			System.out.println("Error: " + ex.getMessage());
 			ex.printStackTrace();
-		}
+		}*/
 		catch(Exception e){
 			e.printStackTrace();
 		}finally {
-			try {
+			/*try {
 				if(conn!=null) {
 					conn.close();
 				}
 			} catch (SQLException ex) {
 				System.out.println("Error: " + ex.getMessage());
-			}
+			}*/
 		}
 		return null;
 	}
@@ -6375,12 +6387,13 @@ public class Servicios
 					clienteIntentosFiserv.setTransactionId(idTransaccion);
 					clienteIntentosFiserv.setCard(card);
 					clienteIntentosFiserv.setBrand(brand);
+					clienteIntentosFiservRepository.save(clienteIntentosFiserv);
+
 				} catch (JSONException err) {
-					System.out.println("Exception : "+err.toString());
+					err.printStackTrace();
 				}
 
 				// Persistir los datos en tabla
-				clienteIntentosFiservRepository.save(clienteIntentosFiserv);
 
 
 				JSONObject usuarioLog = new JSONObject(result);
@@ -6388,7 +6401,6 @@ public class Servicios
 				is.close();
 				conn.disconnect();
 
-				url = new URL(endpointPagos);
 				url = new URL(endpointPagos);
 				conn = (HttpURLConnection) url.openConnection();
 				conn.setConnectTimeout(5000);

@@ -1076,6 +1076,7 @@ public class RutinaController
 
 			pesaje.fechaCaptura=upv.fechaCaptura;
 			pesaje.foto=upv.foto;
+			System.out.println("Tamaño de "+pesaje.foto.length);
 			pesaje.id=upv.id;
 			pesaje.idTerminal=body.idTerminal;
 			pesaje.idUsuario=upv.idUsuario;
@@ -1144,9 +1145,13 @@ public class RutinaController
 			upv.sexo=ultimoPesaje.sexo;
 			upv.tMB=ultimoPesaje.tMB;
 			upv.valoracionFisica=ultimoPesaje.valoracionFisica;
+			System.out.println("Retornando cliente bascula");
 			return new ResponseEntity<>(upv, HttpStatus.OK);
 			
-		}catch(Exception e) {			
+		}catch(Exception e) {
+			e.printStackTrace();
+			System.out.println("Errror en  cliente bascula");
+
 			ClienteBasculaVista upv = new ClienteBasculaVista();
 			return new ResponseEntity<>(upv, HttpStatus.CONFLICT); 
 		}

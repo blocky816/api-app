@@ -40,6 +40,6 @@ public class ClientePesaje extends Thread{
 		Gson gson = new Gson();
 		String json=gson.toJson(pesaje);
 		socket.emit("pesaje", json);
-		System.out.println("Se envio el pesaje...");
+		System.out.println("Se envio el pesaje...  ");
 	}
 }
