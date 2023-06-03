@@ -5531,7 +5531,7 @@ public class Servicios
 			itemAux=new ArrayList<Item>();
 
 			for(int j=1;j!=0 && i<items.size();i++) {
-				j=(i+1)%1000;
+				j=(i+1)%100;
 				itemAux.add(items.get(i));
 
 			}
