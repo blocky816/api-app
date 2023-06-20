@@ -1673,6 +1673,7 @@ public class Servicios
 			System.out.println("JSON 2: " + json2);
 			return json2.toString();
 		}catch(JSONException e) {
+			System.out.println("JSONException => " + e.getMessage());
 			return null;
 		}
 		//return null;
@@ -2671,7 +2672,21 @@ public class Servicios
 
 		System.out.println("IDCLIENTE A ACTUALIZAR => " + horarioId);
 		try {
+			String resultOdoo = IOUtils.toString(new URL("http://192.168.20.107:8000/ServiciosClubAlpha/api/Miembro/"+horarioId), Charset.forName("UTF-8"));
+			System.out.println("Result de oddo => " + resultOdoo);
+			Cliente cliente=clienteService.findById(horarioId);
+			System.out.println("busque al cliente");
+			if("[]".equals(resultOdoo) && cliente != null) {
+				System.out.println("USuario archivado");
+				cliente.setEstatusAcceso("Sin Acceso");
+				EstatusCobranza estatusCobranza = estatusCobranzaService.findById(6);
+				cliente.setEstatusCobranza(estatusCobranza);
+				clienteService.save(cliente);
+				return new ResponseEntity<>("Cliente almacenado", HttpStatus.OK);
+			}
 			JSONObject json = new JSONObject(IOUtils.toString(new URL("http://192.168.20.107:8000/ServiciosClubAlpha/api/Miembro/"+horarioId), Charset.forName("UTF-8")));
+
+
 
 			NuevoUsuario nuevoUsuario=new NuevoUsuario();
 			nuevoUsuario.setCliente(json.getString("Nombre")+" "+json.getString("ApellidoPaterno")+" "+json.getString("ApellidoMaterno"));
@@ -2716,7 +2731,7 @@ public class Servicios
 
 			//SimpleDateFormat formato = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss");
 			SimpleDateFormat formato = new SimpleDateFormat("yyyy-MM-dd");
-			Cliente cliente=clienteService.findById(horarioId);
+
 			if(cliente!=null) {
 				System.out.println("CLiente no es nulo.");
 				cliente.setApellidoMaterno(json.getString("ApellidoMaterno"));
@@ -2737,13 +2752,13 @@ public class Servicios
 				int idCLub = json.getJSONObject("Club").getInt("Id");
 				Club club = null;
 				switch (idCLub) {
+					case 6:  club = clubService.findById(2);
+						break;
 					case 7:  club = clubService.findById(3);
 						break;
 					case 8:  club = clubService.findById(5);
 						break;
 					case 9:  club = clubService.findById(4);
-						break;
-					case 6:  club = clubService.findById(2);
 						break;
 				}
 
@@ -2865,6 +2880,8 @@ public class Servicios
 				} catch (ParseException e) {
 					cliente.setInicioActividades(null);
 				}
+
+				cliente.setEsTitular(json.getBoolean("is_parent"));
 				clienteService.save(cliente);
 				List<ParkingUsuario> pu=parkingUsuarioService.findByIdCliente(cliente);
 				for(int i=0;i<pu.size();i++) {
@@ -2893,13 +2910,13 @@ public class Servicios
                 int idCLub = json.getJSONObject("Club").getInt("Id");
                 Club club = null;
                 switch (idCLub) {
+					case 6:  club = clubService.findById(2);
+						break;
                     case 7:  club = clubService.findById(3);
                         break;
                     case 8:  club = clubService.findById(5);
                         break;
                     case 9:  club = clubService.findById(4);
-                        break;
-                    case 6:  club = clubService.findById(2);
                         break;
                 }
 				if(club!=null)
@@ -3024,6 +3041,7 @@ public class Servicios
 				foto.setCliente(cliente);
 				cliente.setURLFoto(foto);*/
 
+				cliente.setEsTitular(json.getBoolean("is_parent"));
 				clienteService.save(cliente);
 				List<ParkingUsuario> pu=parkingUsuarioService.findByIdCliente(cliente);
 				for(int i=0;i<pu.size();i++) {
@@ -3034,7 +3052,21 @@ public class Servicios
 
 
 
-		}catch(Exception e) {
+		}
+		catch(FileNotFoundException e) {
+			Cliente cliente=clienteService.findById(horarioId);
+			System.out.println("busque al cliente");
+			if(cliente != null) {
+				System.out.println("USuario archivado");
+				cliente.setEstatusAcceso("Sin Acceso");
+				EstatusCobranza estatusCobranza = estatusCobranzaService.findById(6);
+				cliente.setEstatusCobranza(estatusCobranza);
+				clienteService.save(cliente);
+				System.out.println("Se cancelo el usuario");
+				return new ResponseEntity<>("Cliente almacenado", HttpStatus.OK);
+			}
+		}
+		catch(Exception e) {
 			//e.printStackTrace();
 			System.out.println("Error al actualizar cliente: " + e.getMessage());
 			e.printStackTrace();
@@ -5284,7 +5316,7 @@ public class Servicios
 			HttpClient client = HttpClient.newHttpClient();
 			HttpRequest request = HttpRequest.newBuilder()
 					.header("Content-Type", "application/json")
-					.uri(URI.create("http://192.168.20.107:8000/alpha/globalinvoice"))
+					.uri(URI.create("http://192.168.20.107:4000/alpha/globalinvoice"))
 					.GET()
 					.build();
 

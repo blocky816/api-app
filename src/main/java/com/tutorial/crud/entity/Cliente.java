@@ -215,6 +215,9 @@ public class Cliente implements Serializable
 	@Column(name = "id_formulario")
 	private Integer idFormulario;
 
+	@Column(name = "es_titular")
+	private Boolean esTitular;
+
 	//Se generaron todos los Getters y Setters.
 
 	public int getIdCliente() {
@@ -642,6 +645,10 @@ public class Cliente implements Serializable
 
 	public void setFormulario(Integer idFormulario) { this.idFormulario = idFormulario; }
 
+	public Boolean getEsTitular() { return esTitular; }
+
+	public void setEsTitular(Boolean esTitular) { this.esTitular = esTitular; }
+
 	@Override
 	public String toString() {
 		return "Cliente [IdCliente=" + IdCliente + ",\n NoMembresia=" + NoMembresia + ",\n Nombre=" + Nombre
@@ -656,7 +663,8 @@ public class Cliente implements Serializable
 				+ FechaModificacion + ",\n tieneAcceso=" + tieneAcceso + ",\n club=" + club + ",\n TipoCliente=" + TipoCliente
 				+ ",\n categoria=" + categoria + ",\n estatusCliente=" + estatusCliente + ",\n estatusMembresia="
 				+ estatusMembresia + ",\n estatusCobranza=" + estatusCobranza + ",\n mensajes=" + mensajes
-				+ ",\n tipoMembresia=" + tipoMembresia + ",\n terminalid=" + HorarioOtroClub + ",\n idComplexBand=" + idComplexBand + ",]";
+				+ ",\n tipoMembresia=" + tipoMembresia + ",\n terminalid=" + HorarioOtroClub + ",\n idComplexBand=" + idComplexBand
+				+ ",\n esTitular=" + esTitular + ",]";
 	}
 
 
