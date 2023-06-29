@@ -5443,7 +5443,7 @@ public class Servicios
 		GlobalInformation globalInformation = new GlobalInformation();
 		factura.setCfdiType(tipoCFDI);
 		factura.setCurrency("MXN");
-		factura.setExpeditionPlace("26015");
+		factura.setExpeditionPlace("72430");
 		factura.setPaymentForm("01");
 		factura.setPaymentMethod("PUE");
 		Calendar ca = Calendar.getInstance();
