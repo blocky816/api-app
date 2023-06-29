@@ -3,6 +3,8 @@ package com.tutorial.crud.controller;
 import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.io.*;
+import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.net.*;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
@@ -2869,8 +2871,8 @@ public class Servicios
 				cliente.setURLFoto(foto);*/
 				Foto foto = this.resizeUserImage(cliente.getIdCliente());
 				if (foto != null){
-					foto.setCliente(cliente);
-					cliente.setURLFoto(foto);
+					cliente.getURLFoto().setFechaModificacion(foto.getFechaModificacion());
+					cliente.getURLFoto().setImagen(foto.getImagen());
 				}
 
 				cliente.setFechaNacimiento(formato.parse(json.getString("FechaNacimiento")) );
@@ -5441,6 +5443,357 @@ public class Servicios
 		GlobalInformation globalInformation = new GlobalInformation();
 		factura.setCfdiType(tipoCFDI);
 		factura.setCurrency("MXN");
+		factura.setExpeditionPlace("26015");
+		factura.setPaymentForm("01");
+		factura.setPaymentMethod("PUE");
+		Calendar ca = Calendar.getInstance();
+		Calendar caAux = Calendar.getInstance();
+		Calendar today = Calendar.getInstance();
+		ca.setTime(fechaInicio);
+		ca.set(Calendar.DAY_OF_MONTH, ca.getActualMaximum(Calendar.DAY_OF_MONTH));
+		ca.set(Calendar.HOUR_OF_DAY, 23);
+		ca.set(Calendar.MINUTE, ca.getActualMaximum(Calendar.MINUTE));
+		ca.set(Calendar.SECOND, ca.getActualMaximum(Calendar.SECOND));
+		//factura.setDate(new Date(ca.getTime().getTime()));
+		caAux.add(Calendar.DAY_OF_MONTH, 3);
+		SimpleDateFormat formato = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+		Date date;
+		String fechaComoCadena;
+		//String fechaTest = "2023-06-27 23:59:59";
+		if(today.before(caAux)) {
+			date=new Date(ca.getTime().getTime());
+			fechaComoCadena = formato.format(date);
+			--mesActual;
+			factura.setDate(fechaComoCadena);
+
+		}else {
+			date=new Date(today.getTime().getTime());
+			fechaComoCadena = formato.format(date);
+			factura.setDate(fechaComoCadena);
+
+		}
+
+		//int mesTest = 6;
+
+		receiver.setCfdiUse(uso);
+		receiver.setName(name);
+		receiver.setRfc(rfc);
+		receiver.setFiscalRegime(regimenFiscal);
+		receiver.setTaxZipCode(codigoPostal);
+		factura.setReceiver(receiver);
+		globalInformation.setMonths(String.format("%02d",mesActual));
+		globalInformation.setPeriodicity("04");
+		globalInformation.setYear(String.valueOf(yearActual));
+		factura.setGlobalInformation(globalInformation);
+
+		// Aqui se calculan los items de la factura
+		ArrayList<Item> items = new ArrayList<Item>();
+		ArrayList<ItemFallido> itemFallidos = new ArrayList<ItemFallido>();
+		for(int i=0;i<recibosSinFacturar.size();i++) {
+			ReciboSAT producto = recibosSinFacturar.get(i);
+			if(!producto.getProductCode().equals("0")) {
+
+
+				Item item=new Item();
+				item.setDescription(producto.getConcepto());
+				item.setDiscount(0);
+				item.setIdentificationNumber(producto.getFolio());
+				item.setProductCode(producto.getProductCode());
+
+				Pattern pat = Pattern.compile("[0-9]{8}");
+				Matcher mat = pat.matcher(item.getProductCode());
+
+				double cantidad=fijarNumero(producto.getTotal()/producto.getPrecioUnitarioIVA(),2);
+				item.setQuantity(cantidad);
+
+				if(producto.getPrecioUnitario()==producto.getPrecioUnitarioIVA()) {
+					item.setTaxObject("01");
+					item.setUnitPrice(fijarNumero(producto.getTotal()/cantidad,2));
+					item.setSubtotal(fijarNumero(producto.getTotal(),2));
+				}else {
+					item.setSubtotal(fijarNumero(producto.getTotal()/1.16,2));
+					double subTotal=fijarNumero(producto.getTotal()/1.16,2);
+					double totalImpuestos=fijarNumero((fijarNumero(producto.getTotal(),2)-subTotal),2);
+					if(totalImpuestos>0) {
+						item.setTaxObject("02");
+						ArrayList<Tax> taxes=new ArrayList<Tax> ();
+						Tax tax=new Tax();
+
+						tax.setName("IVA");
+						tax.setRate(.16);
+						tax.setRetention(false);
+						tax.setTotal(totalImpuestos);
+						tax.setBase(fijarNumero(totalImpuestos*6.25,2));
+						taxes.add(tax);
+						item.setTaxes(taxes);
+					}
+					item.setUnitPrice(fijarNumero(producto.getTotal()/1.16/cantidad,2));
+				}
+				item.setTotal(fijarNumero(producto.getTotal(),2));
+				item.setUnitCode(producto.getUnidad().trim());
+				if (!mat.matches() || item.getUnitCode().equals("")) {
+					System.out.println("Producto fallido de recibos sin facturar => " + producto);
+					ItemFallido itemF=new ItemFallido();
+					itemF.setFolio(producto.getFolio());
+					itemF.setProducto(producto.getConcepto());
+					itemF.setIdProducto(producto.getIdProducto());
+					itemFallidos.add(itemF);
+				}else if(cantidad<1){
+					System.out.println(item);
+				}else {
+					items.add(item);
+
+				}
+
+
+			}
+
+		}
+		if(itemFallidos.size()>0) {
+			MensajeError mensaje=new MensajeError();
+			mensaje.setMsg("Fallo en la factura global la clave de los productos no cumple con el formato correcto");
+			mensaje.setProductosFallidos(itemFallidos);
+			System.out.println("Mi mensaje de fallidos fue: "+mensaje.getMsg());
+			for(ItemFallido producto: mensaje.getProductosFallidos()){
+			    System.out.println("Fallo Producto:"+producto.getProducto() + " - ID:"+producto.getIdProducto() + " - Folio:"+producto.getFolio());
+			}
+
+			//return new ResponseEntity<>(mensaje, HttpStatus.INTERNAL_SERVER_ERROR);
+		}
+		//factura.setItems(items);
+		ArrayList<Item> itemAux = null;
+		for(int i=0;i<items.size();) {
+			itemAux=new ArrayList<Item>();
+
+			for(int j=1;j!=0 && i<items.size();i++) {
+				j=(i+1)%1000;
+				itemAux.add(items.get(i));
+
+			}
+			factura.setItems(itemAux);
+			String query=api+"3/cfdis";
+			JSONObject object = null;
+			ObjectMapper mapper = new ObjectMapper();
+			String json = null;
+			try {
+				json = mapper.writeValueAsString(factura);
+			} catch (JsonProcessingException e1) {
+				// TODO Auto-generated catch block
+				e1.printStackTrace();
+			}
+			try
+			{
+				String ruta = "json.txt";
+				String contenido = json;
+				File file = new File(ruta);
+				// Si el archivo no existe es creado
+				if (!file.exists()) {
+					file.createNewFile();
+				}
+				FileWriter fw = new FileWriter(file);
+				BufferedWriter bw = new BufferedWriter(fw);
+				bw.write(contenido);
+				bw.close();
+			}
+			catch(Exception e)
+			{
+				System.out.println(e);
+				e.printStackTrace();
+			}
+			object=new JSONObject(json);
+			respuesta2 = consultarAPI(query, object);
+			System.out.println("REspuesta 2 => " + respuesta2);
+			String uuid="";
+			try {
+				uuid=respuesta2.getString("Id");
+			}catch(Exception e) {
+				e.printStackTrace();
+				return new ResponseEntity<>(respuesta2.toString(), HttpStatus.CONFLICT);
+
+			}double total = 0;
+			for(Item recibo: itemAux) {
+				Factura recibofactura=new Factura();
+				recibofactura.setFechaCreacion(new Date());
+				recibofactura.setFechaModificacion(new Date());
+				recibofactura.setRecibo(recibo.getIdentificationNumber());
+				recibofactura.setUuid(uuid);
+				total=0;
+				for(Item item: factura.getItems()) {
+					total=item.getTotal()+total;
+				}
+				recibofactura.setTotal(total);
+				facturaService.save(recibofactura);
+			}
+
+			query=api+"cfdi?cfdiType=issued&cfdiId="+uuid+"&email="+correoFactura;
+			System.out.println(query);
+			JSONObject obj=new JSONObject("{}");
+			respuesta2=consultarAPI(query, obj);
+			//System.out.println(respuesta2);
+
+
+		}
+
+		System.out.println("Terminado en "+new Date());
+		return new ResponseEntity<>(respuesta2.toString(), HttpStatus.OK);
+
+	}
+
+	@GetMapping("/consultaFacturaGlobal/{nombre}")
+	@ResponseBody
+	public ResponseEntity<?> consultaFacturaGlobal(@PathVariable("nombre") String nombre){
+		RegistroFacturaGlobal registro=new RegistroFacturaGlobal();
+		registro.setFecha_solicitud(new Date());
+		registro.setSolicito(nombre);
+		registroFacturaGlobalService.save(registro);
+
+		SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
+		Calendar calendar = Calendar.getInstance();
+		int day=calendar.get(Calendar.DAY_OF_MONTH);
+		java.sql.Date fechaInicio;
+		java.sql.Date fechaFin;
+		if(day==1 || day==2 || day==3 ) {
+			calendar.set(Calendar.DAY_OF_MONTH,1);
+			calendar.set(Calendar.MONTH,calendar.get(Calendar.MONTH)-1);
+			fechaInicio= new java.sql.Date(calendar.getTime().getTime());
+			calendar.set(Calendar.DAY_OF_MONTH, calendar.getActualMaximum(Calendar.DAY_OF_MONTH));
+			calendar.set(Calendar.MONTH,calendar.get(Calendar.MONTH));
+			fechaFin= new java.sql.Date(calendar.getTime().getTime());
+		}else {
+			calendar.set(Calendar.DAY_OF_MONTH,1);
+			fechaInicio= new java.sql.Date(calendar.getTime().getTime());
+			calendar.set(Calendar.DAY_OF_MONTH, calendar.getActualMaximum(Calendar.DAY_OF_MONTH));
+			fechaFin= new java.sql.Date(calendar.getTime().getTime());
+		}
+
+		Connection conn = null;
+		ArrayList<ReciboSAT> listaReporte = new ArrayList<ReciboSAT>();
+
+		// Consultar recibos de Odoo
+		try {
+			HttpClient client = HttpClient.newHttpClient();
+			HttpRequest request = HttpRequest.newBuilder()
+					.header("Content-Type", "application/json")
+					.uri(URI.create("http://192.168.20.107:4000/alpha/globalinvoice"))
+					.GET()
+					.build();
+
+			HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
+			JSONArray jsonArray = new JSONArray(response.body());
+			System.out.println("ARRAY de rober: " + jsonArray.length());
+			for (Object object: jsonArray){
+				ReciboSAT to = new ReciboSAT();
+				JSONObject jsonObject = new JSONObject(object.toString());
+
+				String dateStr = jsonObject.getString("fecha_captura");
+				Date fechaCaptura = null;
+				try { fechaCaptura = sdf.parse(dateStr); } catch (ParseException e) { }
+
+				to.setFechaCaptura(fechaCaptura);
+				to.setFolio(jsonObject.getString("folio"));
+				to.setIdCliente(jsonObject.getInt("idCliente"));
+				to.setNombreCliente(jsonObject.getString("nombreCliente"));
+				to.setCodigoPostal(jsonObject.getString("codigoPostal"));
+				to.setRfc(jsonObject.getString("rfc"));
+				to.setIdVenta(jsonObject.getInt("idVenta"));
+				to.setConcepto(jsonObject.getString("concepto"));
+				to.setCosto(jsonObject.getFloat("costo"));
+				to.setClave(jsonObject.getString("clave"));
+				to.setPrecioUnitario(jsonObject.getFloat("precioUnitario"));
+				to.setPrecioUnitarioIVA(jsonObject.getFloat("precioUnitarioIVA"));
+				to.setTotal(jsonObject.getFloat("total"));
+				to.setIdProducto(String.valueOf(jsonObject.getInt("idProducto")));
+
+				String observaciones = jsonObject.getString("observaciones");
+
+				if(to.getCosto()!=0 && to.getPrecioUnitario()!=0 && observaciones!=null) {
+					String[] observacionesSplit=observaciones.split("\\|");
+					to.setUnidad(observacionesSplit[1]);
+					to.setProductCode(observacionesSplit[0].trim());
+					listaReporte.add(to);
+				}
+			}
+		} catch (IOException | InterruptedException | JSONException e) {
+			System.out.println("EXCEPTION => " + e.getMessage() + " CAUSE => " + e.getCause());
+		}
+
+		// Consultar recibos de Globalsoft
+		try {
+			conn = DriverManager.getConnection("jdbc:sqlserver://192.168.20.12;database=globalsoft", "facturacion", "WZ155YH%a");
+
+			PreparedStatement ps=conn.prepareStatement("exec globalsoft.dbo.sp_Consulta_Recibo_Conceptos_por_Fecha_SAT ?,? ");
+			ps.setDate(1, fechaInicio);
+			ps.setDate(2, fechaFin);
+			ResultSet rs =ps.executeQuery();
+
+			while (rs.next()) {
+				ReciboSAT to=new ReciboSAT();
+				to.setFechaCaptura(rs.getDate(1));
+				to.setFolio(rs.getString(2));
+				to.setIdCliente(0);
+				to.setNombreCliente("");
+				to.setMembresia(0);
+				to.setCodigoPostal("");
+				to.setRfc("");
+				to.setIdVenta(0);
+				to.setConcepto(rs.getString(3));
+				to.setCosto(rs.getFloat(4));
+				to.setClave(rs.getString(5));
+				to.setPrecioUnitario(rs.getFloat(6));
+				to.setPrecioUnitarioIVA(rs.getFloat(7));
+				to.setTotal(rs.getFloat(8));
+				to.setCodigo(rs.getString(9));
+				to.setIdProducto(rs.getString(10));
+				to.setUnidad(rs.getString(11));
+				to.setProductCode(rs.getString(5).trim());
+				to.setUnidad(rs.getString(9));
+				if(to.getCosto()!=0 || to.getPrecioUnitario()!=0)
+					listaReporte.add(to);
+			}
+
+			conn.close();
+		} catch (SQLException ex) {
+			System.out.println("Error: " + ex.getMessage());
+			ex.printStackTrace();
+		} finally {
+			try {
+				conn.close();
+			} catch (SQLException ex) {
+
+				ex.printStackTrace();
+				System.out.println("Error: " + ex.getMessage());
+			}
+		}
+
+		// Una ves llenado el array de facturas consultadas de odoo y globalsoft
+		// se buscan en la tabla facturas y los que aun no estan facturados se guardan en recibosSinFacturar<ReciboSAT>
+		// recibo == folio
+		List<Factura> recibosFacturados = facturaService.list();
+		List<ReciboSAT> recibosSinFacturar = new ArrayList<ReciboSAT>();
+
+		JSONObject respuesta2 = new JSONObject("{}");
+		for(int i=0;i<listaReporte.size();i++) {
+			boolean ban=false;
+			for(int j=0;j<recibosFacturados.size();j++) {
+
+				if(recibosFacturados.get(j).getRecibo().equals(listaReporte.get(i).getFolio())) {
+					ban=true;
+				}
+			}
+			if(!ban) {
+				recibosSinFacturar.add(listaReporte.get(i));
+			}
+		}
+
+		// se obtiene el mes y año actual
+		Calendar fecha = Calendar.getInstance();
+		int mesActual = fecha.get(Calendar.MONTH)+1;
+		int yearActual = fecha.get(Calendar.YEAR);
+		FacturaOnline factura = new FacturaOnline();
+		Receiver receiver = new Receiver();
+		GlobalInformation globalInformation = new GlobalInformation();
+		factura.setCfdiType(tipoCFDI);
+		factura.setCurrency("MXN");
 		factura.setExpeditionPlace("72430");
 		factura.setPaymentForm("01");
 		factura.setPaymentMethod("PUE");
@@ -5552,11 +5905,119 @@ public class Servicios
 			mensaje.setProductosFallidos(itemFallidos);
 			System.out.println("Mi mensaje de fallidos fue: "+mensaje.getMsg());
 			for(ItemFallido producto: mensaje.getProductosFallidos()){
-			    System.out.println("Fallo Producto:"+producto.getProducto() + " - ID:"+producto.getIdProducto() + " - Folio:"+producto.getFolio());
+				System.out.println("Fallo Producto:"+producto.getProducto() + " - ID:"+producto.getIdProducto() + " - Folio:"+producto.getFolio());
 			}
-
-			//return new ResponseEntity<>(mensaje, HttpStatus.INTERNAL_SERVER_ERROR);
 		}
+		factura.setItems(items);
+
+		double total = 0;
+		for(Item item: factura.getItems()) {
+			total = item.getTotal() + total;
+		}
+
+		JSONObject results = new JSONObject("{}");
+		try	{
+			results.put("Fecha inicial", fechaInicio);
+			results.put("Fecha final", fechaFin);
+			results.put("Subtotal", BigDecimal.valueOf(total / 1.16).setScale(2, RoundingMode.DOWN));
+			results.put("IVA", BigDecimal.valueOf(total * 0.16).setScale(2, RoundingMode.DOWN));
+			results.put("Total", BigDecimal.valueOf(total).setScale(2, RoundingMode.DOWN));
+			results.put("Items", factura.getItems());
+			System.out.println("Total a facturar => " + BigDecimal.valueOf(total).setScale(2, RoundingMode.DOWN));
+		} catch (Exception e) {
+
+		}
+
+		System.out.println("Consulta terminada en "+ new Date());
+		System.out.println("Elementos que se enviaran => \n" + factura.getItems());
+		System.out.println("Elementos que se enviaran => \n" + factura.getItems().size());
+		//return new ResponseEntity<>(results.toMap(), HttpStatus.OK);
+		return new ResponseEntity<>(results.toMap(), HttpStatus.OK);
+	}
+
+	@PostMapping("/facturaGlobal/{nombre}")
+	@ResponseBody
+	public ResponseEntity<?> facturaGlobal(@PathVariable("nombre") String nombre, @RequestBody ArrayList<Item> items){
+		System.out.println("Los items que llegaron => \n" + items);
+		System.out.println("Size => " + items.size());
+		/*RegistroFacturaGlobal registro=new RegistroFacturaGlobal();
+		registro.setFecha_solicitud(new Date());
+		registro.setSolicito(nombre);
+		registroFacturaGlobalService.save(registro);
+		SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
+		Calendar calendar = Calendar.getInstance();
+		int day=calendar.get(Calendar.DAY_OF_MONTH);
+		java.sql.Date fechaInicio;
+		java.sql.Date fechaFin;
+		if(day==1 || day==2 || day==3 ) {
+			calendar.set(Calendar.DAY_OF_MONTH,1);
+			calendar.set(Calendar.MONTH,calendar.get(Calendar.MONTH)-1);
+			fechaInicio= new java.sql.Date(calendar.getTime().getTime());
+			calendar.set(Calendar.DAY_OF_MONTH, calendar.getActualMaximum(Calendar.DAY_OF_MONTH));
+			calendar.set(Calendar.MONTH,calendar.get(Calendar.MONTH));
+			fechaFin= new java.sql.Date(calendar.getTime().getTime());
+		}else {
+			calendar.set(Calendar.DAY_OF_MONTH,1);
+			fechaInicio= new java.sql.Date(calendar.getTime().getTime());
+			calendar.set(Calendar.DAY_OF_MONTH, calendar.getActualMaximum(Calendar.DAY_OF_MONTH));
+			fechaFin= new java.sql.Date(calendar.getTime().getTime());
+		}
+
+
+
+		// se obtiene el mes y año actual
+		JSONObject respuesta2 = new JSONObject("{}");
+		Calendar fecha = Calendar.getInstance();
+		int mesActual = fecha.get(Calendar.MONTH)+1;
+		int yearActual = fecha.get(Calendar.YEAR);
+		FacturaOnline factura = new FacturaOnline();
+		Receiver receiver = new Receiver();
+		GlobalInformation globalInformation = new GlobalInformation();
+		factura.setCfdiType(tipoCFDI);
+		factura.setCurrency("MXN");
+		factura.setExpeditionPlace("72430");
+		factura.setPaymentForm("01");
+		factura.setPaymentMethod("PUE");
+		Calendar ca = Calendar.getInstance();
+		Calendar caAux = Calendar.getInstance();
+		Calendar today = Calendar.getInstance();
+		ca.setTime(fechaInicio);
+		ca.set(Calendar.DAY_OF_MONTH, ca.getActualMaximum(Calendar.DAY_OF_MONTH));
+		ca.set(Calendar.HOUR_OF_DAY, 23);
+		ca.set(Calendar.MINUTE, ca.getActualMaximum(Calendar.MINUTE));
+		ca.set(Calendar.SECOND, ca.getActualMaximum(Calendar.SECOND));
+		//factura.setDate(new Date(ca.getTime().getTime()));
+		caAux.add(Calendar.DAY_OF_MONTH, 3);
+		SimpleDateFormat formato = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+		Date date;
+		String fechaComoCadena;
+
+		if(today.before(caAux)) {
+			date=new Date(ca.getTime().getTime());
+			fechaComoCadena = formato.format(date);
+			--mesActual;
+			factura.setDate(fechaComoCadena);
+
+		}else {
+			date=new Date(today.getTime().getTime());
+			fechaComoCadena = formato.format(date);
+			factura.setDate(fechaComoCadena);
+
+		}
+
+
+		receiver.setCfdiUse(uso);
+		receiver.setName(name);
+		receiver.setRfc(rfc);
+		receiver.setFiscalRegime(regimenFiscal);
+		receiver.setTaxZipCode(codigoPostal);
+		factura.setReceiver(receiver);
+		globalInformation.setMonths(String.format("%02d",mesActual));
+		globalInformation.setPeriodicity("04");
+		globalInformation.setYear(String.valueOf(yearActual));
+		factura.setGlobalInformation(globalInformation);
+
+
 		//factura.setItems(items);
 		ArrayList<Item> itemAux = null;
 		for(int i=0;i<items.size();) {
@@ -5630,8 +6091,9 @@ public class Servicios
 
 		}
 
-		System.out.println("Terminado en "+new Date());
-		return new ResponseEntity<>(respuesta2.toString(), HttpStatus.OK);
+		System.out.println("Terminado en "+new Date());*/
+		//return new ResponseEntity<>(respuesta2.toString(), HttpStatus.OK);
+		return new ResponseEntity<>(items, HttpStatus.OK);
 
 	}
 
@@ -7032,5 +7494,29 @@ public class Servicios
 		}
 	}
 
+		@GetMapping("/photo_test/{idCliente}")
+	public ResponseEntity photoTest(@PathVariable("idCliente") int idCliente) throws MalformedURLException {
+
+		Cliente cliente = clienteService.findById(idCliente);
+
+		if (cliente != null) {
+			Foto foto = this.resizeUserImage(cliente.getIdCliente());
+			System.out.println("Cliente => " + cliente.getIdCliente());
+			System.out.println("Foto => " + cliente.getURLFoto().getId_foto());
+			System.out.println(cliente.getURLFoto());
+			if (foto != null){
+				System.out.println("CAMBIO DE FOTO");
+				cliente.getURLFoto().setFechaModificacion(foto.getFechaModificacion());
+				cliente.getURLFoto().setImagen(foto.getImagen());
+
+				System.out.println("ID de foto => " + cliente.getURLFoto().getId_foto());
+				System.out.println("Fecha de modificacion => " + cliente.getURLFoto().getFechaModificacion());
+				System.out.println("Foto actualizada => " + cliente.getURLFoto());
+				clienteService.save(cliente);
+			}
+		}
+		return new ResponseEntity(cliente, HttpStatus.OK);
+
+	}
 }//fin de la clase
 
