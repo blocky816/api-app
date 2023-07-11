@@ -2672,12 +2672,12 @@ public class Servicios
 	@ResponseBody
 	public ResponseEntity<?> update(@PathVariable("horarioId") int horarioId){
 
-		System.out.println("IDCLIENTE A ACTUALIZAR => " + horarioId);
+		//System.out.println("IDCLIENTE A ACTUALIZAR => " + horarioId);
 		try {
 			String resultOdoo = IOUtils.toString(new URL("http://192.168.20.107:8000/ServiciosClubAlpha/api/Miembro/"+horarioId), Charset.forName("UTF-8"));
-			System.out.println("Result de oddo => " + resultOdoo);
+			//System.out.println("Result de oddo => " + resultOdoo);
 			Cliente cliente=clienteService.findById(horarioId);
-			System.out.println("busque al cliente");
+			//System.out.println("busque al cliente");
 			if("[]".equals(resultOdoo) && cliente != null) {
 				System.out.println("USuario archivado");
 				cliente.setEstatusAcceso("Sin Acceso");
@@ -2703,7 +2703,7 @@ public class Servicios
 			x = String.valueOf(json.get("FechaNacimiento")).split("T");
 			x = x[0].split("-");
 			nuevoUsuario.setPassword(horarioId +"."+ x[0] + x[1] + x[2]);
-			System.out.println("PAse fechade nacimeinto");
+			//System.out.println("PAse fechade nacimeinto");
 			Usuario usuario;
 			try {
 				usuario=usuarioService.getByNombreUsuario(nuevoUsuario.getNombreUsuario()).get() ;
@@ -2735,9 +2735,10 @@ public class Servicios
 			SimpleDateFormat formato = new SimpleDateFormat("yyyy-MM-dd");
 
 			if(cliente!=null) {
-				System.out.println("CLiente no es nulo.");
+				//System.out.println("CLiente no es nulo.");
 				cliente.setApellidoMaterno(json.getString("ApellidoMaterno"));
 				cliente.setApellidoPaterno(json.getString("ApellidoPaterno"));
+				cliente.setNombreCompleto(json.getString("NombreCompleto"));
 				Categoria categoria=categoriaService.findById(json.getJSONObject("Categoria").getInt("Id"));
 				if(categoria!=null)
 					cliente.setCategoria(categoria);
@@ -2884,6 +2885,8 @@ public class Servicios
 				}
 
 				cliente.setEsTitular(json.getBoolean("is_parent"));
+				if (json.getString("parent_id").isEmpty() || json.getString("parent_id") == null) cliente.setIdTitular(horarioId);
+				else cliente.setIdTitular(Integer.parseInt(json.getString("parent_id")));
 				clienteService.save(cliente);
 				List<ParkingUsuario> pu=parkingUsuarioService.findByIdCliente(cliente);
 				for(int i=0;i<pu.size();i++) {
@@ -2891,10 +2894,11 @@ public class Servicios
 					parkingUsuarioService.save(pu.get(i));
 				}
 			}else {
-				System.out.println("Es cliente nuevo ");
+				//System.out.println("Es cliente nuevo ");
 				cliente=new Cliente();
 				cliente.setApellidoMaterno(json.getString("ApellidoMaterno"));
 				cliente.setApellidoPaterno(json.getString("ApellidoPaterno"));
+				cliente.setNombreCompleto(json.getString("NombreCompleto"));
 				Categoria categoria=categoriaService.findById(json.getJSONObject("Categoria").getInt("Id"));
 				if(categoria!=null)
 					cliente.setCategoria(categoria);
@@ -3044,6 +3048,8 @@ public class Servicios
 				cliente.setURLFoto(foto);*/
 
 				cliente.setEsTitular(json.getBoolean("is_parent"));
+				if (json.getString("parent_id").isEmpty() || json.getString("parent_id") == null) cliente.setIdTitular(horarioId);
+				else cliente.setIdTitular(Integer.parseInt(json.getString("parent_id")));
 				clienteService.save(cliente);
 				List<ParkingUsuario> pu=parkingUsuarioService.findByIdCliente(cliente);
 				for(int i=0;i<pu.size();i++) {
@@ -5459,7 +5465,7 @@ public class Servicios
 		SimpleDateFormat formato = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
 		Date date;
 		String fechaComoCadena;
-		//String fechaTest = "2023-06-27 23:59:59";
+		//String fechaTest = "2023-06-29 23:59:59";
 		if(today.before(caAux)) {
 			date=new Date(ca.getTime().getTime());
 			fechaComoCadena = formato.format(date);
@@ -7474,7 +7480,7 @@ public class Servicios
 		} catch(IOException e) {
 			System.out.println("IO EXCEPTION => " + e.getMessage());
 		} catch (Exception e) {
-			System.out.println("ERROR FILE => " + e.getMessage() + " CAUSE => " + e.getCause());
+			System.out.println("ERROR FILE (no existe foto) => " + e.getMessage() + " CAUSE => " + e.getCause());
 		}
 		return null;
 		//return new ResponseEntity<>("Error de foto", HttpStatus.INTERNAL_SERVER_ERROR);
