@@ -218,6 +218,9 @@ public class Cliente implements Serializable
 	@Column(name = "es_titular")
 	private Boolean esTitular;
 
+	@Column(name = "id_titular")
+	private int idTitular;
+
 	//Se generaron todos los Getters y Setters.
 
 	public int getIdCliente() {
@@ -648,6 +651,10 @@ public class Cliente implements Serializable
 	public Boolean getEsTitular() { return esTitular; }
 
 	public void setEsTitular(Boolean esTitular) { this.esTitular = esTitular; }
+
+	public int getIdTitular() { return idTitular; }
+
+	public void setIdTitular(int idTitular) { this.idTitular = idTitular; }
 
 	@Override
 	public String toString() {
