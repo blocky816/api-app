@@ -2872,8 +2872,12 @@ public class Servicios
 				cliente.setURLFoto(foto);*/
 				Foto foto = this.resizeUserImage(cliente.getIdCliente());
 				if (foto != null){
-					cliente.getURLFoto().setFechaModificacion(foto.getFechaModificacion());
-					cliente.getURLFoto().setImagen(foto.getImagen());
+					if(cliente.getURLFoto() == null) {
+						cliente.setURLFoto(foto);
+					} else {
+						cliente.getURLFoto().setFechaModificacion(foto.getFechaModificacion());
+						cliente.getURLFoto().setImagen(foto.getImagen());
+					}
 				}
 
 				cliente.setFechaNacimiento(formato.parse(json.getString("FechaNacimiento")) );
