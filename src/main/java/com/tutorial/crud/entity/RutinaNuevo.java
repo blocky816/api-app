@@ -53,6 +53,9 @@ public class RutinaNuevo {
     @OneToMany(mappedBy="rutinanuevo",cascade=CascadeType.ALL)
     private List<RutinaEjercicioNuevo> ejercicios;
 
+    @Column(name = "segmento")
+    private String segmento;
+
     public int getId() { return id; }
 
     public String getNombreRutina() { return nombreRutina; }
@@ -121,6 +124,10 @@ public class RutinaNuevo {
             return idCliente;
     }
 
+    public String getSegmento() { return segmento; }
+
+    public void setSegmento(String segmento) { this.segmento = segmento; }
+
     @Override
     public String toString() {
         return "RutinaNuevo{" +
@@ -135,6 +142,7 @@ public class RutinaNuevo {
                 ", activo=" + activo +
                 ", cliente=" + cliente +
                 ", ejercicios=" + ejercicios +
+                ", segmento='" + segmento + '\'' +
                 '}';
     }
 }

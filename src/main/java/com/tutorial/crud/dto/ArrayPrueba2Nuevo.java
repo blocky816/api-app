@@ -17,6 +17,8 @@ public class ArrayPrueba2Nuevo {
 
     private String comentarios;
 
+    private String segmento;
+
     private ArrayList<EjercicioNuevo> ejercicios;
 
     public int getId() { return id; }
@@ -57,15 +59,22 @@ public class ArrayPrueba2Nuevo {
         this.comentarios = comentarios;
     }
 
+    public String getSegmento() { return segmento; }
+
+    public void setSegmento(String segmento) { this.segmento = segmento; }
+
     @Override
     public String toString() {
         return "ArrayPrueba2Nuevo{" +
-                "idCliente=" + idCliente +
+                "id=" + id +
+                ", idCliente=" + idCliente +
                 ", idPlantilla=" + idPlantilla +
                 ", nombreRutina='" + nombreRutina + '\'' +
                 ", nombreObjetivo='" + nombreObjetivo + '\'' +
                 ", semanas=" + semanas +
                 ", tipoPlantilla='" + tipoPlantilla + '\'' +
+                ", comentarios='" + comentarios + '\'' +
+                ", segmento='" + segmento + '\'' +
                 ", ejercicios=" + ejercicios +
                 '}';
     }

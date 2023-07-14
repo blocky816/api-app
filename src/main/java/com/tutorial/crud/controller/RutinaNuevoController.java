@@ -89,6 +89,7 @@ public class RutinaNuevoController {
             rutina.setTipoPlantilla(nuevaRutina.getTipoPlantilla());
             rutina.setSemanas(nuevaRutina.getSemanas());
             rutina.setComentarios(nuevaRutina.getComentarios());
+            rutina.setSegmento(nuevaRutina.getSegmento());
 
             List<RutinaEjercicioNuevo> rutinaEjercicios = new ArrayList<RutinaEjercicioNuevo>();
             //Se recorren los ejercicios del request y se guardan en RutinaEjercicioNuevo
@@ -185,6 +186,7 @@ public class RutinaNuevoController {
                 //rutinaActualizar.setActivo(true);
                 //rutinaActualizar.setCreated(rutina.get().getCreated());
                 rutinaActualizar.setUpdated(LocalDateTime.now().withNano(0));
+                rutinaActualizar.setSegmento(nuevaRutina.getBody().get(0).getSegmento());
 
                 if (!nuevaRutina.getBody().get(0).getEjercicios().isEmpty()) {
                     rutinaEjercicioNuevoService.deleteByRutinanuevo(rutina.get());
