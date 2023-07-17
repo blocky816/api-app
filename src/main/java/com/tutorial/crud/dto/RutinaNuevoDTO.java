@@ -12,6 +12,8 @@ public class RutinaNuevoDTO {
 
     private List<EjercicioNuevoDTO> ejercicios;
 
+    private String segmento;
+
     public int getId() { return id; }
 
     public void setId(int id) { this.id = id; }
@@ -36,14 +38,20 @@ public class RutinaNuevoDTO {
 
     public void setEjercicios(List<EjercicioNuevoDTO> ejercicios) { this.ejercicios = ejercicios; }
 
+    public String getSegmento() { return segmento; }
+
+    public void setSegmento(String segmento) { this.segmento = segmento; }
+
     @Override
     public String toString() {
         return "RutinaNuevoDTO{" +
-                "nombreRutina='" + nombreRutina + '\'' +
+                "id=" + id +
+                ", nombreRutina='" + nombreRutina + '\'' +
                 ", nombreObjetivo='" + nombreObjetivo + '\'' +
                 ", semanas=" + semanas +
                 ", tipoPlantilla='" + tipoPlantilla + '\'' +
                 ", ejercicios=" + ejercicios +
+                ", segmento='" + segmento + '\'' +
                 '}';
     }
 }

@@ -256,6 +256,7 @@ public class RutinaNuevoController {
             rutina.setNombreObjetivo(rutinaIterator.getNombreObjetivo());
             rutina.setSemanas(rutinaIterator.getSemanas());
             rutina.setTipoPlantilla(rutinaIterator.getTipoPlantilla());
+            rutina.setSegmento(rutinaIterator.getSegmento());
 
             List<RutinaEjercicioNuevo> listaEjercicios = rutinaEjercicioNuevoService.findAllByRutinanuevo(rutinaIterator);
             List<EjercicioNuevoDTO> ejercicioNuevos = new ArrayList<>();
