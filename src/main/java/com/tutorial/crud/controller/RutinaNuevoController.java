@@ -280,6 +280,17 @@ public class RutinaNuevoController {
         return new ResponseEntity<>(rutinasGenerales, HttpStatus.OK);
     }
 
+    @GetMapping(value = {"/getBySegmento/{idSegmento}", "/getBySegmento/{tipoPlantilla}/{activo}/{idSegmento}"})
+    @ResponseBody
+    public ResponseEntity<?> getPlantillaBySegmento(@PathVariable(required = false) String tipoPlantilla, @PathVariable(required = false) Boolean activo, @PathVariable String idSegmento) {
+        List<RutinaNuevoDTO> workoutPlans = rutinaNuevoService.
+                findBySegmentoAndTipoPlantillaAndActivo(
+                        idSegmento,
+                        tipoPlantilla == null ? "General" : tipoPlantilla,
+                        activo == null ? true : activo);
+        return new ResponseEntity<>(workoutPlans, HttpStatus.OK);
+    }
+
     //obtener la rutina asignada a un cliente si existe
     @GetMapping("/getByCliente")
     @ResponseBody
