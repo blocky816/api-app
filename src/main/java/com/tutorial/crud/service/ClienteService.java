@@ -46,4 +46,6 @@ public interface ClienteService {
 	public List<ClienteDTOO> asistenciaGimnasioClientes(UUID id);
 
 	public List<Cliente> findAllByEstatusMembresia();
+
+	public void activateCustomer(int customerID);
 }

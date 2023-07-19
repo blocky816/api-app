@@ -248,5 +248,15 @@ public class ClienteServiceImpl implements ClienteService {
 		return lista;
 	}
 
+	@Override
+	public void activateCustomer(int customerID) {
+		Cliente customer = findById(customerID);
+		if (customer != null){
+			EstatusCobranza paymentStatusActive = estatusCobranzaService.findById(1);
+			customer.setEstatusCobranza(paymentStatusActive);
+			save(customer);
+		}
+	}
+
 
 }

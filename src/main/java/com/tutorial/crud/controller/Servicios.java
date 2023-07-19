@@ -2675,7 +2675,6 @@ public class Servicios
 		//System.out.println("IDCLIENTE A ACTUALIZAR => " + horarioId);
 		try {
 			String resultOdoo = IOUtils.toString(new URL("http://192.168.20.107:8000/ServiciosClubAlpha/api/Miembro/"+horarioId), Charset.forName("UTF-8"));
-			//System.out.println("Result de oddo => " + resultOdoo);
 			Cliente cliente=clienteService.findById(horarioId);
 			//System.out.println("busque al cliente");
 			if("[]".equals(resultOdoo) && cliente != null) {
@@ -2688,7 +2687,8 @@ public class Servicios
 			}
 			JSONObject json = new JSONObject(IOUtils.toString(new URL("http://192.168.20.107:8000/ServiciosClubAlpha/api/Miembro/"+horarioId), Charset.forName("UTF-8")));
 
-
+			//System.out.println("Id cliente => " + horarioId);
+			//System.out.qprintln("Result de oddo estatus de cliente => " + json.getJSONObject("EstatusCliente"));
 
 			NuevoUsuario nuevoUsuario=new NuevoUsuario();
 			nuevoUsuario.setCliente(json.getString("Nombre")+" "+json.getString("ApellidoPaterno")+" "+json.getString("ApellidoMaterno"));
@@ -7527,6 +7527,12 @@ public class Servicios
 		}
 		return new ResponseEntity(cliente, HttpStatus.OK);
 
+	}
+
+	@GetMapping("activateCustomer/{customerID}")
+	public ResponseEntity<?> activateCustomer(@PathVariable int customerID) {
+		clienteService.activateCustomer(customerID);
+		return new ResponseEntity<>(HttpStatus.OK);
 	}
 }//fin de la clase
 
