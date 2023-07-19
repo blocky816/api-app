@@ -38,6 +38,8 @@ public class ClienteServiceImpl implements ClienteService {
 
 	@Autowired
 	EstatusCobranzaService estatusCobranzaService;
+	@Autowired
+	EstatusClienteService estatusClienteService;
 	@Override 
 	public List<Cliente> findAll() {
 		List<Cliente> listCliente= clienteDAO.findAll();
@@ -253,7 +255,10 @@ public class ClienteServiceImpl implements ClienteService {
 		Cliente customer = findById(customerID);
 		if (customer != null){
 			EstatusCobranza paymentStatusActive = estatusCobranzaService.findById(1);
+			EstatusCliente customerStatus = estatusClienteService.findById(1);
 			customer.setEstatusCobranza(paymentStatusActive);
+			customer.setEstatusCliente(customerStatus);
+			customer.setEstatusAcceso("Acceso permitido");
 			save(customer);
 		}
 	}
