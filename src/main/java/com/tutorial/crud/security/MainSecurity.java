@@ -92,6 +92,7 @@ public class MainSecurity extends WebSecurityConfigurerAdapter {
                 .antMatchers("/alpha/clienteByMembresia/**").permitAll()
                 .antMatchers("/alpha/domiciliarCliente").permitAll()
                 .antMatchers("/rutinas/image/**").permitAll()
+                .antMatchers("/conversaciones/bascula").permitAll()
                 .anyRequest().authenticated()
                 .and()
                 .exceptionHandling().authenticationEntryPoint(jwtEntryPoint)

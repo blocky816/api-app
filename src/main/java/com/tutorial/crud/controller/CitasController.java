@@ -958,6 +958,17 @@ public class CitasController
    			
    		}
 		else { //si body no es null
+
+
+			Cliente cliente2=clienteService.findById(body.getUsuario());
+			if (cliente2  != null && cliente2.getEstatusCobranza().getIdEstatusCobranza() != 1) {
+				JSONObject json2 = new JSONObject();
+				json2.put("Respuesta", "Usuario no activo");
+				//TransactionAspectSupport.currentTransactionStatus().setRollbackOnly();
+
+
+				return new ResponseEntity<String>(json2.toString(), HttpStatus.CONFLICT);
+			}
    			
    			JSONObject json = new JSONObject();
    			CAHorario horario1 = horarioService.getOne(body.getId()).get();
@@ -985,15 +996,18 @@ public class CitasController
 			System.out.println("mi diferencia en horas de apartado es "+diffHours);*/
 			if(diffHours>=24){
 				json.put("Respuesta", "No puedes apartar con más de 24 horas de diferencia");
-				TransactionAspectSupport.currentTransactionStatus().setRollbackOnly();
+				//TransactionAspectSupport.currentTransactionStatus().setRollbackOnly();
 				return new ResponseEntity<String>(json.toString(), HttpStatus.CONFLICT);
 			}
 			CAApartadosUsuario apartadosUsuario=new CAApartadosUsuario();
 	   		int paga=apartado.getHorario().getActividad().getPaga();
+			int idTitular;
+			if (cliente2.getIdTitular() == 0)  idTitular = body.getUsuario();
+			else idTitular = cliente2.getIdTitular();
    	        if(paga>0) {
-		   		List<PaseUsuario> paseUsuario=this.getPase(body.getUsuario());
-				System.out.println("PASE USUARIO => " + paseUsuario.size());
-				System.out.println("PASE USUARIO => " + paseUsuario);
+				//List<PaseUsuario> paseUsuario=this.getPase(body.getUsuario());
+				List<PaseUsuario> paseUsuario=this.getPase(idTitular);
+
 		   		boolean ban=false;
 		   		int k = 0;
 		   		for(int i=0;i<paseUsuario.size();i++) {
@@ -1007,7 +1021,6 @@ public class CitasController
 		   				}
 		   			}
 		   		}try {
-					System.out.println("Valor de ban == " + ban);
 			   		if(ban==true) {
 			   			/*try {
 				   			tiempoMenorHora(apartado);			   				
@@ -1050,12 +1063,12 @@ public class CitasController
 	   			if(cliente.getClub().getIdClub()==4) {
 	   				String actividad=horario1.getActividad().getNombre();
 	   				if(actividad.equals("GIMNASIO") || actividad.equals("CROSSFIT")) {
-						List<PaseUsuario> paseUsuario=this.getPase(body.getUsuario());
-						paseUsuarioService.cancelarPasesVencidos(body.getUsuario());
-				   		paseUsuarioService.activarPases(body.getUsuario());
-		   				paseUsuario=paseUsuarioService.getPasesGimnasio(body.getUsuario());
-						System.out.println("IDCLIENTE: " + body.getUsuario());
-						System.out.println("PASE USUARIO: " + paseUsuario);
+						List<PaseUsuario> paseUsuario=this.getPase(idTitular);
+						paseUsuarioService.cancelarPasesVencidos(idTitular);
+				   		paseUsuarioService.activarPases(idTitular);
+		   				paseUsuario = paseUsuarioService.getPasesGimnasio(idTitular);
+						//System.out.println("IDCLIENTE: " + body.getUsuario());
+						//System.out.println("PASE USUARIO: " + paseUsuario);
 		   				try {
 		   					if(paseUsuario.isEmpty()) {
 		   						throw new Exception("El usuario no tiene pases para GIMNASIO");
@@ -1067,10 +1080,10 @@ public class CitasController
 		   				}
 		   				
 		   			}else if(actividad.equals("NADO CARRIL 1") || actividad.equals("NADO CARRIL 2") || actividad.equals("NADO CARRIL 3") ) {
-				   		paseUsuarioService.cancelarPasesVencidos(body.getUsuario());
-				   		paseUsuarioService.activarPases(body.getUsuario());
-		   				List<PaseUsuario> paseUsuario=this.getPase(body.getUsuario());
-		   				paseUsuario=paseUsuarioService.getPasesAlberca(body.getUsuario());
+						List<PaseUsuario> paseUsuario=this.getPase(idTitular);
+						paseUsuarioService.cancelarPasesVencidos(idTitular);
+				   		paseUsuarioService.activarPases(idTitular);
+		   				paseUsuario=paseUsuarioService.getPasesAlberca(idTitular);
 		   				
 		   				try {
 		   					if(paseUsuario.isEmpty()) {
@@ -1078,7 +1091,7 @@ public class CitasController
 		   					}
 		   				}catch(Exception e){
 			   				json.put("Respuesta", "El usuario no tiene pases para ALBERCA");
-			   				TransactionAspectSupport.currentTransactionStatus().setRollbackOnly();
+			   				//TransactionAspectSupport.currentTransactionStatus().setRollbackOnly();
 			   			
 			   				return new ResponseEntity<String>(json.toString(), HttpStatus.CONFLICT); 
 		   				}
@@ -1103,10 +1116,10 @@ public class CitasController
 				   				return new ResponseEntity<String>(json.toString(), HttpStatus.CONFLICT); 
 			   				}
 		   			}else if(actividad.equals("TROTE/RUNNING")) {
-				   		paseUsuarioService.cancelarPasesVencidos(body.getUsuario());
-				   		paseUsuarioService.activarPases(body.getUsuario());
-		   				List<PaseUsuario> paseUsuario=this.getPase(body.getUsuario());
-		   				paseUsuario=paseUsuarioService.getPasesTrote(body.getUsuario());
+				   		paseUsuarioService.cancelarPasesVencidos(idTitular);
+				   		paseUsuarioService.activarPases(idTitular);
+		   				List<PaseUsuario> paseUsuario=this.getPase(idTitular);
+		   				paseUsuario=paseUsuarioService.getPasesTrote(idTitular);
 				   		
 		   				try {
 		   					if(paseUsuario.isEmpty()) {
@@ -1114,7 +1127,7 @@ public class CitasController
 		   					}
 		   				}catch(Exception e){
 			   				json.put("Respuesta", "El usuario no tiene pases para la pista de trote");
-			   				TransactionAspectSupport.currentTransactionStatus().setRollbackOnly();
+			   				//TransactionAspectSupport.currentTransactionStatus().setRollbackOnly();
 			   			
 			   				return new ResponseEntity<String>(json.toString(), HttpStatus.CONFLICT); 
 		   				}
@@ -1143,7 +1156,7 @@ public class CitasController
 			   	        	}
 			   	        }catch(ParseException e) {
 			   	        	json.put("Respuesta", "No se pueden reservar mas de 4 clases por día");
-			   				TransactionAspectSupport.currentTransactionStatus().setRollbackOnly();	
+			   				//TransactionAspectSupport.currentTransactionStatus().setRollbackOnly();
 			   				return new ResponseEntity<String>(json.toString(), HttpStatus.CONFLICT);
 			   	        }
 	   				}
@@ -1153,16 +1166,20 @@ public class CitasController
 	   				return new ResponseEntity<String>(json.toString(), HttpStatus.OK); 
 	   			} catch (IOException  e) {
 	   				json.put("Respuesta", "Este usuario ya aparto esta clase");
-	   				TransactionAspectSupport.currentTransactionStatus().setRollbackOnly();
+	   				//TransactionAspectSupport.currentTransactionStatus().setRollbackOnly();
 	   			
 	   				return new ResponseEntity<String>(json.toString(), HttpStatus.CONFLICT); 
 	   			} catch (RuntimeException  e) {
 	   				json.put("Respuesta", "No hay cupo disponible");
-	   				TransactionAspectSupport.currentTransactionStatus().setRollbackOnly();
+	   				//TransactionAspectSupport.currentTransactionStatus().setRollbackOnly();
 	   				
 	   			
 	   				return new ResponseEntity<String>(json.toString(), HttpStatus.CONFLICT); 
-	   			} 
+	   			} catch (Exception e) {
+					System.out.println("Internal server error => " + e.getMessage() + " => " + e.getCause());
+					json.put("Respuesta", "Error diferente");
+					return new ResponseEntity<String>(json.toString(), HttpStatus.CONFLICT);
+				}
 	   		}
    		}//fin else si body no es null
 	}
@@ -1240,7 +1257,9 @@ public class CitasController
 			   		paseUsuarioService.cancelarPasesVencidos(body.getUsuario());
 			   		paseUsuarioService.activarPases(body.getUsuario());
 	   				List<PaseUsuario> paseUsuario=this.getPase(body.getUsuario());
-	   				paseUsuario=paseUsuarioService.getPasesGimnasio(body.getUsuario());
+	   				paseUsuario = paseUsuarioService.getPasesGimnasio(body.getUsuario());
+					System.out.println("Pase de gimnasio vacio ? " + paseUsuario.isEmpty());
+					System.out.println("Pase de gimnasio => " + paseUsuario);
 			   		
 	   				try {
 	   					if(paseUsuario.isEmpty()) {
@@ -1494,6 +1513,7 @@ public class CitasController
 
 	
 	public void tiempoMenorHora(CAApartados apartados) throws ParseException {
+		System.out.println("APARTADOS para cancelar => " + apartados);
 		Date fechaActual=new Date();
 		SimpleDateFormat formato = new SimpleDateFormat("yyyy-MM-dd HH:mm");
 		String rango =apartados.getHorario().getRango();
@@ -1513,6 +1533,11 @@ public class CitasController
 
 		CAApartadosUsuario apartadosUsuario=apartadosUsuarioService.getOne(body.getUsuario(),apartado.getId());
 		CAApartados apartados=apartadosService.getOne(apartadosUsuario.getApartados());
+
+		Cliente cliente2 = clienteService.findById(body.getUsuario());
+		int idTitular;
+		if (cliente2.getIdTitular() == 0)  idTitular = body.getUsuario();
+		else idTitular = cliente2.getIdTitular();
 		try {
 			tiempoMenorHora(apartados);
 		} catch (ParseException e) {
@@ -1524,7 +1549,8 @@ public class CitasController
 		int paga=apartado.getHorario().getActividad().getPaga();
 		
 		if(paga!=0) {
-	   		List<PaseUsuario> paseUsuario=paseUsuarioService.getByIdCliente(body.getUsuario());
+	   		//List<PaseUsuario> paseUsuario=paseUsuarioService.getByIdCliente(body.getUsuario());
+			List<PaseUsuario> paseUsuario=paseUsuarioService.getByIdCliente(idTitular);
 	   	  
 	   		boolean ban=false;
 	   		int k = 0;
@@ -2921,7 +2947,17 @@ public class CitasController
 	    	}
 	    	
 	    	return paseUsuarioService.getByIdCliente(idCliente);*/
+			Cliente cliente;
+			int idTitular;
+			int cantidad = 0;
+			try {
+				cliente = clienteService.findById(idCliente);
+				idTitular = cliente.getIdTitular();
+			} catch (Exception e) {
+				idTitular = idCliente;
+			}
 
+			//System.out.println("ID del titular en citas/obtenerPase => " + idTitular);
 			String body2 = "{\n"
 					+ "\"IdCliente\":"+idCliente+",\n"
 					+ "\"Token\":\"77D5BDD4-1FEE-4A47-86A0-1E7D19EE1C74\"\n"
@@ -2937,32 +2973,41 @@ public class CitasController
 				PaseUsuario paseExists = paseUsuarioService.findByIdVentaDetalle(obj.getInt("VentaDetalle"));
 
 				if (paseExists == null){
-					System.out.println("El idVentaDetalle: " + obj.getInt("VentaDetalle") + " es nuevo");
+					//System.out.println("El idVentaDetalle: " + obj.getInt("VentaDetalle") + " es nuevo");
 					int concepto = obj.getInt("IDProdServ");
 					PaseUsuario pase = new PaseUsuario();
 
 					pase.setIdProd(concepto);
 					if(concepto == 2942) pase.setIdProd(2939);
 					if(concepto == 2941) pase.setIdProd(2938);
+					if(obj.getString("Concepto").toLowerCase().contains("fitness")) pase.setIdProd(2735);
 
-					if(obj.getString("Concepto").matches(".*SP.*Gym.*")) {
-						pase.setDisponibles(0);
-						pase.setCantidad(0);
+					//if(obj.getString("Concepto").matches(".*SP.*Gym.*")) {
+					if(obj.getString("Concepto").toLowerCase().contains("gym") || obj.getString("Concepto").toLowerCase().contains("gimnasio")) {
+						pase.setDisponibles(1);
+						pase.setCantidad(1);
 						//pase.setIdProd(1746);
 					}else {
-						pase.setDisponibles(obj.getInt("Cantidad"));
-						pase.setCantidad(obj.getInt("Cantidad"));
+						cantidad = findInt(obj.getString("Concepto"));
+						if (cantidad > 0) {
+							pase.setDisponibles(cantidad);
+							pase.setCantidad(cantidad);
+						} else {
+							pase.setDisponibles(obj.getInt("Cantidad"));
+							pase.setCantidad(obj.getInt("Cantidad"));
+						}
+
 						pase.setSubgrupo("QR");
 					}
 					pase.setIdVentaDetalle(obj.getInt("VentaDetalle"));
 					pase.setConcepto(obj.getString("Concepto"));
 
 					Date fechaCompra = new Date(TimeUnit.MILLISECONDS.toMillis(obj.getLong("FechaCaptura")));
-					//System.out.println("Long: " + obj.getLong("FechaCaptura"));
-					//System.out.println("Fecha parseada = " + fechaCompra);
+
 					pase.setF_compra(fechaCompra);
 					pase.setActivo(true);
-					pase.setCliente(clienteService.findById(idCliente));
+					//pase.setCliente(clienteService.findById(idCliente));
+					pase.setCliente(clienteService.findById(idTitular));
 					pase.setCreated(new Date());
 					pase.setUpdated(new Date());
 					pase.setUpdatedBy(String.valueOf(idCliente));
@@ -2970,10 +3015,10 @@ public class CitasController
 					paseUsuarioService.save(pase);
 					listaReporte.add(pase);
 				} else {
-					System.out.println("El idVentaDetalle: " + obj.getInt("VentaDetalle") + " ya existe");
+					//System.out.println("El idVentaDetalle: " + obj.getInt("VentaDetalle") + " ya existe");
 				}
 			}
-			return paseUsuarioService.getByIdCliente(idCliente);
+			return paseUsuarioService.getByIdCliente(idTitular);
 			//return json.toString();
 		}
        
@@ -3006,7 +3051,9 @@ public class CitasController
    				   	   	
    		   	   			return new ResponseEntity<String>(json.toString(), HttpStatus.OK);    						
    					}
+					//System.out.println("iD VENTA => " + body.getIdVentaDetalle());
    					PaseConsumido pase=paseConsumidoService.getOne(body.getUsuario(), body.getIdVentaDetalle());
+					System.out.println("pase consumido => " + pase);
    					if(pase.getPaseUsuario().getIdProd()!=0) {
    	   	   				clienteService.findById(body.getUsuario());
    		   	   	       	if(pase.getFechaRedencion()!=null) {
@@ -3040,6 +3087,7 @@ public class CitasController
   	   			
       	   		return new ResponseEntity<String>(json.toString(), HttpStatus.CONFLICT); 
       		}catch(IndexOutOfBoundsException e) {
+				  e.printStackTrace();
      	   		json.put("Respuesta", "No tiene pases para esta clase");
      	   		
       			return new ResponseEntity<>(json.toString(), HttpStatus.CONFLICT);		
@@ -3408,5 +3456,19 @@ public class CitasController
 
 
 		return paseUsuarioService.getByIdCliente(idCliente);
+	}
+
+	static int findInt(String str)
+	{
+		//First we replace all the non-numeric characters with space
+		str = str.replaceAll("[^\\d]", " ");
+		//Remove all the trailing spaces
+		str = str.trim();
+		//Replace consecutive white spaces with one white space
+		str = str.replaceAll(" +", " ");
+
+		if (str.equals(""))
+			return -1;
+		return Integer.parseInt(str);
 	}
 }//fin de la clase

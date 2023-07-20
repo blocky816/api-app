@@ -70,11 +70,6 @@ public class ApartadosService {
 		listaApartados.setParameter("o",id);
 		listaApartados.setParameter("u",dia);
 		List<CAApartados> results = listaApartados.getResultList();
-		System.out.println("results:" + results);
-		System.out.println("results  is Empty ?:" + results.isEmpty());
-		System.out.println("idHorario:" + id);
-		System.out.println("dia:" + dia);
-		
 		return results.get(0);
 	}
 }

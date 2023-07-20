@@ -60,8 +60,9 @@ public class PaseUsuarioService {
 	
 	public boolean cancelarPasesVencidos(int usuario) {
 		Session currentSession = entityManager.unwrap(Session.class);
-		String hql = "update PaseUsuario p set p.activo=false where p.cliente.IdCliente in (SELECT c.IdCliente FROM Cliente c WHERE c.FechaFinAcceso<=current_date()) and p.concepto like 'SP % Gym %'";
+		//String hql = "update PaseUsuario p set p.activo=false where p.cliente.IdCliente in (SELECT c.IdCliente FROM Cliente c WHERE c.FechaFinAcceso<=current_date()) and p.concepto like '% Gym %'";
 		//String hql = "update PaseUsuario p set p.activo = false where p.idVentaDetalle = 410750";
+		String hql = "update PaseUsuario p set p.activo=false where p.cliente.IdCliente in (SELECT c.IdCliente FROM Cliente c WHERE c.FechaFinAcceso<=current_date()) and (lower(p.concepto) like '% gym %' or lower(p.concepto) like '% gimnasio %')";
 		Query query = currentSession.createQuery(hql);
 		query.executeUpdate();
 
@@ -71,7 +72,8 @@ public class PaseUsuarioService {
 	public boolean activarPases(int usuario) {
 		Session currentSession = entityManager.unwrap(Session.class);
 		  // your code
-		  String hql = "update PaseUsuario p set p.activo=true where p.cliente.IdCliente in (SELECT c.IdCliente FROM Cliente c WHERE c.FechaFinAcceso>=current_date()) and p.concepto like 'SP % Gym %'";
+		  //String hql = "update PaseUsuario p set p.activo=true where p.cliente.IdCliente in (SELECT c.IdCliente FROM Cliente c WHERE c.FechaFinAcceso>=current_date()) and p.concepto like 'SP % Gym %'";
+		String hql = "update PaseUsuario p set p.activo=true where p.cliente.IdCliente in (SELECT c.IdCliente FROM Cliente c WHERE c.FechaFinAcceso>=current_date()) and (lower(p.concepto) like '% gym %' or lower(p.concepto) like '% gimnasio %')";
 		  Query<?> query = currentSession.createQuery(hql);
 		  // your code end
 		  query.executeUpdate();
@@ -80,7 +82,8 @@ public class PaseUsuarioService {
 
 	public List<PaseUsuario> getPasesGimnasio(int usuario) {
 		Session currentSession = entityManager.unwrap(Session.class);
-		Query<PaseUsuario> listaPaseUsuario = currentSession.createQuery("FROM PaseUsuario p where (p.cliente.IdCliente=:o and p.concepto like 'SP % Gym %') and p.activo=true order by idVentaDetalle", PaseUsuario.class);
+		//Query<PaseUsuario> listaPaseUsuario = currentSession.createQuery("FROM PaseUsuario p where (p.cliente.IdCliente=:o and p.concepto like 'SP % Gym %') and p.activo=true order by idVentaDetalle", PaseUsuario.class);
+		Query<PaseUsuario> listaPaseUsuario = currentSession.createQuery("FROM PaseUsuario p where (p.cliente.IdCliente=:o and (lower(p.concepto) like '% gym %' or lower(p.concepto) like '% gimnasio %')) and p.activo=true order by idVentaDetalle", PaseUsuario.class);
 		listaPaseUsuario.setParameter("o",usuario);
 		List<PaseUsuario> results = listaPaseUsuario.getResultList();
 		return results;
