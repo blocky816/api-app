@@ -2,12 +2,7 @@ package com.tutorial.crud.entity;
 
 import java.util.Date;
 
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
-import javax.persistence.Table;
+import javax.persistence.*;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 
@@ -83,12 +78,12 @@ public class ClienteBascula {
 	    @JsonProperty("IDUsuario") 
 		@Column(name="id_usuario")
 	    public int idUsuario;
-	    
-	    @JsonProperty("IDTerminal") 
+
+		@JsonProperty("IDTerminal")
 		@Column(name="id_terminal")
 	    public int idTerminal;
-	    
-	    @JsonProperty("FechaCaptura")
+
+		@JsonProperty("FechaCaptura")
 		@Column(name="fecha_captura")
 	    public Date fechaCaptura;
 	}

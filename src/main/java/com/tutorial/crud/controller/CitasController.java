@@ -2988,7 +2988,7 @@ public class CitasController
 						pase.setCantidad(1);
 						//pase.setIdProd(1746);
 					}else {
-						cantidad = findInt(obj.getString("Concepto"));
+						if (concepto != 2503) cantidad = findInt(obj.getString("Concepto"));
 						if (cantidad > 0) {
 							pase.setDisponibles(cantidad);
 							pase.setCantidad(cantidad);

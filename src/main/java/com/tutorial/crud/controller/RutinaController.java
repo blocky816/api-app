@@ -1142,17 +1142,28 @@ public class RutinaController
 			upv.nivelActividad=ultimoPesaje.nivelActividad;
 			upv.nombre=cliente.getNombre()+" "+cliente.getApellidoPaterno()+" "+cliente.getApellidoMaterno();
 			upv.peso=ultimoPesaje.peso;
-			upv.sexo=ultimoPesaje.sexo;
+			if (cliente != null){
+				if (cliente.getIdSexo() == 1) upv.sexo = "0";
+				if (cliente.getIdSexo() == 2) upv.sexo = "1";
+			}
+			else upv.sexo=ultimoPesaje.sexo;
 			upv.tMB=ultimoPesaje.tMB;
 			upv.valoracionFisica=ultimoPesaje.valoracionFisica;
 			System.out.println("Retornando cliente bascula");
 			return new ResponseEntity<>(upv, HttpStatus.OK);
 			
 		}catch(Exception e) {
-			e.printStackTrace();
-			System.out.println("Errror en  cliente bascula");
+			//e.printStackTrace();
+			System.out.println("Errror en  cliente bascula => " + e.getMessage() + " - " + e.getCause());
 
+			Cliente cliente=this.obtenerCliente(idCliente);
 			ClienteBasculaVista upv = new ClienteBasculaVista();
+			if (cliente != null){
+				if (cliente.getIdSexo() == 1) upv.sexo = "0";
+				if (cliente.getIdSexo() == 2) upv.sexo = "1";
+				upv.foto=cliente.getURLFoto().getImagen();
+				upv.nombre=cliente.getNombre()+" "+cliente.getApellidoPaterno()+" "+cliente.getApellidoMaterno();
+			}
 			return new ResponseEntity<>(upv, HttpStatus.CONFLICT); 
 		}
 		
