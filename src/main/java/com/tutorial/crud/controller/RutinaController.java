@@ -21,15 +21,7 @@ import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
-import java.util.ArrayList;
-import java.util.Base64;
-import java.util.Calendar;
-import java.util.Collections;
-import java.util.Date;
-import java.util.List;
-import java.util.NoSuchElementException;
-import java.util.Optional;
-import java.util.UUID;
+import java.util.*;
 import java.util.concurrent.TimeUnit;
 
 import javax.imageio.ImageIO;
@@ -1011,7 +1003,7 @@ public class RutinaController
 			Correo correo=new Correo(usuarioCorreo,contrasenaCorreo,cliente.getEmail(),copiaOculta);
 			String asunto="Analisis Corporal";
 			LocalDateTime fechaActual= LocalDateTime.now();
-			DateTimeFormatter formatter = DateTimeFormatter.ofPattern("EEEE, dd 'de' MMMM 'de' yyyy");
+			DateTimeFormatter formatter = DateTimeFormatter.ofPattern("EEEE, dd 'de' MMMM 'de' yyyy", new Locale("es", "ES"));
 			String formattedLocalDate = fechaActual.format(formatter);
 			formattedLocalDate=formattedLocalDate.toUpperCase();
 			correo.enviar_pesaje(body.agua, body.masaOsea, body.adiposidad, body.masaMagra, body.masaGrasa, body.peso, body.caloriasDiarias, body.tMB, body.edadMetabolica, body.iMC, formattedLocalDate, body.idUsuario, cliente.getNombre(), Base64.getEncoder().encodeToString(cliente.getURLFoto().getImagen()), cliente.getClub().getNombre(), asunto);
@@ -1023,7 +1015,7 @@ public class RutinaController
    			
    			return new ResponseEntity<String>(json.toString(), HttpStatus.OK); 
    		} catch (Exception  e) {
-   			
+
    			json.put("respuesta", "Ocurrio un error, no se ha podido guardar la informacion");
    			return new ResponseEntity<String>(json.toString(), HttpStatus.CONFLICT); 
    		}

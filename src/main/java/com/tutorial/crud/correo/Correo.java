@@ -3055,17 +3055,17 @@ public void enviar_pesaje(float liquidosCorporales, float masaOsea, float adipos
    
     
     
-    String mensaje = "<html xmlns=\"http://www.w3.org/1999/xhtml\">\r\n"
+    /*String mensaje = "<html xmlns=\"http://www.w3.org/1999/xhtml\">\r\n"
     		+ "    <head>\r\n"
     		+ "        <meta http-equiv=\"Content-Type\" content=\"text/html; charset=utf-8\"/>\r\n"
     		+ "        <title>Rutina Entrenamiento</title>\r\n"
     		+ "        <style type=\"text/css\">\r\n"
-    		+ "            /* Reset -------------------------------------------------------------------- */\r\n"
-    		+ "            * 	 { margin: 0;padding: 0; }\r\n"
+    		+ "            /* Reset -------------------------------------------------------------------- *///\r\n"
+    		/*+ "            * 	 { margin: 0;padding: 0; }\r\n"
     		+ "            body { font-size: 14px; }\r\n"
     		+ "\r\n"
-    		+ "            /* OPPS --------------------------------------------------------------------- */\r\n"
-    		+ "\r\n"
+    		+ "            /* OPPS --------------------------------------------------------------------- *///\r\n"
+    		/*+ "\r\n"
     		+ "            h3 {\r\n"
     		+ "                margin-bottom: 5px;\r\n"
     		+ "                font-size: 15px;\r\n"
@@ -3380,7 +3380,339 @@ public void enviar_pesaje(float liquidosCorporales, float masaOsea, float adipos
     		+ "            </div>\r\n"
     		+ "        </div>\r\n"
     		+ "    </body>\r\n"
-    		+ "</html>";
+    		+ "</html>";*/
+	String mensaje = "\n" +
+			"<html xmlns=\"http://www.w3.org/1999/xhtml\">\n" +
+			"\n" +
+			"<head>\n" +
+			"\t<meta http-equiv=\"Content-Type\" content=\"text/html; charset=utf-8\" />\n" +
+			"\t<title>Rutina Entrenamiento</title>\n" +
+			"\t<style type=\"text/css\">\n" +
+			"\t\t/* Reset -------------------------------------------------------------------- */\n" +
+			"\t\t* {\n" +
+			"\t\t\tmargin: 0;\n" +
+			"\t\t\tpadding: 0;\n" +
+			"\t\t}\n" +
+			"\t\tbody {\n" +
+			"\t\t\tfont-size: 14px;\n" +
+			"\t\t}\n" +
+			"\t\t/* OPPS --------------------------------------------------------------------- */\n" +
+			"\t\th3 {\n" +
+			"\t\t\tmargin-bottom: 5px;\n" +
+			"\t\t\tfont-size: 15px;\n" +
+			"\t\t\tfont-weight: 600;\n" +
+			"\t\t\ttext-transform: uppercase;\n" +
+			"\t\t\tcolor: #000000;\n" +
+			"\t\t}\n" +
+			"\t\t.opps {\n" +
+			"\t\t\twidth: 700px;\n" +
+			"\t\t\tborder-radius: 4px;\n" +
+			"\t\t\tborder: 5px solid black;\n" +
+			"\t\t\tbox-sizing: border-box;\n" +
+			"\t\t\tpadding: 0 45px;\n" +
+			"\t\t\tmargin: 20px auto;\n" +
+			"\t\t\toverflow: hidden;\n" +
+			"\t\t\tfont-family: 'Open Sans', sans-serif;\n" +
+			"\t\t\tcolor: #4f5365;\n" +
+			"\t\t}\n" +
+			"\t\t.card {\n" +
+			"\t\t\t/* width: auto;\n" +
+			"\t\t\theight: 125px; */\n" +
+			"\t\t\tborder-radius: 4px;\n" +
+			"\t\t\tpadding: 2px 0px;\n" +
+			"\t\t\toverflow: hidden;\n" +
+			"\t\t\t/* border: 1px solid grey; */\n" +
+			"\t\t\tfont-family: 'Open Sans', sans-serif;\n" +
+			"\t\t\tcolor: #4f5365;\n" +
+			"\t\t}\n" +
+			"\t\t.card img {\n" +
+			"\t\t\tfloat: left;\n" +
+			"\t\t}\n" +
+			"\t\t.card table {\n" +
+			"\t\t\tfloat: right;\n" +
+			"\t\t}\n" +
+			"\t\t.opps-reminder {\n" +
+			"\t\t\tposition: relative;\n" +
+			"\t\t\ttop: -1px;\n" +
+			"\t\t\tpadding: 9px 0 10px;\n" +
+			"\t\t\tfont-size: 11px;\n" +
+			"\t\t\ttext-transform: uppercase;\n" +
+			"\t\t\ttext-align: center;\n" +
+			"\t\t\tcolor: #ffffff;\n" +
+			"\t\t\tbackground: #000000;\n" +
+			"\t\t}\n" +
+			"\t\t.opps-info {\n" +
+			"\t\t\tmargin-top: 26px;\n" +
+			"\t\t\tposition: relative;\n" +
+			"\t\t}\n" +
+			"\t\t.opps-info:after {\n" +
+			"\t\t\tvisibility: hidden;\n" +
+			"\t\t\tdisplay: block;\n" +
+			"\t\t\tfont-size: 0;\n" +
+			"\t\t\tcontent: \" \";\n" +
+			"\t\t\tclear: both;\n" +
+			"\t\t\theight: 0;\n" +
+			"\t\t}\n" +
+			"\t\t.opps-brand {\n" +
+			"\t\t\twidth: 45%;\n" +
+			"\t\t\tfloat: left;\n" +
+			"\t\t}\n" +
+			"\t\t.opps-brand img {\n" +
+			"\t\t\tmax-width: 150px;\n" +
+			"\t\t\tmargin-top: 2px;\n" +
+			"\t\t}\n" +
+			"\t\t.opps-ammount {\n" +
+			"\t\t\twidth: 73%;\n" +
+			"\t\t\theight: auto;\n" +
+			"\t\t\tfloat: right;\n" +
+			"\t\t}\n" +
+			"\t\t.opps-ammount h2 {\n" +
+			"\t\t\tfont-size: 15PX;\n" +
+			"\t\t\tcolor: rgb(252, 0, 0);\n" +
+			"\t\t\tline-height: 24px;\n" +
+			"\t\t\tmargin-bottom: 72px;\n" +
+			"\t\t}\n" +
+			"\t\t.opps-ammount h2 sup {\n" +
+			"\t\t\tfont-size: 16px;\n" +
+			"\t\t\tposition: relative;\n" +
+			"\t\t\ttop: -2px\n" +
+			"\t\t}\n" +
+			"\t\t.opps-ammount p {\n" +
+			"\t\t\tfont-size: 10px;\n" +
+			"\t\t\tline-height: 14px;\n" +
+			"\t\t}\n" +
+			"\t\t.opps-reference {\n" +
+			"\t\t\tmargin-top: 2px;\n" +
+			"\t\t\tmargin-bottom: 5px;\n" +
+			"\t\t}\n" +
+			"\t\th1 {\n" +
+			"\t\t\tfont-size: 20px;\n" +
+			"\t\t\tcolor: #000000;\n" +
+			"\t\t\ttext-align: center;\n" +
+			"\t\t\tmargin-top: -1px;\n" +
+			"\t\t\tpadding: 6px 0 7px;\n" +
+			"\t\t\tborder: 1px solid #b0afb5;\n" +
+			"\t\t\tborder-radius: 4px;\n" +
+			"\t\t\tbackground: #000000;\n" +
+			"\t\t}\n" +
+			"\t\t.opps-instructions {\n" +
+			"\t\t\tmargin: 32px -45px 0;\n" +
+			"\t\t\tpadding: 32px 45px 45px;\n" +
+			"\t\t\tborder-top: 1px solid #b0afb5;\n" +
+			"\t\t\tbackground: #f8f9fa;\n" +
+			"\t\t}\n" +
+			"\t\tol {\n" +
+			"\t\t\tmargin: 17px 0 0 16px;\n" +
+			"\t\t}\n" +
+			"\t\tli+li {\n" +
+			"\t\t\tmargin-top: 10px;\n" +
+			"\t\t\tcolor: #000000;\n" +
+			"\t\t}\n" +
+			"\t\ta {\n" +
+			"\t\t\tcolor: #1155cc;\n" +
+			"\t\t}\n" +
+			"\t\t.opps-footnote {\n" +
+			"\t\t\tmargin-top: 22px;\n" +
+			"\t\t\tpadding: 22px 20px 24px;\n" +
+			"\t\t\tcolor: #108f30;\n" +
+			"\t\t\ttext-align: center;\n" +
+			"\t\t\tborder: 1px solid #108f30;\n" +
+			"\t\t\tborder-radius: 4px;\n" +
+			"\t\t\tbackground: #ffffff;\n" +
+			"\t\t}\n" +
+			"\t\timg{\n" +
+			"\t\t\tborder-radius: 8px;\n" +
+			"\t\t}\n" +
+			"\t\ttable {\n" +
+			"\t\t\twidth: 100%;\n" +
+			"\t\t}\n" +
+			"\t\ttd {\n" +
+			"\t\t\tcolor: #636363;\n" +
+			"\t\t\ttext-align: left;\n" +
+			"\t\t\tfont-size: 11px;\n" +
+			"\t\t}\n" +
+			"\t\tth {\n" +
+			"\t\t\theight: 40px;\n" +
+			"\t\t\tfont-size: 11px;\n" +
+			"\t\t}\n" +
+			"\t\tth.info{\n" +
+			"\t\t\theight: auto;\n" +
+			"\t\t\twidth: 50%;\n" +
+			"\t\t\tfont-size: 11px;\n" +
+			"\t\t\talign-content: center;\n" +
+			"\t\t}\n" +
+			"\t\t.sub-title{\n" +
+			"\t\t\tfont-size: 10px;\n" +
+			"\t\t\ttext-align: center;\n" +
+			"\t\t\tbackground: black;\n" +
+			"\t\t\tcolor: white;\n" +
+			"\t\t}\n" +
+			"\t\th3 {\n" +
+			"\t\t\ttext-align: center;\n" +
+			"\t\t}\n" +
+			"\t\th3.peso{\n" +
+			"\t\t\tfont-size: 30px;\n" +
+			"\t\t\talign-items: center;\n" +
+			"\t\t\tmargin: 70px;\n" +
+			"\t\t}\n" +
+			"\t\timg.imagen-1{\n" +
+			"\t\t\twidth: auto;\n" +
+			"\t\t\theight: 170px;\n" +
+			"\t\t\tfloat: left;\n" +
+			"\t\t}\n" +
+			"\t\tdiv.titulo-pesaje1{\n" +
+			"\t\t\ttext-align: center;\n" +
+			"\t\t\tbackground-color: orangered;\n" +
+			"\t\t\tfont-size: 15px !important;\n" +
+			"\t\t\tborder: solid orangered;\n" +
+			"\t\t\tborder-radius: 15px 0 0 15px;\n" +
+			"\t\t\tcolor: white;\n" +
+			"\t\t}\n" +
+			"\t\tdiv.titulo-pesaje2{\n" +
+			"\t\t\ttext-align: center;\n" +
+			"\t\t\tbackground-color: #FF9906;\n" +
+			"\t\t\tfont-size: 15px !important;\n" +
+			"\t\t\tborder: solid #FF9906;\n" +
+			"\t\t\tborder-radius: 15px 0 0 15px;\n" +
+			"\t\t\tcolor: white;\n" +
+			"\t\t}\n" +
+			"\t\tdiv.titulo-pesaje3{\n" +
+			"\t\t\ttext-align: center;\n" +
+			"\t\t\tbackground-color: #0AB881;\n" +
+			"\t\t\tfont-size: 15px !important;\n" +
+			"\t\t\tborder: solid #0AB881;\n" +
+			"\t\t\tborder-radius: 15px 0 0 15px;\n" +
+			"\t\t\tcolor: white;\n" +
+			"\t\t}\n" +
+			"\t\tdiv.titulo-pesaje4{\n" +
+			"\t\t\ttext-align: center;\n" +
+			"\t\t\tbackground-color: #068BEC;\n" +
+			"\t\t\tfont-size: 14px !important;\n" +
+			"\t\t\tborder: solid #068BEC;\n" +
+			"\t\t\tborder-radius: 15px 0 0 15px;\n" +
+			"\t\t\tcolor: white;\n" +
+			"\t\t}\n" +
+			"\t\tdiv.imagen-dato{\n" +
+			"\t\t\twidth: auto;\n" +
+			"\t\t\theight: auto;\n" +
+			"\t\t}\n" +
+			"\t\t.imagen-dato1{\n" +
+			"\t\t\twidth: 110px;\n" +
+			"\t\t\theight: 80px;\n" +
+			"\t\t\talign-content: center;\n" +
+			"\t\t}\n" +
+			"\t\t.imagen-dato2{\n" +
+			"\t\t\twidth: 110px;\n" +
+			"\t\t\theight: 50px;\n" +
+			"\t\t\tfloat: right;\n" +
+			"\t\t}\n" +
+			"\t\t.imagen-dato3{\n" +
+			"\t\t\twidth: 120px;\n" +
+			"\t\t\theight: 60px;\n" +
+			"\t\t\tfloat: right;\n" +
+			"\t\t}\n" +
+			"\t\t.primero{\n" +
+			"\t\t\twidth: 50%;\n" +
+			"\t\t\tfloat: left;\n" +
+			"\t\t}\n" +
+			"\t\t.segundo{\n" +
+			"\t\t\twidth: 50%;\n" +
+			"\t\t\tfloat: right;\n" +
+			"\t\t}\n" +
+			"\t\t.tabla-datos{\n" +
+			"\t\t\tfloat: right;\n" +
+			"\t\t\twidth: 180px;\n" +
+			"\t\t}\n" +
+			"\t</style>\n" +
+			"\t<link href=\"https://fonts.googleapis.com/css?family=Open+Sans:400,600,700\" rel=\"stylesheet\" />\n" +
+			"</head>\n" +
+			"\n" +
+			"<body>\n" +
+			"\t<div class=\"opps\">\n" +
+			"\t\t<div class=\"opps-header\">\n" +
+			"\t\t\t<div class=\"opps-info\">\n" +
+			"\t\t\t\t<img style=\"width: 150px; height: 204px;\" src=\"data:image/png;base64,"+fotoCliente+"\" />\n" +
+			"\t\t\t\t<div class=\"opps-ammount\">\n" +
+			"\t\t\t\t\t<h3>HOLA, "+nombre+" - "+idCliente+"</h3>\n" +
+			"\t\t\t\t\t<h2>"+fecha+"</h2>\n" +
+			"\t\t\t\t\t<table>\n" +
+			"\t\t\t\t\t\t<thead>\n" +
+			"\t\t\t\t\t\t\t<tr align=\"center\">\n" +
+			"\t\t\t\t\t\t\t\t<th scope=\"col\">I.M.C.</th>\n" +
+			"\t\t\t\t\t\t\t\t<th scope=\"col\">Edad Metabólica</th>\n" +
+			"\t\t\t\t\t\t\t\t<th scope=\"col\">Metabolismo Basal</th>\n" +
+			"\t\t\t\t\t\t\t\t<th scope=\"col\">Aporte cálorico diario</th>\n" +
+			"\t\t\t\t\t\t\t</tr>\n" +
+			"\t\t\t\t\t\t</thead>\n" +
+			"\t\t\t\t\t\t<tbody>\n" +
+			"\t\t\t\t\t\t\t<tr>\n" +
+			"\t\t\t\t\t\t\t\t<td scope=\"row\">"+imc+"</td>\n" +
+			"\t\t\t\t\t\t\t\t<td scope=\"row\">"+edadMetabolica+"</td>\n" +
+			"\t\t\t\t\t\t\t\t<td scope=\"row\">"+metabolismoBasal+"</td>\n" +
+			"\t\t\t\t\t\t\t\t<td scope=\"row\">"+calorias+"</td>\n" +
+			"\t\t\t\t\t\t\t</tr>\n" +
+			"\t\t\t\t\t\t</tbody>\n" +
+			"\t\t\t\t\t</table>\n" +
+			"\t\t\t\t</div>\n" +
+			"\t\t\t</div>\n" +
+			"\t\t</div>\n" +
+			"\t\t<div class=\"sub-title\"><h2>Informe Avanzado en la Báscula</h2></div>\n" +
+			"\t\t<div class='card-grid'>\n" +
+			"\t\t\t<div class=\"card\">\n" +
+			"\t\t\t\t<div class=\"primero\"><h3 class=\"peso\">"+pesoCorporal+" kg</h3></div>\n" +
+			"\t\t\t\t<div class=\"segundo\">\n" +
+			"\t\t\t\t\t<img class=\"imagen-1\" src=\"file:rutinas/pesaje/img/grasacorporal.png\">\n" +
+			"\t\t\t\t\t<table class=\"tabla-datos\">\n" +
+			"\t\t\t\t\t\t<tr><td><div class=\"titulo-pesaje1\">GRASA CORPORAL</div></td></tr>\n" +
+			"\t\t\t\t\t\t<tr><td><h3>"+grasaCorporal+"%</h3></td></tr>\n" +
+			"\t\t\t\t\t\t<tr><td><img  class=\"imagen-dato1\" src=\"file:rutinas/pesaje/img/grasacorporal-valores.png\"></td></tr>\n" +
+			"\t\t\t\t\t</table>\n" +
+			"\t\t\t\t</div>\n" +
+			"\t\t\t</div>\n" +
+			"\t\t\t<div class=\"card\">\n" +
+			"\t\t\t\t<div class=\"primero\">\n" +
+			"\t\t\t\t\t<table class=\"tabla-datos\">\n" +
+			"\t\t\t\t\t\t<img class=\"imagen-1\" src=\"file:rutinas/pesaje/img/masamuscular.png\">\n" +
+			"\t\t\t\t\t\t<tr><td><div class=\"titulo-pesaje2\">MASA MUSCULAR</div></td></tr>\n" +
+			"\t\t\t\t\t\t<tr><td><h3>"+masaMuscular+"%</h3></td></tr>\n" +
+			"\t\t\t\t\t</table>\n" +
+			"\t\t\t\t</div>\n" +
+			"\t\t\t\t<div class=\"segundo\">\n" +
+			"\t\t\t\t\t<table class=\"tabla-datos\">\n" +
+			"\t\t\t\t\t\t<img class=\"imagen-1\" src=\"file:rutinas/pesaje/img/adiposidadvisceral.png\">\n" +
+			"\t\t\t\t\t\t<tr><td><div class=\"titulo-pesaje3\">ADIPOSIDAD VISCERAL</div></td></tr>\n" +
+			"\t\t\t\t\t\t<tr><td><h3>Nivel de Grasa: "+adiposidadVisceral+"%</h3></td></tr>\n" +
+			"\t\t\t\t\t\t<tr><td><img class=\"imagen-dato2\" src=\"file:rutinas/pesaje/img/adiposidadvisceral-valores.png\"></td></tr>\n" +
+			"\t\t\t\t\t</table>\n" +
+			"\t\t\t\t</div>\n" +
+			"\t\t\t</div>\n" +
+			"\t\t\t<div class=\"card\">\n" +
+			"\t\t\t\t<div class=\"primero\">\n" +
+			"\t\t\t\t\t<img class=\"imagen-1\" src=\"file:rutinas/pesaje/img/masaosea.png\">\n" +
+			"\t\t\t\t\t<table class=\"tabla-datos\">\n" +
+			"\t\t\t\t\t\t<tr><td><div class=\"titulo-pesaje3\">MASA ÓSEA</div></td></tr>\n" +
+			"\t\t\t\t\t\t<tr><td><h3>"+masaOsea+"%</h3></td></tr>\n" +
+			"\t\t\t\t\t</table>\t\t\t\t\t\n" +
+			"\t\t\t\t</div>\n" +
+			"\t\t\t\t<div class=\"segundo\">\n" +
+			"\t\t\t\t\t<img class=\"imagen-1\" src=\"file:rutinas/pesaje/img/liquidocorporal.png\">\n" +
+			"\t\t\t\t\t<table class=\"tabla-datos\">\n" +
+			"\t\t\t\t\t\t<tr><td><div class=\"titulo-pesaje4\">LÍQUIDOS CORPORALES</div></td></tr>\n" +
+			"\t\t\t\t\t\t<tr><td><h3>"+liquidosCorporales+"%</h3></td></tr>\n" +
+			"\t\t\t\t\t\t<tr><td><img class=\"imagen-dato3\" src=\"file:rutinas/pesaje/img/liquidocorporal-valores.png\"></td></tr>\n" +
+			"\t\t\t\t\t</table>\n" +
+			"\t\t\t\t\t\t\n" +
+			"\t\t\t\t\t\n" +
+			"\t\t\t\t\t\n" +
+			"\t\t\t\t\t\n" +
+			"\t\t\t\t\t\n" +
+			"\t\t\t\t</div>\n" +
+			"\t\t\t</div>\n" +
+			"\t\t</div>\n" +
+			"\t</div>\n" +
+			"</body>\n" +
+			"\n" +
+			"</html>";
     
     String ruta = "prueba.html";
     String ficheroPDF = "plantilla.pdf"; 
