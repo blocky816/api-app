@@ -5372,7 +5372,7 @@ public class Servicios
 		}
 
 		// Consultar recibos de Globalsoft
-		try {
+		/*try {
 			conn = DriverManager.getConnection("jdbc:sqlserver://192.168.20.12;database=globalsoft", "facturacion", "WZ155YH%a");
 
 			PreparedStatement ps=conn.prepareStatement("exec globalsoft.dbo.sp_Consulta_Recibo_Conceptos_por_Fecha_SAT ?,? ");
@@ -5417,7 +5417,7 @@ public class Servicios
 				ex.printStackTrace();
 				System.out.println("Error: " + ex.getMessage());
 			}
-		}
+		}*/
 		/*if (!listaReporte.isEmpty()){  // este bloque se borrará
 			//System.out.println("Facturas recuperadas de Odoo by..." + nombre);
 			System.out.println("Facturas recuperadas de Odoo + globalsoft by..." + nombre);
