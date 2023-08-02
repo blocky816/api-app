@@ -5029,7 +5029,7 @@ public class Servicios
 				System.out.println("Error: " + ex.getMessage());
 			}
 		}
-		try {
+		/*try {
 			conn = DriverManager.getConnection("jdbc:sqlserver://192.168.20.12;database=globalsoft", "facturacion", "WZ155YH%a");
 
 			PreparedStatement ps=conn.prepareStatement("exec globalsoft.dbo.sp_Consulta_Recibo_Conceptos_por_Fecha_SAT ?,? ");
@@ -5074,7 +5074,7 @@ public class Servicios
 				ex.printStackTrace();
 				System.out.println("Error: " + ex.getMessage());
 			}
-		}
+		}*/
 		List<Factura>recibosFacturados=facturaService.list();
 		List<ReciboSAT> recibosSinFacturar=new ArrayList<ReciboSAT>();
 
