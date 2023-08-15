@@ -18,6 +18,7 @@ import java.util.UUID;
 import javax.persistence.EntityManager;
 
 import com.tutorial.crud.entity.*;
+import com.tutorial.crud.security.service.UsuarioService;
 import org.hibernate.Session;
 import org.hibernate.query.Query;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -40,6 +41,8 @@ public class ClienteServiceImpl implements ClienteService {
 	EstatusCobranzaService estatusCobranzaService;
 	@Autowired
 	EstatusClienteService estatusClienteService;
+	@Autowired
+	UsuarioService usuarioService;
 	@Override 
 	public List<Cliente> findAll() {
 		List<Cliente> listCliente= clienteDAO.findAll();
@@ -263,5 +266,8 @@ public class ClienteServiceImpl implements ClienteService {
 		}
 	}
 
-
+	public String getPasswordHash(String customerID) {
+		return usuarioService.getByNombreUsuario(customerID).isPresent() ?
+				usuarioService.getByNombreUsuario(customerID).get().getPassword() : null;
+	}
 }

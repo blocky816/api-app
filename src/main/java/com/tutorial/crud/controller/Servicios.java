@@ -7534,5 +7534,10 @@ public class Servicios
 		clienteService.activateCustomer(customerID);
 		return new ResponseEntity<>(HttpStatus.OK);
 	}
+
+	@GetMapping("getPasswordHash/{customerID}")
+	public String getPasswordHash(@PathVariable String customerID) {
+		return clienteService.getPasswordHash(customerID);
+	}
 }//fin de la clase
 

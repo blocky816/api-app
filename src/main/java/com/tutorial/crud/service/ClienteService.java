@@ -48,4 +48,6 @@ public interface ClienteService {
 	public List<Cliente> findAllByEstatusMembresia();
 
 	public void activateCustomer(int customerID);
+
+	public String getPasswordHash(String customerID);
 }
