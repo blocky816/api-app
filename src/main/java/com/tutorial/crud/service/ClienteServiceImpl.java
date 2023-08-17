@@ -254,14 +254,16 @@ public class ClienteServiceImpl implements ClienteService {
 	}
 
 	@Override
-	public void activateCustomer(int customerID) {
+	public void activateCustomer(int customerID, int statusCobranza) {
 		Cliente customer = findById(customerID);
 		if (customer != null){
-			EstatusCobranza paymentStatusActive = estatusCobranzaService.findById(1);
-			EstatusCliente customerStatus = estatusClienteService.findById(1);
+			EstatusCobranza paymentStatusActive = estatusCobranzaService.findById(statusCobranza);
+			EstatusCliente customerStatus;
+			if (paymentStatusActive.getIdEstatusCobranza() == 6) customerStatus = estatusClienteService.findById(2);
+			else customerStatus = estatusClienteService.findById(1);
 			customer.setEstatusCobranza(paymentStatusActive);
 			customer.setEstatusCliente(customerStatus);
-			customer.setEstatusAcceso("Acceso permitido");
+			if (paymentStatusActive.getIdEstatusCobranza() == 1) customer.setEstatusAcceso("Acceso permitido");
 			save(customer);
 		}
 	}

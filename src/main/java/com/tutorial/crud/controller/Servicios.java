@@ -7529,14 +7529,17 @@ public class Servicios
 
 	}
 
-	@GetMapping("activateCustomer/{customerID}")
-	public ResponseEntity<?> activateCustomer(@PathVariable int customerID) {
-		clienteService.activateCustomer(customerID);
+	@GetMapping("activateCustomer/{customerID}/{statusCobranza}")
+	public ResponseEntity<?> activateCustomer(@PathVariable(required = true) int customerID, @PathVariable(required = true) int statusCobranza) {
+		clienteService.activateCustomer(customerID, statusCobranza);
 		return new ResponseEntity<>(HttpStatus.OK);
 	}
 
 	@GetMapping("getPasswordHash/{customerID}")
 	public String getPasswordHash(@PathVariable String customerID) {
+		try {
+			update(Integer.parseInt(customerID));
+		} catch (NumberFormatException e) {}
 		return clienteService.getPasswordHash(customerID);
 	}
 }//fin de la clase

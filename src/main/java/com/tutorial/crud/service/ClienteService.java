@@ -47,7 +47,7 @@ public interface ClienteService {
 
 	public List<Cliente> findAllByEstatusMembresia();
 
-	public void activateCustomer(int customerID);
+	public void activateCustomer(int customerID, int statusCobranza);
 
 	public String getPasswordHash(String customerID);
 }
