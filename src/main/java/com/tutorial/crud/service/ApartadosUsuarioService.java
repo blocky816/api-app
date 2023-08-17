@@ -28,6 +28,7 @@ import java.util.Optional;
 import java.util.UUID;
 
 import javax.persistence.EntityManager;
+import javax.persistence.Tuple;
 
 @Service
 @Transactional
@@ -132,5 +133,10 @@ public class ApartadosUsuarioService {
 		  query.executeUpdate();
 		  return true;
 		
+	}
+
+	public boolean isCustomerPenalized(int customerId, UUID scheduleId) {
+		List<Tuple> apartados = apartadosRepository.isCustomerPenalized(customerId, scheduleId);
+		return !apartados.isEmpty();
 	}
 }

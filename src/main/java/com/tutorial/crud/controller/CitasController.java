@@ -848,7 +848,7 @@ public class CitasController
    
 	@RequestMapping(value="crearApartados", method=RequestMethod.POST)
    	//@Transactional(rollbackFor = SQLException.class)
-	public ResponseEntity<String> crearApartados(@RequestBody(required = false) Body body) {
+	public ResponseEntity<?> crearApartados(@RequestBody(required = false) Body body) {
 		
    		if(body==null) {
    			SimpleDateFormat print = new SimpleDateFormat("yyyy-MM-dd");
@@ -969,6 +969,11 @@ public class CitasController
 
 				return new ResponseEntity<String>(json2.toString(), HttpStatus.CONFLICT);
 			}
+
+			if(apartadosUsuarioService.isCustomerPenalized(body.getUsuario(), body.getId())){
+				JSONObject jsonObject = new JSONObject("{'Respuesta': 'usuario penalizado por 24 horas'}");
+				return new ResponseEntity<>(jsonObject.toMap(), HttpStatus.CONFLICT);
+			}
    			
    			JSONObject json = new JSONObject();
    			CAHorario horario1 = horarioService.getOne(body.getId()).get();
@@ -1080,13 +1085,13 @@ public class CitasController
 		   				}
 		   				
 		   			}else if(actividad.equals("NADO CARRIL 1") || actividad.equals("NADO CARRIL 2") || actividad.equals("NADO CARRIL 3") ) {
-						List<PaseUsuario> paseUsuario=this.getPase(idTitular);
+						/*List<PaseUsuario> paseUsuario=this.getPase(idTitular);
 						paseUsuarioService.cancelarPasesVencidos(idTitular);
 				   		paseUsuarioService.activarPases(idTitular);
-		   				paseUsuario=paseUsuarioService.getPasesAlberca(idTitular);
-		   				
+		   				paseUsuario=paseUsuarioService.getPasesAlberca(idTitular);*/
 		   				try {
-		   					if(paseUsuario.isEmpty()) {
+		   					//if(paseUsuario.isEmpty()) {
+							if(!paseUsuarioService.getPasesAlberca(body.getUsuario())) {
 		   						throw new Exception("El usuario no tiene pases para ALBERCA");
 		   					}
 		   				}catch(Exception e){
@@ -1095,7 +1100,7 @@ public class CitasController
 			   			
 			   				return new ResponseEntity<String>(json.toString(), HttpStatus.CONFLICT); 
 		   				}
-		   				int idVenta=paseUsuario.get(0).getIdVentaDetalle();
+		   				/*int idVenta=paseUsuario.get(0).getIdVentaDetalle();
 		   				
 		   				Query<?> clasesDia = currentSession.createNativeQuery("select case  WHEN pase_usuario.id_prod=1847 then 2 WHEN "
 		   						+ "pase_usuario.id_prod=1848 then 3 WHEN pase_usuario.id_prod=1849 then 5 end-(select "
@@ -1112,9 +1117,9 @@ public class CitasController
 			   				}catch(Exception e){
 				   				json.put("Respuesta", "El usuario ha alcanzado su limite de reservas por semana");
 				   				TransactionAspectSupport.currentTransactionStatus().setRollbackOnly();
-				   			
-				   				return new ResponseEntity<String>(json.toString(), HttpStatus.CONFLICT); 
-			   				}
+
+				   				return new ResponseEntity<String>(json.toString(), HttpStatus.CONFLICT);
+			   				}*/
 		   			}else if(actividad.equals("TROTE/RUNNING")) {
 				   		paseUsuarioService.cancelarPasesVencidos(idTitular);
 				   		paseUsuarioService.activarPases(idTitular);
@@ -1273,13 +1278,14 @@ public class CitasController
 	   				}
 	   				
 	   			}else if(actividad.equals("NADO CARRIL 1") || actividad.equals("NADO CARRIL 2") || actividad.equals("NADO CARRIL 3") ) {
-			   		paseUsuarioService.cancelarPasesVencidos(body.getUsuario());
+			   		/*paseUsuarioService.cancelarPasesVencidos(body.getUsuario());
 			   		paseUsuarioService.activarPases(body.getUsuario());
 	   				List<PaseUsuario> paseUsuario=this.getPase(body.getUsuario());
-	   				paseUsuario=paseUsuarioService.getPasesAlberca(body.getUsuario());
+	   				paseUsuario=paseUsuarioService.getPasesAlberca(body.getUsuario());*/
 			   		
 	   				try {
-	   					if(paseUsuario.isEmpty()) {
+	   					//if(paseUsuario.isEmpty()) {
+						if(!paseUsuarioService.getPasesAlberca(body.getUsuario())) {
 	   						throw new Exception("El usuario no tiene pases para ALBERCA");
 	   					}
 	   				}catch(Exception e){
@@ -1288,7 +1294,7 @@ public class CitasController
 		   			
 		   				return new ResponseEntity<String>(json.toString(), HttpStatus.CONFLICT); 
 	   				}
-	   				int idVenta=paseUsuario.get(0).getIdVentaDetalle();
+	   				/*int idVenta=paseUsuario.get(0).getIdVentaDetalle();
 	   				
 	   				Query<?> clasesDia = currentSession.createNativeQuery("select case  WHEN pase_usuario.id_prod=1847 then 2 WHEN "
 	   						+ "pase_usuario.id_prod=1848 then 3 WHEN pase_usuario.id_prod=1849 then 5 end-(select "
@@ -1307,7 +1313,7 @@ public class CitasController
 		   				TransactionAspectSupport.currentTransactionStatus().setRollbackOnly();
 		   			
 		   				return new ResponseEntity<String>(json.toString(), HttpStatus.CONFLICT); 
-	   				}
+	   				}*/
 	   				
 	   			}else if(actividad.equals("TROTE/RUNNING")) {
 			   		paseUsuarioService.cancelarPasesVencidos(body.getUsuario());

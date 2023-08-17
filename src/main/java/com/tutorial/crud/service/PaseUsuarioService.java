@@ -1,5 +1,9 @@
 package com.tutorial.crud.service;
 
+import java.io.IOException;
+import java.net.URI;
+import java.net.http.HttpClient;
+import java.net.http.HttpRequest;
 import com.tutorial.crud.entity.PaseUsuario;
 import com.tutorial.crud.repository.PaseUsuarioRepository;
 
@@ -9,6 +13,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.net.http.HttpResponse.BodyHandlers;
 import java.util.List;
 import java.util.Optional;
 
@@ -88,13 +93,37 @@ public class PaseUsuarioService {
 		List<PaseUsuario> results = listaPaseUsuario.getResultList();
 		return results;
 	}
-	public List<PaseUsuario> getPasesAlberca(int usuario) {
+	/*public List<PaseUsuario> getPasesAlberca(int usuario) {
 		Session currentSession = entityManager.unwrap(Session.class);
 		Query<PaseUsuario> listaPaseUsuario = currentSession.createQuery("FROM PaseUsuario p where (p.cliente.IdCliente=:o and (p.idProd>=1847 and p.idProd<=1849)) and p.activo=true order by idVentaDetalle desc", PaseUsuario.class);
 		listaPaseUsuario.setParameter("o",usuario);
 		List<PaseUsuario> results = listaPaseUsuario.getResultList();
 		
 		return results;
+	}*/
+
+	public boolean getPasesAlberca(int usuario) throws IOException, InterruptedException {
+		// create a client
+		var client = HttpClient.newHttpClient();
+		// create a request
+		var request = HttpRequest.newBuilder(
+				URI.create("http://192.168.20.107:8000/ServiciosClubAlpha/api/sports/alberca/"))
+				.header("accept", "application/json")
+				//.headers("Content-Type", "text/plain;charset=UTF-8")
+				.POST(HttpRequest.BodyPublishers.ofString("{\n" +
+						"    \"usuario\":"+usuario+",\n" +
+						"    \"terminal\":\"69\",\n" +
+						"    \"super\":false,\n" +
+						"    \"idVentaDetalle\":\"1101877\"\n" +
+						"}"))
+				.build();
+
+		// use the client to send the request
+		var response = client.send(request, BodyHandlers.ofString());
+		// the response:
+		//System.out.println("Response body pases alberca => " + response.body());
+		//return response;
+		return Boolean.parseBoolean(response.body());
 	}
 	
 	public List<PaseUsuario> getPasesClasesNado(int usuario) {
