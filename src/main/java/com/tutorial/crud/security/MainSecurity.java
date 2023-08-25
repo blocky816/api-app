@@ -97,6 +97,7 @@ public class MainSecurity extends WebSecurityConfigurerAdapter {
                 .antMatchers("/parking/getQRbyClub/{idClub}/{idFolio}").permitAll()
                 .antMatchers("/parking/getStatusQRbyClub/{idClub}/{idFolio}").permitAll()
                 .antMatchers("/parking/qrParking").permitAll()
+                .antMatchers("/parking/generarCorte").permitAll()
                 .anyRequest().authenticated()
                 .and()
                 .exceptionHandling().authenticationEntryPoint(jwtEntryPoint)
