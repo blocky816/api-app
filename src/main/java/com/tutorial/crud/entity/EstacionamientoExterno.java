@@ -81,6 +81,9 @@ public class EstacionamientoExterno {
     @JoinColumn(name = "tipo_acceso")
     private TipoAcceso tipoAcceso;
 
+	@Column(name = "activo")
+	private boolean activo;
+
 	public void setLugarVenta(String lugarVenta) {
 		this.lugarVenta = lugarVenta;
 	}
@@ -210,14 +213,34 @@ public class EstacionamientoExterno {
 		return id;
 	}
 
-	@Override
-	public String toString() {
-		return "EstacionamientoExterno [id=" + id + ", idRegistro=" + idRegistro + ", horaEntrada=" + horaEntrada
-				+ ", horaSalida=" + horaSalida + ", horas=" + horas + ", costoHora=" + costoHora + ", costoTotal="
-				+ costoTotal + ", club=" + club + ", pagado=" + pagado + ", turno=" + turno + "]";
+	public boolean getActivo() {
+		return activo;
 	}
 
+	public void setActivo(boolean activo) {
+		this.activo = activo;
+	}
 
-
-	
+	@Override
+	public String toString() {
+		return "EstacionamientoExterno{" +
+				"id=" + id +
+				", idRegistro='" + idRegistro + '\'' +
+				", horaEntrada=" + horaEntrada +
+				", horaSalida=" + horaSalida +
+				", horas=" + horas +
+				", costoHora=" + costoHora +
+				", costoTotal=" + costoTotal +
+				", club='" + club + '\'' +
+				", pagado=" + pagado +
+				", turno='" + turno + '\'' +
+				", lugarVenta='" + lugarVenta + '\'' +
+				", qr=" + qr +
+				", idCaseta=" + idCaseta +
+				", mensaje='" + mensaje + '\'' +
+				", acceso=" + acceso +
+				", tipoAcceso=" + tipoAcceso +
+				", activo=" + activo +
+				'}';
+	}
 }

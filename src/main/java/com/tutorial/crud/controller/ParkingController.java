@@ -29,10 +29,13 @@ import java.util.Set;
 import java.util.TimeZone;
 import java.util.concurrent.TimeUnit;
 
+import com.tutorial.crud.dto.*;
+import com.tutorial.crud.repository.QRParkingRepository;
 import org.apache.commons.io.IOUtils;
 import org.apache.tomcat.jni.Local;
 import org.hibernate.Session;
 import org.hibernate.exception.ConstraintViolationException;
+import org.hibernate.loader.collection.OneToManyJoinWalker;
 import org.hibernate.query.Query;
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -61,15 +64,6 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.tutorial.crud.aopDao.endpoints;
 import com.tutorial.crud.correo.Correo;
-import com.tutorial.crud.dto.AmonestacionesDTO;
-import com.tutorial.crud.dto.CarroDTO;
-import com.tutorial.crud.dto.ChipHora;
-import com.tutorial.crud.dto.ClienteVista;
-import com.tutorial.crud.dto.ParkingUsuarioDTO;
-import com.tutorial.crud.dto.QRDTO;
-import com.tutorial.crud.dto.RegistroParkingDTO;
-import com.tutorial.crud.dto.RegistroUsuarioDTO;
-import com.tutorial.crud.dto.Vista;
 import com.tutorial.crud.entity.*;
 import com.tutorial.crud.security.dto.NuevoUsuario;
 import com.tutorial.crud.security.entity.Rol;
@@ -204,6 +198,9 @@ public class ParkingController
 	
 	@Autowired
 	private RegistroSalidaSPService registroSalidaService;
+
+	@Autowired
+	private QRParkingService qrParkingService;
 	
 	@Value("${my.property.nombre}")
 	String nombre;
@@ -2955,6 +2952,57 @@ public class ParkingController
 			return new ResponseEntity<>(amonestacion, HttpStatus.OK);
 			
 			
+		}
+
+		@GetMapping("/getQRbyClub/{idClub}/{idFolio}")
+		public ResponseEntity<?> getQRByClub(@PathVariable String idClub, @PathVariable String idFolio) {
+			try {
+				EstacionamientoExterno estacionamientoExterno = estacionamientoExternoService.getByIdRegistro(idFolio, idClub);
+				QRParking qrParking = qrParkingService.findByClubAndIdRegistro(idClub, idFolio);
+
+				if (qrParking != null && !qrParking.isPagado()) return new ResponseEntity<>(qrParking, HttpStatus.ACCEPTED);
+				else if (estacionamientoExterno.getActivo() || (qrParking != null && qrParking.isPagado())) return new ResponseEntity<>(
+						qrParking != null ? qrParking : estacionamientoExterno, HttpStatus.NO_CONTENT);
+				else return new ResponseEntity<>(estacionamientoExterno, HttpStatus.OK);
+
+			} catch (Exception e) {
+				JSONObject notFound = new JSONObject("{\"respuesta\": \"folio no encontrado\"}");
+				return new ResponseEntity<>(notFound.toMap(), HttpStatus.NOT_FOUND);
+			}
+		}
+
+		@GetMapping("/getStatusQRbyClub/{idClub}/{idFolio}")
+		public ResponseEntity<?> getStatusQRbyClub(@PathVariable String idClub, @PathVariable String idFolio) {
+			try {
+				QRParking qrParking = qrParkingService.findByClubAndIdRegistro(idClub, idFolio);
+				if (qrParking != null && qrParking.isPagado()) return new ResponseEntity<>(qrParking, HttpStatus.OK);
+				else {
+					JSONObject notFound = new JSONObject("{\"respuesta\": \"folio no activo\"}");
+					return new ResponseEntity<>(notFound.toMap(), HttpStatus.NOT_FOUND);
+				}
+			} catch (Exception e) {
+				JSONObject notFound = new JSONObject("{\"respuesta\": \"folio no activo\"}");
+				return new ResponseEntity<>(notFound.toMap(), HttpStatus.NOT_FOUND);
+			}
+		}
+
+		@PostMapping("/qrParking")
+		public ResponseEntity<?> createQRParking(@RequestBody QRParkingDTO qrParkingDTO) {
+			try {
+				//System.out.println("QRREquest => " + qrParkingDTO);
+				return new ResponseEntity<>(qrParkingService.save(qrParkingDTO), HttpStatus.CREATED);
+			} catch(Exception e) {
+				return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+			}
+		}
+
+		@PostMapping("/generarCorte")
+		public ResponseEntity<?> generarCorte(@RequestBody QRParkingDTO qrParkingDTO){
+			try	{
+				return new ResponseEntity<>(qrParkingService.generarCorte(qrParkingDTO.getClub(), qrParkingDTO.getIdUsuario()), HttpStatus.OK);
+			} catch(Exception e) {
+				return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+			}
 		}
 	 	public String update(int horarioId){
 			

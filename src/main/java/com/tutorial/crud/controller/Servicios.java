@@ -2677,7 +2677,7 @@ public class Servicios
 			String resultOdoo = IOUtils.toString(new URL("http://192.168.20.107:8000/ServiciosClubAlpha/api/Miembro/"+horarioId), Charset.forName("UTF-8"));
 			Cliente cliente=clienteService.findById(horarioId);
 			//System.out.println("busque al cliente");
-			if("[]".equals(resultOdoo) && cliente != null) {
+			if("[]".equals(resultOdoo)) {
 				System.out.println("USuario archivado");
 				cliente.setEstatusAcceso("Sin Acceso");
 				EstatusCobranza estatusCobranza = estatusCobranzaService.findById(6);

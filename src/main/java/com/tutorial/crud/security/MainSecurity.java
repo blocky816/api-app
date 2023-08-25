@@ -95,6 +95,7 @@ public class MainSecurity extends WebSecurityConfigurerAdapter {
                 .antMatchers("/rutinas/image/**").permitAll()
                 .antMatchers("/conversaciones/bascula").permitAll()
                 .antMatchers("/parking/getQRbyClub/{idClub}/{idFolio}").permitAll()
+                .antMatchers("/parking/getStatusQRbyClub/{idClub}/{idFolio}").permitAll()
                 .antMatchers("/parking/qrParking").permitAll()
                 .anyRequest().authenticated()
                 .and()
