@@ -27,4 +27,8 @@ public class RutinaService {
     public void delete(Rutina rutina) {
     	rutinaRepository.delete(rutina);
     }
+
+    public float roundNumber(float number) {
+        return Math.round(number * 100f) / 100f;
+    }
 }

@@ -3674,14 +3674,14 @@ public void enviar_pesaje(float liquidosCorporales, float masaOsea, float adipos
 			"\t\t\t\t\t<table class=\"tabla-datos\">\n" +
 			"\t\t\t\t\t\t<img class=\"imagen-1\" src=\"file:rutinas/pesaje/img/masamuscular.png\">\n" +
 			"\t\t\t\t\t\t<tr><td><div class=\"titulo-pesaje2\">MASA MUSCULAR</div></td></tr>\n" +
-			"\t\t\t\t\t\t<tr><td><h3>"+masaMuscular+"%</h3></td></tr>\n" +
+			"\t\t\t\t\t\t<tr><td><h3>"+masaMuscular+" KG</h3></td></tr>\n" +
 			"\t\t\t\t\t</table>\n" +
 			"\t\t\t\t</div>\n" +
 			"\t\t\t\t<div class=\"segundo\">\n" +
 			"\t\t\t\t\t<table class=\"tabla-datos\">\n" +
 			"\t\t\t\t\t\t<img class=\"imagen-1\" src=\"file:rutinas/pesaje/img/adiposidadvisceral.png\">\n" +
-			"\t\t\t\t\t\t<tr><td><div class=\"titulo-pesaje3\">ADIPOSIDAD VISCERAL</div></td></tr>\n" +
-			"\t\t\t\t\t\t<tr><td><h3>Nivel de Grasa: "+adiposidadVisceral+"%</h3></td></tr>\n" +
+			"\t\t\t\t\t\t<tr><td><div class=\"titulo-pesaje3\">GRASA VISCERAL</div></td></tr>\n" +
+			"\t\t\t\t\t\t<tr><td><h3>Nivel de Grasa: "+adiposidadVisceral+" KG</h3></td></tr>\n" +
 			"\t\t\t\t\t\t<tr><td><img class=\"imagen-dato2\" src=\"file:rutinas/pesaje/img/adiposidadvisceral-valores.png\"></td></tr>\n" +
 			"\t\t\t\t\t</table>\n" +
 			"\t\t\t\t</div>\n" +
@@ -3691,7 +3691,7 @@ public void enviar_pesaje(float liquidosCorporales, float masaOsea, float adipos
 			"\t\t\t\t\t<img class=\"imagen-1\" src=\"file:rutinas/pesaje/img/masaosea.png\">\n" +
 			"\t\t\t\t\t<table class=\"tabla-datos\">\n" +
 			"\t\t\t\t\t\t<tr><td><div class=\"titulo-pesaje3\">MASA ÓSEA</div></td></tr>\n" +
-			"\t\t\t\t\t\t<tr><td><h3>"+masaOsea+"%</h3></td></tr>\n" +
+			"\t\t\t\t\t\t<tr><td><h3>"+masaOsea+" KG</h3></td></tr>\n" +
 			"\t\t\t\t\t</table>\t\t\t\t\t\n" +
 			"\t\t\t\t</div>\n" +
 			"\t\t\t\t<div class=\"segundo\">\n" +
@@ -3820,8 +3820,8 @@ public void enviar_pesaje(float liquidosCorporales, float masaOsea, float adipos
         Transport transporte = sesion.getTransport("smtp");
         transporte.connect(correoEnvia,contrasena);
         transporte.sendMessage((Message)mail, mail.getRecipients(Message.RecipientType.BCC));
-        transporte.close();           
-    } catch (AddressException ex) {
+        transporte.close();
+	} catch (AddressException ex) {
         Logger.getLogger(Correo.class.getName()).log(Level.SEVERE, null, ex);
     } catch (MessagingException ex) {
         Logger.getLogger(Correo.class.getName()).log(Level.SEVERE, null, ex);

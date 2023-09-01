@@ -1006,7 +1006,11 @@ public class RutinaController
 			DateTimeFormatter formatter = DateTimeFormatter.ofPattern("EEEE, dd 'de' MMMM 'de' yyyy", new Locale("es", "ES"));
 			String formattedLocalDate = fechaActual.format(formatter);
 			formattedLocalDate=formattedLocalDate.toUpperCase();
-			correo.enviar_pesaje(body.agua, body.masaOsea, body.adiposidad, body.masaMagra, body.masaGrasa, body.peso, body.caloriasDiarias, body.tMB, body.edadMetabolica, body.iMC, formattedLocalDate, body.idUsuario, cliente.getNombre(), Base64.getEncoder().encodeToString(cliente.getURLFoto().getImagen()), cliente.getClub().getNombre(), asunto);
+			correo.enviar_pesaje(rutinaService.roundNumber(body.agua), rutinaService.roundNumber(body.masaOsea),
+					rutinaService.roundNumber(body.adiposidad), rutinaService.roundNumber(body.masaMagra),
+					rutinaService.roundNumber(body.masaGrasa), rutinaService.roundNumber(body.peso), rutinaService.roundNumber(body.caloriasDiarias),
+					rutinaService.roundNumber(body.tMB), body.edadMetabolica, rutinaService.roundNumber(body.iMC), formattedLocalDate,
+					body.idUsuario, cliente.getNombre(), Base64.getEncoder().encodeToString(cliente.getURLFoto().getImagen()), cliente.getClub().getNombre(), asunto);
 
 			BasculaCliente basculaCliente = new BasculaCliente();
 			basculaCliente.setIdCliente(body.idUsuario);

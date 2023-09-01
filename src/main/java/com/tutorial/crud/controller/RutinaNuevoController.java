@@ -407,7 +407,7 @@ public class RutinaNuevoController {
                 cliente.setSemanasnuevo(rutina.get().getSemanas());
                 cliente.setDiaInicioNuevo(LocalDateTime.now().withNano(0));
                 Boolean correoEnviado = this.enviarCorreo(idCliente);
-               /* if (correoEnviado) System.out.println("El correo de rutina se envio correctamente");
+               /*if (correoEnviado) System.out.println("El correo de rutina se envio correctamente");
                 else System.out.println("Fallo el envio de correo de rutina");*/
                 json.put("respuesta", "Rutina cargada exitosamente al cliente "+idCliente);
                 return new ResponseEntity<String>(json.toString(), HttpStatus.OK);
@@ -803,7 +803,8 @@ public class RutinaNuevoController {
             //lista = lista + "<img src=\"data:image/jpeg;base64," + rutinaImagen + "alt=\"Rutina de ejercicios\">";
 
             String asunto="Rutina nueva";
-            LocalDateTime fechaRutina = new Date(cliente.obtenerDiaInicio().getTime()).toInstant().atZone(ZoneId.systemDefault()).toLocalDateTime();
+            //LocalDateTime fechaRutina = new Date(cliente.obtenerDiaInicio().getTime()).toInstant().atZone(ZoneId.systemDefault()).toLocalDateTime();
+            LocalDateTime fechaRutina = new Date(cliente.obtenerDiaInicioNuevo().getTime()).toInstant().atZone(ZoneId.systemDefault()).toLocalDateTime();
             DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
             String formattedLocalDate = fechaRutina.format(formatter);
             correo.enviar_rutinanuevo(asunto, lista);
