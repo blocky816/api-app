@@ -5324,7 +5324,7 @@ public class Servicios
 		ArrayList<ReciboSAT> listaReporte = new ArrayList<ReciboSAT>();
 
 		// Consultar recibos de Odoo
-		try {
+		/*try {
 			HttpClient client = HttpClient.newHttpClient();
 			HttpRequest request = HttpRequest.newBuilder()
 					.header("Content-Type", "application/json")
@@ -5369,7 +5369,7 @@ public class Servicios
 			}
 		} catch (IOException | InterruptedException | JSONException e) {
 			System.out.println("EXCEPTION => " + e.getMessage() + " CAUSE => " + e.getCause());
-		}
+		}*/
 
 		// Consultar recibos de Globalsoft
 		try {
