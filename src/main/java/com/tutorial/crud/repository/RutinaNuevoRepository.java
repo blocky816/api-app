@@ -15,5 +15,5 @@ public interface RutinaNuevoRepository extends JpaRepository<RutinaNuevo, Intege
     @Query(value = "select * from rutinas_nuevo where activo = True and tipo = 'General' order by lower(nombre)", nativeQuery = true)
     List<RutinaNuevo> findAllByActivoAndTipoPlantilla();
 
-    List<RutinaNuevo> findBySegmentoAndTipoPlantillaAndActivo(String segmento, String tipoPlantilla, Boolean activo);
+    List<RutinaNuevo> findFirst2BySegmentoAndTipoPlantillaAndActivo(String segmento, String tipoPlantilla, Boolean activo);
 }

@@ -43,7 +43,7 @@ public class RutinaNuevoService {
     }
 
     public List<RutinaNuevoDTO> findBySegmentoAndTipoPlantillaAndActivo(String segmento, String tipoPlantilla, Boolean activo) {
-        List<RutinaNuevo> workoutPlans = rutinaNuevoRepository.findBySegmentoAndTipoPlantillaAndActivo(segmento, tipoPlantilla, activo);
+        List<RutinaNuevo> workoutPlans = rutinaNuevoRepository.findFirst2BySegmentoAndTipoPlantillaAndActivo(segmento, tipoPlantilla, activo);
         List<RutinaNuevoDTO> rutinasGenerales = new ArrayList<>();
 
         if (!workoutPlans.isEmpty()){
