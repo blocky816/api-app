@@ -1519,13 +1519,13 @@ public class CitasController
 
 	
 	public void tiempoMenorHora(CAApartados apartados) throws ParseException {
-		System.out.println("APARTADOS para cancelar => " + apartados);
+		//System.out.println("APARTADOS para cancelar => " + apartados);
 		Date fechaActual=new Date();
 		SimpleDateFormat formato = new SimpleDateFormat("yyyy-MM-dd HH:mm");
 		String rango =apartados.getHorario().getRango();
 		String[] hora=rango.split("-"); 
 		Date fecha = formato.parse(apartados.getDia()+" "+hora[0]);
-		long diff=fecha.getTime()-fechaActual.getTime();
+		long diff=fecha.getTime()-(fechaActual.getTime() - 3600000);
 		if(TimeUnit.MILLISECONDS.toHours(diff)<=0) {
 			throw new ParseException("No se puede cancelar", 0);
 		}
