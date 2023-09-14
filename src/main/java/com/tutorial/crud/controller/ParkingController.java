@@ -201,6 +201,9 @@ public class ParkingController
 
 	@Autowired
 	private QRParkingService qrParkingService;
+
+	@Autowired
+	private EmployeeService employeeService;
 	
 	@Value("${my.property.nombre}")
 	String nombre;
@@ -2778,7 +2781,7 @@ public class ParkingController
 	    	return paseUsuarioService.getByIdCliente(idCliente);
 		}
 	 	
-	 	@GetMapping("/obtenerPaseEmpleadoQR/{idEmpleado}")
+	 	/*@GetMapping("/obtenerPaseEmpleadoQR/{idEmpleado}")
 		@ResponseBody
 		public ResponseEntity<?> obtenerPaseEmpleadoQR(@PathVariable("idEmpleado") int idEmpleado)
 	   	{
@@ -2804,7 +2807,22 @@ public class ParkingController
   	   	
    			return new ResponseEntity<>(paseAux, HttpStatus.OK);	
 	   			
-	   		}
+	   		}*/
+		@GetMapping("/obtenerPaseEmpleadoQR/{idEmpleado}")
+		@ResponseBody
+		public ResponseEntity<?> obtenerPaseEmpleadoQR(@PathVariable("idEmpleado") String idEmpleado)
+		{
+			try {
+				employeeService.saveEmployees();
+				//Employee employee = employeeService.findById(idEmpleado);
+				List<PaseUsuario> paseUsuarioList = employeeService.getParkingQR(idEmpleado);
+				return new ResponseEntity<>(paseUsuarioList, HttpStatus.OK);
+			} catch (Exception e) {
+				System.out.println("Exception en QR Empleado => " + e.getMessage());
+				//e.printStackTrace();
+				return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+			}
+		}
 	 	
 	 	//------------------------------------------web services para app
 	 	
