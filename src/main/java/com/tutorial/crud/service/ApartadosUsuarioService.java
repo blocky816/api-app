@@ -57,7 +57,7 @@ public class ApartadosUsuarioService {
 
 	public Cliente getByIdCliente(int usuario) {
 		Session currentSession = entityManager.unwrap(Session.class);
-		Query<Cliente> listaApartadosUsuario = currentSession.createQuery("select cliente FROM CAApartadosUsuario a where a.cliente.IdCliente=:o", Cliente.class);
+		Query<Cliente> listaApartadosUsuario = currentSession.createQuery("select cliente FROM CAApartadosUsuario a where a.cliente.idCliente=:o", Cliente.class);
 		listaApartadosUsuario.setParameter("o",usuario);
 		List<Cliente> results = listaApartadosUsuario.getResultList();
 		return results.get(0);
@@ -65,7 +65,7 @@ public class ApartadosUsuarioService {
 	
 	public boolean isEmpty(Cliente cliente, CAApartados apartado) {
 		Session currentSession = entityManager.unwrap(Session.class);
-		Query<CAApartadosUsuario> listaApartadosUsuario = currentSession.createQuery("FROM CAApartadosUsuario a where a.cliente.IdCliente=:o and a.apartados.id=:u and a.activo=true", CAApartadosUsuario.class);
+		Query<CAApartadosUsuario> listaApartadosUsuario = currentSession.createQuery("FROM CAApartadosUsuario a where a.cliente.idCliente=:o and a.apartados.id=:u and a.activo=true", CAApartadosUsuario.class);
 		listaApartadosUsuario.setParameter("u", apartado.getId());
 		listaApartadosUsuario.setParameter("o", cliente.getIdCliente());
 		List<CAApartadosUsuario> results = listaApartadosUsuario.getResultList();
@@ -75,7 +75,7 @@ public class ApartadosUsuarioService {
 	public boolean delete(Cliente cliente, CAApartados apartado) {
 		Session currentSession = entityManager.unwrap(Session.class);
 	  // your code
-	  String hql = "update CAApartadosUsuario a set a.activo=false where a.cliente.IdCliente=:o AND a.apartados.id=:u";
+	  String hql = "update CAApartadosUsuario a set a.activo=false where a.cliente.idCliente=:o AND a.apartados.id=:u";
 	  Query<?> query = currentSession.createQuery(hql);
 	  query.setParameter("o", cliente.getIdCliente());
 	  query.setParameter("u", apartado.getId());
@@ -116,7 +116,7 @@ public class ApartadosUsuarioService {
 
 	public CAApartadosUsuario getOne(int usuario, UUID id) {
 		Session currentSession = entityManager.unwrap(Session.class);
-		Query<CAApartadosUsuario> listaApartadosUsuario = currentSession.createQuery("FROM CAApartadosUsuario a where a.cliente.IdCliente=:o and a.apartados.id=:u ", CAApartadosUsuario.class);
+		Query<CAApartadosUsuario> listaApartadosUsuario = currentSession.createQuery("FROM CAApartadosUsuario a where a.cliente.idCliente=:o and a.apartados.id=:u ", CAApartadosUsuario.class);
 		listaApartadosUsuario.setParameter("u", id);
 		listaApartadosUsuario.setParameter("o", usuario);
 		List<CAApartadosUsuario> results = listaApartadosUsuario.getResultList();

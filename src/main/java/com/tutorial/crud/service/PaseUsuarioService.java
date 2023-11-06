@@ -47,7 +47,7 @@ public class PaseUsuarioService {
 
 	public List<PaseUsuario> getByIdCliente(int usuario) {
 		Session currentSession = entityManager.unwrap(Session.class);
-		Query<PaseUsuario> listaPaseUsuario = currentSession.createQuery("FROM PaseUsuario p where (p.cliente.IdCliente=:o and p.idProd=1746) or (p.cliente.IdCliente=:o and p.disponibles>0) and p.activo=true order by idVentaDetalle", PaseUsuario.class);
+		Query<PaseUsuario> listaPaseUsuario = currentSession.createQuery("FROM PaseUsuario p where (p.cliente.idCliente=:o and p.idProd=1746) or (p.cliente.idCliente=:o and p.disponibles>0) and p.activo=true order by idVentaDetalle", PaseUsuario.class);
 		listaPaseUsuario.setParameter("o",usuario);
 		List<PaseUsuario> results = listaPaseUsuario.getResultList();
 		
@@ -56,7 +56,7 @@ public class PaseUsuarioService {
 
 	public List<PaseUsuario> getByIdClienteGimnasio(int usuario) {
 		Session currentSession = entityManager.unwrap(Session.class);
-		Query<PaseUsuario> listaPaseUsuario = currentSession.createQuery("FROM PaseUsuario p where p.cliente.IdCliente=:o and p.idProd=1746 and p.activo=true order by idVentaDetalle", PaseUsuario.class);
+		Query<PaseUsuario> listaPaseUsuario = currentSession.createQuery("FROM PaseUsuario p where p.cliente.idCliente=:o and p.idProd=1746 and p.activo=true order by idVentaDetalle", PaseUsuario.class);
 		listaPaseUsuario.setParameter("o",usuario);
 		List<PaseUsuario> results = listaPaseUsuario.getResultList();
 		
@@ -67,7 +67,7 @@ public class PaseUsuarioService {
 		Session currentSession = entityManager.unwrap(Session.class);
 		//String hql = "update PaseUsuario p set p.activo=false where p.cliente.IdCliente in (SELECT c.IdCliente FROM Cliente c WHERE c.FechaFinAcceso<=current_date()) and p.concepto like '% Gym %'";
 		//String hql = "update PaseUsuario p set p.activo = false where p.idVentaDetalle = 410750";
-		String hql = "update PaseUsuario p set p.activo=false where p.cliente.IdCliente in (SELECT c.IdCliente FROM Cliente c WHERE c.FechaFinAcceso<=current_date()) and (lower(p.concepto) like '% gym %' or lower(p.concepto) like '% gimnasio %')";
+		String hql = "update PaseUsuario p set p.activo=false where p.cliente.idCliente in (SELECT c.idCliente FROM Cliente c WHERE c.FechaFinAcceso<=current_date()) and (lower(p.concepto) like '% gym %' or lower(p.concepto) like '% gimnasio %')";
 		Query query = currentSession.createQuery(hql);
 		query.executeUpdate();
 
@@ -78,7 +78,7 @@ public class PaseUsuarioService {
 		Session currentSession = entityManager.unwrap(Session.class);
 		  // your code
 		  //String hql = "update PaseUsuario p set p.activo=true where p.cliente.IdCliente in (SELECT c.IdCliente FROM Cliente c WHERE c.FechaFinAcceso>=current_date()) and p.concepto like 'SP % Gym %'";
-		String hql = "update PaseUsuario p set p.activo=true where p.cliente.IdCliente in (SELECT c.IdCliente FROM Cliente c WHERE c.FechaFinAcceso>=current_date()) and (lower(p.concepto) like '% gym %' or lower(p.concepto) like '% gimnasio %')";
+		String hql = "update PaseUsuario p set p.activo=true where p.cliente.idCliente in (SELECT c.idCliente FROM Cliente c WHERE c.FechaFinAcceso>=current_date()) and (lower(p.concepto) like '% gym %' or lower(p.concepto) like '% gimnasio %')";
 		  Query<?> query = currentSession.createQuery(hql);
 		  // your code end
 		  query.executeUpdate();
@@ -88,7 +88,7 @@ public class PaseUsuarioService {
 	public List<PaseUsuario> getPasesGimnasio(int usuario) {
 		Session currentSession = entityManager.unwrap(Session.class);
 		//Query<PaseUsuario> listaPaseUsuario = currentSession.createQuery("FROM PaseUsuario p where (p.cliente.IdCliente=:o and p.concepto like 'SP % Gym %') and p.activo=true order by idVentaDetalle", PaseUsuario.class);
-		Query<PaseUsuario> listaPaseUsuario = currentSession.createQuery("FROM PaseUsuario p where (p.cliente.IdCliente=:o and (lower(p.concepto) like '% gym %' or lower(p.concepto) like '% gimnasio %')) and p.activo=true order by idVentaDetalle", PaseUsuario.class);
+		Query<PaseUsuario> listaPaseUsuario = currentSession.createQuery("FROM PaseUsuario p where (p.cliente.idCliente=:o and (lower(p.concepto) like '% gym %' or lower(p.concepto) like '% gimnasio %')) and p.activo=true order by idVentaDetalle", PaseUsuario.class);
 		listaPaseUsuario.setParameter("o",usuario);
 		List<PaseUsuario> results = listaPaseUsuario.getResultList();
 		return results;
@@ -128,7 +128,7 @@ public class PaseUsuarioService {
 	
 	public List<PaseUsuario> getPasesClasesNado(int usuario) {
 		Session currentSession = entityManager.unwrap(Session.class);
-		Query<PaseUsuario> listaPaseUsuario = currentSession.createQuery("FROM PaseUsuario p where (p.cliente.IdCliente=:o and (p.idProd>=1834 and p.idProd<=1846)) and p.activo=true order by idVentaDetalle desc", PaseUsuario.class);
+		Query<PaseUsuario> listaPaseUsuario = currentSession.createQuery("FROM PaseUsuario p where (p.cliente.idCliente=:o and (p.idProd>=1834 and p.idProd<=1846)) and p.activo=true order by idVentaDetalle desc", PaseUsuario.class);
 		listaPaseUsuario.setParameter("o",usuario);
 		List<PaseUsuario> results = listaPaseUsuario.getResultList();
 		
@@ -137,7 +137,7 @@ public class PaseUsuarioService {
 	
 	public List<PaseUsuario> getByIdClienteQR(int usuario) {
 		Session currentSession = entityManager.unwrap(Session.class);
-		Query<PaseUsuario> listaPaseUsuario = currentSession.createQuery("FROM PaseUsuario p where p.cliente.IdCliente=:o and (p.idProd=2503) and p.disponibles>0 and p.activo=true order by idVentaDetalle", PaseUsuario.class);
+		Query<PaseUsuario> listaPaseUsuario = currentSession.createQuery("FROM PaseUsuario p where p.cliente.idCliente=:o and (p.idProd=2503) and p.disponibles>0 and p.activo=true order by idVentaDetalle", PaseUsuario.class);
 		//Query<PaseUsuario> listaPaseUsuario = currentSession.createQuery("FROM PaseUsuario p where p.cliente.IdCliente=:o and (p.idProd=1808 or p.idProd=1856) and p.disponibles>0 and p.activo=true order by idVentaDetalle", PaseUsuario.class);
 		listaPaseUsuario.setParameter("o",usuario);
 		List<PaseUsuario> results = listaPaseUsuario.getResultList();
@@ -147,7 +147,7 @@ public class PaseUsuarioService {
 
 	public List<PaseUsuario> getPasesTrote(int usuario) {
 		Session currentSession = entityManager.unwrap(Session.class);
-		Query<PaseUsuario> listaPaseUsuario = currentSession.createQuery("FROM PaseUsuario p where (p.cliente.IdCliente=:o and (p.idProd=1746)) and p.activo=true order by idVentaDetalle desc", PaseUsuario.class);
+		Query<PaseUsuario> listaPaseUsuario = currentSession.createQuery("FROM PaseUsuario p where (p.cliente.idCliente=:o and (p.idProd=1746)) and p.activo=true order by idVentaDetalle desc", PaseUsuario.class);
 		listaPaseUsuario.setParameter("o",usuario);
 		List<PaseUsuario> results = listaPaseUsuario.getResultList();
 		

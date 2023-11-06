@@ -8,6 +8,11 @@
 */
 package com.tutorial.crud.service;
 
+import java.io.IOException;
+import java.net.URI;
+import java.net.http.HttpClient;
+import java.net.http.HttpRequest;
+import java.net.http.HttpResponse;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -70,7 +75,7 @@ public class ClienteServiceImpl implements ClienteService {
 	@Override
 	public boolean findCitas(Date fechaActual, CASala obtenerSala, int cliente) {
 		Session currentSession = entityManager.unwrap(Session.class);
-		Query<CAApartados> listaApartadosUsuario = currentSession.createQuery("select a.apartados FROM CAApartadosUsuario a where a.cliente.IdCliente=:o and a.apartados.horario.sala.id=:u",CAApartados.class);
+		Query<CAApartados> listaApartadosUsuario = currentSession.createQuery("select a.apartados FROM CAApartadosUsuario a where a.cliente.idCliente=:o and a.apartados.horario.sala.id=:u",CAApartados.class);
 		listaApartadosUsuario.setParameter("o",cliente);
 		listaApartadosUsuario.setParameter("u",obtenerSala.getId());
 		List<CAApartados> lista = listaApartadosUsuario.getResultList();
@@ -123,7 +128,7 @@ public class ClienteServiceImpl implements ClienteService {
 	@Override
 	public boolean findCitas(UUID idApartados, int cliente) {
 		Session currentSession = entityManager.unwrap(Session.class);
-		Query<CAApartados> listaApartadosUsuario = currentSession.createQuery("select a.apartados FROM CAApartadosUsuario a where a.cliente.IdCliente=:o and a.apartados.id=:u",CAApartados.class);
+		Query<CAApartados> listaApartadosUsuario = currentSession.createQuery("select a.apartados FROM CAApartadosUsuario a where a.cliente.idCliente=:o and a.apartados.id=:u",CAApartados.class);
 		listaApartadosUsuario.setParameter("o",cliente);
 		listaApartadosUsuario.setParameter("u",idApartados);
 		List<CAApartados> lista = listaApartadosUsuario.getResultList();
@@ -175,7 +180,7 @@ public class ClienteServiceImpl implements ClienteService {
 	@Override
 	public CAApartados findApartados(Date fechaActual, CASala obtenerSala, int cliente) {
 			Session currentSession = entityManager.unwrap(Session.class);
-			Query<CAApartados> listaApartadosUsuario = currentSession.createQuery("select a.apartados FROM CAApartadosUsuario a where a.cliente.IdCliente=:o and a.apartados.horario.sala.id=:u",CAApartados.class);
+			Query<CAApartados> listaApartadosUsuario = currentSession.createQuery("select a.apartados FROM CAApartadosUsuario a where a.cliente.idCliente=:o and a.apartados.horario.sala.id=:u",CAApartados.class);
 			listaApartadosUsuario.setParameter("o",cliente);
 			listaApartadosUsuario.setParameter("u",obtenerSala.getId());
 			List<CAApartados> lista = listaApartadosUsuario.getResultList();
@@ -242,7 +247,7 @@ public class ClienteServiceImpl implements ClienteService {
 		Session currentSession = entityManager.unwrap(Session.class);
 		EstatusCobranza estatusCobranza = estatusCobranzaService.findById(1);
 		System.out.println("EStatus cobranza : " + estatusCobranza.getNombre());
-		Query<Cliente> clientesActivos = currentSession.createQuery("from Cliente c where c.estatusCobranza = :o and c.IdCliente <> 0 ORDER BY c.IdCliente ASC", Cliente.class);
+		Query<Cliente> clientesActivos = currentSession.createQuery("from Cliente c where c.estatusCobranza = :o and c.idCliente <> 0 ORDER BY c.idCliente ASC", Cliente.class);
 		clientesActivos.setParameter("o", estatusCobranza);
 		//clientesActivos.setMaxResults(1);
 
@@ -272,4 +277,29 @@ public class ClienteServiceImpl implements ClienteService {
 		return usuarioService.getByNombreUsuario(customerID).isPresent() ?
 				usuarioService.getByNombreUsuario(customerID).get().getPassword() : null;
 	}
+
+	/*public void sendNewPasswordHash(String userID) {
+		var client = HttpClient.newHttpClient();
+		var	newPasswordHash = getPasswordHash(userID);
+		var request = HttpRequest.newBuilder(
+				URI.create("http://192.168.20.107:8000/ServiciosClubAlpha/api/Usuarios/update/pwd"))
+				.header("accept", "application/json")
+				//.headers("Content-Type", "text/plain;charset=UTF-8")
+				.POST(HttpRequest.BodyPublishers.ofString("{\n" +
+						"\"id_cliente\":"+ Integer.parseInt(userID.trim()) + ",\n" +
+						"\"new_pwd\":" + newPasswordHash + ",\n" +
+						"}"))
+				.build();
+
+		try {
+			var response = client.send(request, HttpResponse.BodyHandlers.ofString());
+		} catch (IOException e) {
+			throw new RuntimeException(e);
+		} catch (InterruptedException e) {
+			throw new RuntimeException(e);
+		}
+		// the response:
+		//System.out.println("Response body pases alberca => " + response.body());
+		//return response;
+	}*/
 }
