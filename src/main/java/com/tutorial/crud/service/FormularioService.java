@@ -2,12 +2,11 @@ package com.tutorial.crud.service;
 
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.tutorial.crud.aopDao.Pregunta;
+import com.tutorial.crud.chatGPT.ChatGPT;
 import com.tutorial.crud.dto.BodyFormulario;
 import com.tutorial.crud.dto.FormularioDTO;
-import com.tutorial.crud.entity.Cliente;
-import com.tutorial.crud.entity.Formulario;
-import com.tutorial.crud.entity.FormularioCliente;
-import com.tutorial.crud.entity.FormularioRespuesta;
+import com.tutorial.crud.entity.*;
+import com.tutorial.crud.repository.AnswerChatGPTRepository;
 import com.tutorial.crud.repository.FormularioRepository;
 import com.tutorial.crud.repository.FormularioRespuestaRepository;
 import org.hibernate.mapping.Formula;
@@ -16,8 +15,11 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.text.Normalizer;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.LocalTime;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 @Service
@@ -35,6 +37,15 @@ public class FormularioService {
 
     @Autowired
     FormularioRespuestaRepository formularioRespuestaRepository;
+
+    @Autowired
+    ClienteBasculaService clienteBasculaService;
+
+    @Autowired
+    AnswerChatGPTService answerChatGPTService;
+
+    @Autowired
+    AnswerChatGPTRepository answerChatGPTRepository;
 
     public Integer getLastFormularioId() {
         return formularioRepository.getLastFormularioId();
@@ -223,12 +234,76 @@ public class FormularioService {
         }
     }
 
-    /*public List<Formulario> findAllByFolio(int folio, Boolean activo) {
-        List<Formulario> formulario = formularioRepository.findAllByFolioAndActivo(folio, activo);
-        if (ejercicio.isPresent()) {
-            return ejercicio.get();
-        } else {
-            throw new NullPointerException("El formulario no existe");
+    public String getFormAnswersForPrompt(int customerID, int formFolio) {
+        Cliente customer = clienteService.findById(customerID);
+        String prompt = getCustomerWeighing(customerID);
+        //System.out.println("Prompt => " + prompt);
+        ///List<FormularioRespuesta> formularioRespuestaList = formularioRespuestaRepository.findByClienteAndFolio(customer, formFolio);
+        List<FormularioRespuesta> formularioRespuestaList = formularioRespuestaRepository.findLastAnswersFormByCustomer(customer.getIdCliente(), formFolio);
+        if (formularioRespuestaList.isEmpty() || formularioRespuestaList == null) throw new RuntimeException("Formulario vacio");
+        for (FormularioRespuesta iterator : formularioRespuestaList) {
+            if (iterator.getRespuesta().trim().equals("")) continue;
+            //prompt = prompt + "\n" + iterator.getPregunta() + " " + iterator.getRespuesta();
+            prompt = prompt + iterator.getPregunta() + " " + iterator.getRespuesta() + " ";
         }
-    }*/
+
+        ChatGPT chatGPT = new ChatGPT(answerChatGPTService, answerChatGPTRepository);
+        int tries = 0;
+        String answerChatGPT = "";
+        do {
+            //System.out.println("Intento numero: " + tries);
+            answerChatGPT = chatGPT.sendPrompt(prompt, customer);
+            if (!answerChatGPT.isEmpty() || !"".equals(answerChatGPT)) {
+                //System.out.println("No estuve vacio");
+                break;
+            }
+            else  {
+                //System.out.println("ChatGPT no fallo pero devolvio vacio, intento: " + tries);
+                tries++;
+            }
+        } while(tries < 3);
+        //System.out.println("CHATGPT => " + answerChatGPT);
+        return answerChatGPT;
+    }
+
+    public String getCustomerWeighing(int customerID) {
+        ClienteBascula clienteBascula = clienteBasculaService.getUltimoPesaje(customerID);
+        if (clienteBascula == null) throw new RuntimeException("Cliente no tiene pesajes");
+        Cliente cliente = clienteService.findById(customerID);
+        String gender = cliente.getSexo().toLowerCase();
+        Date today = new Date();
+        int age = calcularAniosDate(cliente.getFechaNacimiento());
+        String athlete = clienteBascula.atleta ? "soy atleta." : "no soy atleta.";
+        String initial = "Dame un json para lo siguiente: ";
+        String customerWeighing = initial + "Soy " + gender + " de " + age + " años de edad, mido " + (float) clienteBascula.altura / 100 + " m, peso "
+            + clienteBascula.peso + " kg y " + athlete + " Recientemente conteste el siguiente cuestionario sobre salud: ";
+        return customerWeighing;
+    }
+
+    public static int calcularAniosDate(Date fecha) {
+        //Fecha actual
+        Date actual = new Date();
+        //Cojo los datos necesarios
+        int diaActual = actual.getDate();
+        int mesActual = actual.getMonth() + 1;
+        int anioActual = actual.getYear() + 1900;
+        //Diferencia de años
+        int diferencia = anioActual - (fecha.getYear() + 1900);
+        // Si la diferencia es diferencia a 0
+        if (diferencia != 0) {
+            //Si el mes actual es menor que el que me pasan le resto 1
+            //Si el mes es igual y el dia que me pasan es mayor al actual le resto 1
+            //Si el mes es igual y el dia que me pasan es menor al actual no le resto 1
+            if (mesActual <= (fecha.getMonth() + 1)) {
+                if (mesActual == (fecha.getMonth() + 1)) {
+                    if (fecha.getDate() > diaActual) {
+                        diferencia--;
+                    }
+                } else {
+                    diferencia--;
+                }
+            }
+        }
+        return diferencia;
+    }
 }

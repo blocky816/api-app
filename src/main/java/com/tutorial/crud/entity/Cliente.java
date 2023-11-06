@@ -18,18 +18,7 @@ import java.time.temporal.ChronoField;
 import java.util.Date;
 import java.util.List;
 
-import javax.persistence.CascadeType;
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.Id;
-import javax.persistence.JoinColumn;
-import javax.persistence.JoinTable;
-import javax.persistence.ManyToMany;
-import javax.persistence.ManyToOne;
-import javax.persistence.OneToMany;
-import javax.persistence.OneToOne;
-import javax.persistence.Table;
-
+import javax.persistence.*;
 
 
 @Entity //Sirve únicamente para indicarle a JPA que esa clase es una Entity.
@@ -42,7 +31,7 @@ public class Cliente implements Serializable
 	@Column(name="idCliente", unique = true)*/
 	@Id //Define la llave primaria.
 	@Column(name="idcliente") //Permite establecer el nombre de la columna de la tabla con la que el atributo debe de mapear.
-	private int IdCliente; //Variables
+	private int idCliente; //Variables
 	
 	@Column(name="nomembresia")
 	private long NoMembresia;	
@@ -221,10 +210,14 @@ public class Cliente implements Serializable
 	@Column(name = "id_titular")
 	private int idTitular;
 
+	@OneToMany(mappedBy = "customer")
+	@JsonManagedReference
+	List<AnswerChatGPT> answerChatGPTS;
+
 	//Se generaron todos los Getters y Setters.
 
 	public int getIdCliente() {
-		return IdCliente;
+		return idCliente;
 	}
 
 	public float obtenerMonto() {
@@ -272,7 +265,7 @@ public class Cliente implements Serializable
 	}
 
 	public void setIdCliente(int idCliente) {
-		IdCliente = idCliente;
+		this.idCliente = idCliente;
 	}
 
 	public void setNombre(String nombre) {
@@ -656,9 +649,13 @@ public class Cliente implements Serializable
 
 	public void setIdTitular(int idTitular) { this.idTitular = idTitular; }
 
+	public List<AnswerChatGPT> getAnswerChatGPTS() { return answerChatGPTS; }
+
+	public void setAnswerChatGPTS(List<AnswerChatGPT> answerChatGPTS) { this.answerChatGPTS = answerChatGPTS; }
+
 	@Override
 	public String toString() {
-		return "Cliente [IdCliente=" + IdCliente + ",\n NoMembresia=" + NoMembresia + ",\n Nombre=" + Nombre
+		return "Cliente [IdCliente=" + idCliente + ",\n NoMembresia=" + NoMembresia + ",\n Nombre=" + Nombre
 				+ ",\nApellidoPaterno=" + ApellidoPaterno + ",\n ApellidoMaterno=" + ApellidoMaterno + ",\n NombreCompleto="
 				+ NombreCompleto + ",\n Servicio=" + Servicio + ",\n EstatusAcceso=" + EstatusAcceso + ",\n TipoAcceso="
 				+ TipoAcceso + ",\n URLFoto=" + URLFoto + ",\n DomicilioPago=" + DomicilioPago + ",\n InicioActividades="

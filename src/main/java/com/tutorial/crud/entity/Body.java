@@ -120,7 +120,7 @@ public class Body {
 	
 	private String nombre;
 	
-	
+	private String claveEmpleado;
 	
 	
 	
@@ -608,21 +608,74 @@ public class Body {
 		this.idChip = idChip;
 	}
 
+	public String getClaveEmpleado() { return claveEmpleado; }
+
+	public void setClaveEmpleado(String claveEmpleado) { this.claveEmpleado = claveEmpleado; }
+
 	@Override
 	public String toString() {
-		return "Body [recibo=" + recibo + ", folio=" + folio + ", lugarVenta=" + lugarVenta + ", qr=" + qr + ", acceso="
-				+ acceso + ", idTipoAcceso=" + idTipoAcceso + ", idAntena=" + idAntena + ", idCaseta=" + idCaseta
-				+ ", hora=" + hora + ", usuario=" + usuario + ", empleado=" + empleado + ", idChip=" + idChip
-				+ ", idSolicitud=" + idSolicitud + ", aprovado=" + aprovado + ", entragaDocumento=" + entragaDocumento
-				+ ", validacion=" + validacion + ", superr=" + superr + ", mes=" + mes + ", cobranza=" + cobranza
-				+ ", terminal=" + terminal + ", idVentaDetalle=" + idVentaDetalle + ", club=" + club + ", dia=" + dia
-				+ ", idClub=" + idClub + ", id=" + id + ", fechaInicio=" + fechaInicio + ", fechaFin=" + fechaFin
-				+ ", periodoInicio=" + periodoInicio + ", periodoFinal=" + periodoFinal + ", solicita=" + solicita
-				+ ", diasMenos=" + diasMenos + ", fecha=" + fecha + ", mensaje=" + mensaje + ", raw=" + raw + "]";
+		return "Body{" +
+				"token='" + token + '\'' +
+				", producto=" + producto +
+				", observaciones='" + observaciones + '\'' +
+				", idRutina=" + idRutina +
+				", asesor='" + asesor + '\'' +
+				", year='" + year + '\'' +
+				", regimenFiscal='" + regimenFiscal + '\'' +
+				", tipoCFDI='" + tipoCFDI + '\'' +
+				", email='" + email + '\'' +
+				", uso='" + uso + '\'' +
+				", pago='" + pago + '\'' +
+				", domicilio='" + domicilio + '\'' +
+				", codigoPostal='" + codigoPostal + '\'' +
+				", rfc='" + rfc + '\'' +
+				", name='" + name + '\'' +
+				", actividad='" + actividad + '\'' +
+				", anio=" + anio +
+				", recibo='" + recibo + '\'' +
+				", factura='" + factura + '\'' +
+				", folio='" + folio + '\'' +
+				", lugarVenta='" + lugarVenta + '\'' +
+				", qr=" + qr +
+				", acceso=" + acceso +
+				", idTipoAcceso=" + idTipoAcceso +
+				", idAntena=" + idAntena +
+				", idCaseta=" + idCaseta +
+				", hora=" + hora +
+				", usuario=" + usuario +
+				", empleado=" + empleado +
+				", idChip=" + idChip +
+				", idChipAnterior=" + idChipAnterior +
+				", idChipNuevo=" + idChipNuevo +
+				", idSolicitud=" + idSolicitud +
+				", aprovado='" + aprovado + '\'' +
+				", entragaDocumento='" + entragaDocumento + '\'' +
+				", validacion='" + validacion + '\'' +
+				", superr=" + superr +
+				", mes=" + mes +
+				", cobranza=" + cobranza +
+				", terminal=" + terminal +
+				", idVentaDetalle=" + idVentaDetalle +
+				", club='" + club + '\'' +
+				", dia='" + dia + '\'' +
+				", idClub=" + idClub +
+				", id=" + id +
+				", fechaInicio=" + fechaInicio +
+				", fechaFin=" + fechaFin +
+				", periodoInicio='" + periodoInicio + '\'' +
+				", periodoFinal='" + periodoFinal + '\'' +
+				", solicita='" + solicita + '\'' +
+				", diasMenos=" + diasMenos +
+				", fecha=" + fecha +
+				", mensaje='" + mensaje + '\'' +
+				", raw='" + raw + '\'' +
+				", admin=" + admin +
+				", idFactura='" + idFactura + '\'' +
+				", type='" + type + '\'' +
+				", formato='" + formato + '\'' +
+				", date='" + date + '\'' +
+				", nombre='" + nombre + '\'' +
+				", claveEmpleado='" + claveEmpleado + '\'' +
+				'}';
 	}
-	
-
-	
-
-	
 }
