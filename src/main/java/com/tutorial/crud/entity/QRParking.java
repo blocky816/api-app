@@ -38,6 +38,14 @@ public class QRParking {
     @JoinColumn(name = "id_qr_corte", referencedColumnName = "id_qr_corte")
     @JsonBackReference
     private DailyQROut dailyQROut;
+    @Column(name = "cambio")
+    private float cambio;
+    @Column(name = "devuelto", columnDefinition = "boolean default false")
+    private boolean devuelto;
+    @Column(name = "observaciones", columnDefinition = "varchar(350)")
+    private String observaciones;
+    @Column(name = "cambio_final")
+    private float cambioFinal;
 
     public long getId() {
         return id;
@@ -109,6 +117,22 @@ public class QRParking {
         this.dailyQROut = dailyQROut;
     }
 
+    public float getCambio() { return cambio; }
+
+    public void setCambio(float cambio) { this.cambio = cambio; }
+
+    public boolean isDevuelto() { return devuelto; }
+
+    public void setDevuelto(boolean devuelto) { this.devuelto = devuelto; }
+
+    public String getObservaciones() { return observaciones; }
+
+    public void setObservaciones(String observaciones) { this.observaciones = observaciones; }
+
+    public float getCambioFinal() { return cambioFinal; }
+
+    public void setCambioFinal(float cambioFinal) { this.cambioFinal = cambioFinal; }
+
     @Override
     public String toString() {
         return "QRParking{" +
@@ -122,6 +146,10 @@ public class QRParking {
                 ", debito=" + debito +
                 ", pagado=" + pagado +
                 ", dailyQROut=" + dailyQROut +
+                ", cambio=" + cambio +
+                ", devuelto=" + devuelto +
+                ", observaciones='" + observaciones + '\'' +
+                ", cambioFinal=" + cambioFinal +
                 '}';
     }
 }

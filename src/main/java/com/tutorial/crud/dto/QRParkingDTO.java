@@ -7,6 +7,9 @@ public class QRParkingDTO {
     private float costo;
     private float debito;
     private boolean pagado;
+    private float cambio;
+    private boolean devuelto;
+    private String observaciones;
 
     public String getIdRegistro() {
         return idRegistro;
@@ -56,7 +59,33 @@ public class QRParkingDTO {
         this.pagado = pagado;
     }
 
+    public boolean isPagado() {
+        return pagado;
+    }
 
+    public boolean getDevuelto() {
+        return devuelto;
+    }
+
+    public void setDevuelto(boolean devuelto) {
+        this.devuelto = devuelto;
+    }
+
+    public String getObservaciones() {
+        return observaciones;
+    }
+
+    public void setObservaciones(String observaciones) {
+        this.observaciones = observaciones;
+    }
+
+    public float getCambio() {
+        return cambio;
+    }
+
+    public void setCambio(float cambio) {
+        this.cambio = cambio;
+    }
 
     @Override
     public String toString() {
@@ -67,6 +96,9 @@ public class QRParkingDTO {
                 ", costo=" + costo +
                 ", debito=" + debito +
                 ", pagado=" + pagado +
+                ", cambio=" + cambio +
+                ", devuelto=" + devuelto +
+                ", observaciones='" + observaciones + '\'' +
                 '}';
     }
 }
