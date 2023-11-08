@@ -74,7 +74,8 @@ public class ChatGPT {
                 .uri(URI.create(URL_OPENAI))
                 .POST(HttpRequest.BodyPublishers.ofString(question))
                 .header("Content-Type", "application/json")
-                .header("Authorization", "Bearer " + "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")
+                //.header("Authorization", "Bearer " + "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")
+                .header("Authorization", "Bearer " + "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")
                 .build();
 
         AnswerChatGPT answerChatGPT = new AnswerChatGPT();

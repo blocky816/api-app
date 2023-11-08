@@ -41,7 +41,7 @@ public class RegistroGimnasioService {
     
     public boolean accedio(int cliente, UUID apartado) {
     	Session currentSession = entityManager.unwrap(Session.class);
-		Query<RegistroGimnasio> listaClientes = currentSession.createQuery(" from RegistroGimnasio where idCliente.IdCliente=:o and idApartados.id=:u",RegistroGimnasio.class);
+		Query<RegistroGimnasio> listaClientes = currentSession.createQuery(" from RegistroGimnasio where idCliente.idCliente=:o and idApartados.id=:u",RegistroGimnasio.class);
 		listaClientes.setParameter("o",cliente);
 		listaClientes.setParameter("u",apartado);
 		List<RegistroGimnasio> listResults = listaClientes.getResultList();

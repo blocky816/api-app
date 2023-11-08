@@ -242,7 +242,7 @@ public class FormularioService {
         List<FormularioRespuesta> formularioRespuestaList = formularioRespuestaRepository.findLastAnswersFormByCustomer(customer.getIdCliente(), formFolio);
         if (formularioRespuestaList.isEmpty() || formularioRespuestaList == null) throw new RuntimeException("Formulario vacio");
         for (FormularioRespuesta iterator : formularioRespuestaList) {
-            if (iterator.getRespuesta().trim().equals("")) continue;
+            if (iterator.getRespuesta() == null || iterator.getRespuesta().trim().equals("")) continue;
             //prompt = prompt + "\n" + iterator.getPregunta() + " " + iterator.getRespuesta();
             prompt = prompt + iterator.getPregunta() + " " + iterator.getRespuesta() + " ";
         }
@@ -276,7 +276,7 @@ public class FormularioService {
         String athlete = clienteBascula.atleta ? "soy atleta." : "no soy atleta.";
         String initial = "Dame un json para lo siguiente: ";
         String customerWeighing = initial + "Soy " + gender + " de " + age + " años de edad, mido " + (float) clienteBascula.altura / 100 + " m, peso "
-            + clienteBascula.peso + " kg y " + athlete + " Recientemente conteste el siguiente cuestionario sobre salud: ";
+            + clienteBascula.peso + " kg, mi aporte calorico diario es de " + clienteBascula.caloriasDiarias +" y " + athlete + " Recientemente conteste el siguiente cuestionario sobre salud: ";
         return customerWeighing;
     }
 
