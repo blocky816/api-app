@@ -129,7 +129,7 @@ public class FormularioController {
     @GetMapping(path = "getCustomerPrompt/{customerID}", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<?> getCustomerPrompt(@PathVariable int customerID, @RequestParam int formFolio) {
         try {
-            String customerPrompt = formularioService.getFormAnswersForPrompt(customerID, formFolio);
+            String customerPrompt = formularioService.getFormAnswersForPrompt(customerID, 4);
             JSONObject res = new JSONObject(customerPrompt);
             String content = res.getJSONArray("choices").getJSONObject(0).getJSONObject("message").getString("content").toString();
             //System.out.println("JSON OBject => " + content);
@@ -166,5 +166,20 @@ public class FormularioController {
                     return new ResponseEntity<>("{\"message\": \"" + e.getMessage() + "\" }", HttpStatus.INTERNAL_SERVER_ERROR);//500
             }
         }
+    }
+
+    @GetMapping("assignDietForm/{customerID}")
+    public ResponseEntity<?> assignDietForm(@PathVariable int customerID) {
+        formularioService.assignDietForm(customerID);
+        return new ResponseEntity<>(HttpStatus.OK);
+
+    }
+
+    @GetMapping(value = { "assignDietForms/", "assignDietForms/{clubID}"})
+    public ResponseEntity<?> assignDietForms(@PathVariable(required = false) Integer clubID) {
+        if (clubID != null) formularioService.assignDietFormsByClub(clubID);
+        else formularioService.assignDietForms();
+        return new ResponseEntity<>(HttpStatus.OK);
+
     }
 }

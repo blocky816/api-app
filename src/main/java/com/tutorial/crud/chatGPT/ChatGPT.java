@@ -66,7 +66,8 @@ public class ChatGPT {
         //List<AnswerChatGPT> answerChatGPTList = <answerChatGPTService.getDietInCurrentMonth(customer.getIdCliente(), startDate, endDate);
         List<AnswerChatGPT> answerChatGPTList = answerChatGPTRepository.findByCustomerAndCreatedAtBetweenOrderByCreatedAtDesc(customer, startDate, endDate);
 
-        String question = "{\n \"model\": \"gpt-3.5-turbo\",\n \"messages\": [\n {\n \"role\": \"system\",\n \"content\": \"Eres una maquina que sólo genera documentos json sin abreviar para dietas de una semana completa con los datos que se te dan, las dietas incluyen bebidas y están pensadas para gente que vive en el estado de Puebla en el país México. Todos los campos del json deben estar llenos y sin abreviar. El formato es:\\n{\\n  \\\"lunes\\\": {\\n    \\\"desayuno\\\": \\\"\\\",\\n    \\\"colación1\\\": \\\"\\\",\\n    \\\"comida\\\": \\\"\\\",\\n    \\\"colación2\\\": \\\"\\\",\\n    \\\"cena\\\": \\\"\\\"\\n  }\\n}\\n\"\n },\n {\n \"role\": \"user\",\n \"content\": \"" + customerPrompt + "\" }\n ],\n \"temperature\": 1.45,\n \"max_tokens\": 3600,\n \"top_p\": 0.86,\n \"frequency_penalty\": 0.13,\n \"presence_penalty\": 1.59\n }";
+        //String question = "{\n \"model\": \"gpt-4\",\n \"messages\": [\n {\n \"role\": \"system\",\n \"content\": \"Eres una maquina que sólo genera documentos json sin abreviar para dietas de una semana completa con los datos que se te dan, las dietas incluyen bebidas y están pensadas para gente que vive en el estado de Puebla en el país México. Todos los campos del json deben estar llenos y sin abreviar. El formato es:\\n{\\n  \\\"lunes\\\": {\\n    \\\"desayuno\\\": \\\"\\\",\\n    \\\"colación1\\\": \\\"\\\",\\n    \\\"comida\\\": \\\"\\\",\\n    \\\"colación2\\\": \\\"\\\",\\n    \\\"cena\\\": \\\"\\\"\\n  }\\n}\\n\"\n },\n {\n \"role\": \"user\",\n \"content\": \"" + customerPrompt + "\" }\n ],\n \"temperature\": 1.45,\n \"max_tokens\": 3600,\n \"top_p\": 0.86,\n \"frequency_penalty\": 0.13,\n \"presence_penalty\": 1.59\n }";
+        String question = "{\n \"model\": \"gpt-4\",\n \"messages\": [\n {\n \"role\": \"system\",\n \"content\": \"Eres una maquina que sólo genera documentos json sin abreviar para dietas con porciones en gramos de una semana completa con los datos que se te dan, las dietas incluyen bebidas y están pensadas para gente que vive en el estado de Puebla en el país México. Todos los campos del json deben estar llenos y sin abreviar. El formato es:\\n{\\n  \\\"lunes\\\": {\\n    \\\"desayuno\\\": \\\"\\\",\\n    \\\"colación1\\\": \\\"\\\",\\n    \\\"comida\\\": \\\"\\\",\\n    \\\"colación2\\\": \\\"\\\",\\n    \\\"cena\\\": \\\"\\\"\\n  }\\n}\\n\"\n },\n {\n \"role\": \"user\",\n \"content\": \"" + customerPrompt + "\" }\n ],\n \"temperature\": 1.78,\n \"max_tokens\": 4095,\n \"top_p\": 0.86,\n \"frequency_penalty\": 0.2,\n \"presence_penalty\": 1.01\n }";
 
         //System.out.println("Body a enviar => " + question);
         HttpClient client = HttpClient.newHttpClient();
@@ -75,19 +76,15 @@ public class ChatGPT {
                 .POST(HttpRequest.BodyPublishers.ofString(question))
                 .header("Content-Type", "application/json")
                 //.header("Authorization", "Bearer " + "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")
-                .header("Authorization", "Bearer " + "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")
+                .header("Authorization", "Bearer " + "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") // nuevo token para chat gpt-4
                 .build();
 
         AnswerChatGPT answerChatGPT = new AnswerChatGPT();
         HttpResponse<String> response;
         try {
              response = client.send(request, HttpResponse.BodyHandlers.ofString());
-            //System.out.println("REspuesta de CHATGTP => " + response.body());
-            //return response.body();
-            //System.out.println("REspuesta de CHATGTP.java => " + response.body());
             String content = new JSONObject(response.body()).getJSONArray("choices").getJSONObject(0).getJSONObject("message").getString("content").toString();
             String breakfast = new JSONObject(content).getJSONObject("lunes").getString("desayuno");
-            //System.out.println("breakfast de ChatGTP.java: " + breakfast);
             answerChatGPT.setCustomer(customer);
             answerChatGPT.setQuestion(question);
             answerChatGPT.setAnswer(response.body());
