@@ -168,7 +168,7 @@ public class FormularioController {
         }
     }
 
-    @GetMapping("assignDietForm/{customerID}")
+    /*@GetMapping("assignDietForm/{customerID}")
     public ResponseEntity<?> assignDietForm(@PathVariable int customerID) {
         formularioService.assignDietForm(customerID);
         return new ResponseEntity<>(HttpStatus.OK);
@@ -181,5 +181,5 @@ public class FormularioController {
         else formularioService.assignDietForms();
         return new ResponseEntity<>(HttpStatus.OK);
 
-    }
+    }*/
 }
