@@ -15,4 +15,5 @@ public interface ParkingUsuarioRepository extends JpaRepository<ParkingUsuario, 
 	List<ParkingUsuario> findByCliente(Cliente cliente);
 	List<ParkingUsuario> findByRhEmpleado(RHEmpleado empleado);
 	List<ParkingUsuario> findByCapturado(boolean capturado);
+	ParkingUsuario findByObservaciones(String chipID);
 }

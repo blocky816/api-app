@@ -13,13 +13,10 @@ import java.util.Date;
 import java.util.List;
 import java.util.UUID;
 
-import com.tutorial.crud.entity.EstatusMembresia;
+import com.tutorial.crud.entity.*;
 import org.hibernate.query.Query;
 
 import com.tutorial.crud.dto.ClienteDTOO;
-import com.tutorial.crud.entity.CAApartados;
-import com.tutorial.crud.entity.CASala;
-import com.tutorial.crud.entity.Cliente;
 
 
 //Interfaz en el que manda a llamar los métodos creados en ...ServiceImpl.java
@@ -50,4 +47,7 @@ public interface ClienteService {
 	public void activateCustomer(int customerID, int statusCobranza);
 
 	public String getPasswordHash(String customerID);
+
+	//public void sendNewPasswordHash(String userID);
+	//public List<Cliente> findAllByClub(Club club);
 }

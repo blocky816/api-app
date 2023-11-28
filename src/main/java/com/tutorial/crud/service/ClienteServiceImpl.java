@@ -13,8 +13,11 @@ import java.net.URI;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
+import java.sql.SQLOutput;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -23,6 +26,7 @@ import java.util.UUID;
 import javax.persistence.EntityManager;
 
 import com.tutorial.crud.entity.*;
+import com.tutorial.crud.repository.ClienteRepository;
 import com.tutorial.crud.security.service.UsuarioService;
 import org.hibernate.Session;
 import org.hibernate.query.Query;
@@ -48,6 +52,10 @@ public class ClienteServiceImpl implements ClienteService {
 	EstatusClienteService estatusClienteService;
 	@Autowired
 	UsuarioService usuarioService;
+	@Autowired
+	ClienteRepository clienteRepository;
+	@Autowired
+	ParkingUsuarioService parkingUsuarioService;
 	@Override 
 	public List<Cliente> findAll() {
 		List<Cliente> listCliente= clienteDAO.findAll();
@@ -269,7 +277,21 @@ public class ClienteServiceImpl implements ClienteService {
 			customer.setEstatusCobranza(paymentStatusActive);
 			customer.setEstatusCliente(customerStatus);
 			if (paymentStatusActive.getIdEstatusCobranza() == 1) customer.setEstatusAcceso("Acceso permitido");
+			else customer.setEstatusAcceso("Sin Acceso");
 			save(customer);
+
+			List<ParkingUsuario> pu = parkingUsuarioService.findByIdCliente(customer);
+			for(int i=0; i < pu.size(); i++) {
+				pu.get(i).setEstadoCobranza(customer.getEstatusCobranza().getNombre());
+				Date date = pu.get(i).obtenerRegistroTag().getFechaFin();
+				LocalDateTime endDateTag = date.toInstant().atZone(ZoneId.systemDefault()).toLocalDateTime();
+				//System.out.println("Localdatetime = " + endDateTag);
+				if(customer.getEstatusCobranza().getIdEstatusCobranza() != 1 && endDateTag.isAfter(LocalDateTime.now()))
+					pu.get(i).obtenerRegistroTag().setActivo(false);
+				else if (customer.getEstatusCobranza().getIdEstatusCobranza() == 1 && endDateTag.isAfter(LocalDateTime.now()))
+					pu.get(i).obtenerRegistroTag().setActivo(true);
+				parkingUsuarioService.save(pu.get(i));
+			}
 		}
 	}
 
@@ -301,5 +323,10 @@ public class ClienteServiceImpl implements ClienteService {
 		// the response:
 		//System.out.println("Response body pases alberca => " + response.body());
 		//return response;
+	}*/
+
+	/*@Override
+	public List<Cliente> findAllByClub(Club club) {
+		return clienteRepository.findAllByClub(club);
 	}*/
 }
