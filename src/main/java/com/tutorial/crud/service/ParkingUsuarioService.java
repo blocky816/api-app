@@ -40,4 +40,12 @@ public class ParkingUsuarioService {
     public ParkingUsuario  save(ParkingUsuario actividad){
     	return parkingUsuarioRepository.save(actividad);
     }
+
+    public ParkingUsuario getChipInfo(String chipID) {
+        System.out.println("IDCHIP => " + chipID);
+        ParkingUsuario parkingUsuario = parkingUsuarioRepository.findByObservaciones(String.valueOf(Integer.parseInt(chipID, 16)));
+        System.out.println("Parking usuario => " + parkingUsuario);
+
+        return parkingUsuario;
+    }
 }

@@ -1479,10 +1479,11 @@ public class ParkingController
 			 Session currentSession = entityManager.unwrap(Session.class);
 			 Query<RegistroTag> listaApartadosUsuario;
 			 List<RegistroTag> results;
-			 if(caseta.getId()==5) {
+			 //if(caseta.getId()==5) {
+			 if(caseta.getId() >= 3 && caseta.getId() <= 5) {
 				 if (timeNow.isAfter(timeBefore.plusSeconds(1800))) {
 					 listaApartadosUsuario = currentSession.createNativeQuery("update registro_Tag set activo=false where (id_parking in "
-							 + "(select id_venta_Detalle from parking_usuario where estado_cobranza='Etapa 2' or estado_cobranza='Etapa 3'  or "
+							 + "(select id_venta_Detalle from parking_usuario where estado_cobranza='Etapa 1' or estado_cobranza='Etapa 2' or estado_cobranza='Etapa 3'  or "
 							 + "estado_cobranza='Baja' AND id_venta_Detalle is not null ) or current_date>fecha_fin) and"
 							 + " (club='Futbol City' or club='CIMERA')", RegistroTag.class);
 					 listaApartadosUsuario.executeUpdate();
@@ -1493,12 +1494,12 @@ public class ParkingController
 					 timeBefore = LocalDateTime.now().withNano(0);
 				 }
 				 listaApartadosUsuario=currentSession.createNativeQuery("SELECT * FROM REGISTRO_TAG  WHERE ID_PARKING is not null and activo = true"
-						 + " and (club='Futbol City' or club='CIMERA') and activo = true", RegistroTag.class);
+						 + " and (club='Futbol City' or club='CIMERA') and fecha_fin > '2023-01-01 00:00:00'", RegistroTag.class);
 				 results = listaApartadosUsuario.getResultList();
 			 }else {
 				 if (timeNow.isAfter(timeBefore.plusSeconds(1800))) {
 					 listaApartadosUsuario = currentSession.createNativeQuery("update registro_Tag set activo=false where (id_parking in "
-							 + "(select id_venta_Detalle from parking_usuario where estado_cobranza='Etapa 2' or estado_cobranza='Etapa 3'  or "
+							 + "(select id_venta_Detalle from parking_usuario where estado_cobranza='Etapa 1' or estado_cobranza='Etapa 2' or estado_cobranza='Etapa 3'  or "
 							 + "estado_cobranza='Baja' AND id_venta_Detalle is not null ) or current_date>fecha_fin) and"
 							 + " (club='"+nombre+"' or club='CIMERA')", RegistroTag.class);
 					 listaApartadosUsuario.executeUpdate();
@@ -1509,7 +1510,7 @@ public class ParkingController
 					 timeBefore = LocalDateTime.now().withNano(0);
 				 }
 				 listaApartadosUsuario = currentSession.createNativeQuery("SELECT * FROM REGISTRO_TAG  WHERE ID_PARKING is not null"
-						 + " and (club='"+nombre+"' or club='CIMERA') and activo = true", RegistroTag.class);
+						 + " and (club='"+nombre+"' or club='CIMERA') and fecha_fin > '2023-01-01 00:00:00'", RegistroTag.class);
 				 results = listaApartadosUsuario.getResultList();
 			 }
 			 return new ResponseEntity<>(results, HttpStatus.OK);
@@ -2471,16 +2472,19 @@ public class ParkingController
 	   	   			
 	   	   	       	if(paseUsuario.getDisponibles()<=0) {
 	   	   	       		if(paseUsuario.getIdVentaDetalle()<0) {
-			   	   	       	json.put("Respuesta", "QR Empleado acceso correcto");
-		   	   	   			
-					   	 	registroSalida.setAcceso(true);
-							registroSalida.setDisponible(0);
-							registroSalida.setFolio(body.getIdVentaDetalle());
-							registroSalida.setHoraSalida(new Date());
-							registroSalida.setTipoAcceso(tipoAccesoService.getOne(5).get());
-							registroSalidaService.save(registroSalida);
-				   	 		
-		   	   	   			return new ResponseEntity<String>(json.toString(), HttpStatus.OK); 
+							employeeService.saveEmployees();
+			   	   	       	if (employeeService.findByClaveExterna(body.getClaveEmpleado()) != null ) {
+								json.put("Respuesta", "QR Empleado acceso correcto");
+
+								registroSalida.setAcceso(true);
+								registroSalida.setDisponible(0);
+								registroSalida.setFolio(body.getIdVentaDetalle());
+								registroSalida.setHoraSalida(new Date());
+								registroSalida.setTipoAcceso(tipoAccesoService.getOne(5).get());
+								registroSalidaService.save(registroSalida);
+
+								return new ResponseEntity<String>(json.toString(), HttpStatus.OK);
+							}
 	   	   	       		}
 	   	   	       			
 	   	   	   			json.put("Respuesta", "Este pase ya ha sido consumido antes");
@@ -3010,6 +3014,8 @@ public class ParkingController
 				//System.out.println("QRREquest => " + qrParkingDTO);
 				return new ResponseEntity<>(qrParkingService.save(qrParkingDTO), HttpStatus.CREATED);
 			} catch(Exception e) {
+				System.out.println("Error QRParking POST: " + e.getMessage());
+				//e.printStackTrace();
 				return new ResponseEntity<>(HttpStatus.NOT_FOUND);
 			}
 		}
@@ -3019,8 +3025,16 @@ public class ParkingController
 			try	{
 				return new ResponseEntity<>(qrParkingService.generarCorte(qrParkingDTO.getClub(), qrParkingDTO.getIdUsuario()), HttpStatus.OK);
 			} catch(Exception e) {
+				System.out.println("fallo el corte!!!");
+				e.getMessage();
+				e.printStackTrace();
 				return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
 			}
+		}
+
+		@GetMapping("/getChipInfo/{chipID}")
+		public ResponseEntity<?> getChipInfo(@PathVariable String chipID) {
+			return new ResponseEntity<>(parkingUsuarioService.getChipInfo(chipID), HttpStatus.OK);
 		}
 	 	public String update(int horarioId){
 			

@@ -20,6 +20,7 @@ import javax.persistence.Table;
 import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import org.hibernate.annotations.GenericGenerator;
 
 @Entity
@@ -29,8 +30,8 @@ public class ParkingUsuario {
 	@Id //Define la llave primaria.    
 	@Column(name = "id_venta_detalle")
 	private int idVentaDetalle;
-	
-	@ManyToOne(fetch = FetchType.LAZY) 
+
+	@ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "idcliente")
 	private Cliente cliente;
 	
@@ -207,7 +208,7 @@ public class ParkingUsuario {
 
 	@Override
 	public String toString() {
-		return "ParkingUsuario [idVentaDetalle=" + idVentaDetalle + ", cliente=" + cliente.getIdCliente() + ", concepto=" + concepto
+		return "ParkingUsuario [idVentaDetalle=" + idVentaDetalle + /*", cliente=" + cliente +*/ ", concepto=" + concepto
 				+ ", idProd=" + idProd + ", cantidad=" + cantidad + ", f_compra=" + fechaCaptura + ", pk=" + pk + "]";
 	}
 

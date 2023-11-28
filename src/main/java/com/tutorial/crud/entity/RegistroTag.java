@@ -1,6 +1,12 @@
 package com.tutorial.crud.entity;
 
 
+import com.fasterxml.jackson.annotation.JsonFormat;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import org.hibernate.annotations.CreationTimestamp;
+import org.hibernate.annotations.UpdateTimestamp;
+
+import java.time.LocalDateTime;
 import java.util.Date;
 
 import javax.persistence.CascadeType;
@@ -15,6 +21,7 @@ import javax.persistence.Table;
 
 @Entity
 @Table(name="registro_tag") //Se utiliza para poner el nombre real de la tabla en la base de datos
+@JsonIgnoreProperties(value = { "createdAt", "updatedAt" })
 public class RegistroTag {
 	@Id
 	@GeneratedValue(strategy=GenerationType.IDENTITY)
@@ -36,8 +43,15 @@ public class RegistroTag {
 	
 	@Column(name = "Club")
 	private String club;
-	
 
+	@CreationTimestamp
+	@JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
+	@Column(name = "created_at", columnDefinition = "TIMESTAMP(0)")
+	private LocalDateTime createdAt;
+	@UpdateTimestamp
+	@JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
+	@Column(name = "updated_at", columnDefinition = "TIMESTAMP(0)")
+	private LocalDateTime updatedAt;
 	public int getId() {
 		return id;
 	}
@@ -96,6 +110,14 @@ public class RegistroTag {
 	public void setParking(ParkingUsuario parking) {
 		this.parking = parking;
 	}
+
+	public LocalDateTime getCreatedAt() { return createdAt; }
+
+	public void setCreatedAt(LocalDateTime createdAt) { this.createdAt = createdAt; }
+
+	public LocalDateTime getUpdatedAt() { return updatedAt; }
+
+	public void setUpdatedAt(LocalDateTime updatedAt) { this.updatedAt = updatedAt; }
 
 	@Override
 	public String toString() {
