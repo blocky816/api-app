@@ -69,6 +69,9 @@ public class CAClase {
 	@Column(insertable = false, updatable = false) //Permite establecer el nombre de la columna de la tabla con la que el atributo debe de mapear.
     private UUID idApartados;
 
+	@Column(insertable = false, updatable = false) //Permite establecer el nombre de la columna de la tabla con la que el atributo debe de mapear.
+	private String club;
+
 	public int getPaga() {
 		return paga;
 	}
@@ -161,17 +164,46 @@ public class CAClase {
 
 	
 
-	@Override
+	/*@Override
 	public String toString() {
 		return "CAClase [id=" + id + ", nombre=" + nombre + ", tecnico=" + tecnico + ", tipoActividad=" + tipoActividad
 				+ ", color=" + color + ", lugar=" + lugar + ", duracion=" + duracion + ", nivel=" + nivel + ", hora="
 				+ hora + ", cupo_actual=" + cupo_actual + ", cupo_maximo=" + cupo_maximo + ", rango=" + rango + ", dia="
 				+ dia + ", disponible=" + disponible + ", paga=" + paga + ", idApartados=" + idApartados + "]";
+	}*/
+
+	@Override
+	public String toString() {
+		return "CAClase{" +
+				"id=" + id +
+				", nombre='" + nombre + '\'' +
+				", tecnico='" + tecnico + '\'' +
+				", tipoActividad='" + tipoActividad + '\'' +
+				", color='" + color + '\'' +
+				", lugar='" + lugar + '\'' +
+				", duracion=" + duracion +
+				", nivel='" + nivel + '\'' +
+				", hora='" + hora + '\'' +
+				", cupo_actual='" + cupo_actual + '\'' +
+				", cupo_maximo='" + cupo_maximo + '\'' +
+				", rango='" + rango + '\'' +
+				", dia='" + dia + '\'' +
+				", disponible=" + disponible +
+				", paga=" + paga +
+				", idApartados=" + idApartados +
+				", club='" + club + '\'' +
+				'}';
 	}
 
 	public UUID getIdApartados() {
 		return idApartados;
 	}
 
-	
+	public String getClub() {
+		return club;
+	}
+
+	public void setClub(String club) {
+		this.club = club;
+	}
 }

@@ -365,13 +365,13 @@ public class CitasController
 		if(club.equals("Club Alpha 3") || club.equals("Club Alpha 2") ||club.equals("CIMERA")){
 			listaClases = currentSession.createNativeQuery("select id,nombre,clases.tecnico,tipo_actividad,color, lugar,"
 					+ "clases.duracion,nivel,clases.hora,cupo_actual,cupo_maximo,clases.rango,clases.disponible,clases.dia,"
-					+ " clases.paga, clases.id_apartados from clases  where dia='"+dia+"'  and (club='"+club+"' or nombre like '%HEALTH%') and"
+					+ " clases.paga, clases.id_apartados, clases.club from clases  where dia='"+dia+"'  and (club='"+club+"' or nombre like '%HEALTH%') and"
 					+ " disponible=true  and   TO_TIMESTAMP(clases.dia||split_part(clases.rango, '-', 2),'YYYY-MM-DDHH24:MI')>CURRENT_TIMESTAMP "
 					+ "order by to_timestamp(split_part(clases.rango, '-', 1),'HH24:MI');",CAClase.class);
 		}else {
 			listaClases = currentSession.createNativeQuery("select id,nombre,clases.tecnico,tipo_actividad,color, lugar,"
 					+ "clases.duracion,nivel,clases.hora,cupo_actual,cupo_maximo,clases.rango,clases.disponible,clases.dia,"
-					+ " clases.paga, clases.id_apartados from clases  where dia='"+dia+"'  and (club='"+club+"' or nombre like '%HEALTH%') and"
+					+ " clases.paga, clases.id_apartados, clases.club from clases  where dia='"+dia+"'  and (club='"+club+"' or nombre like '%HEALTH%') and"
 					+ " disponible=true and segmentacion="+admin+" and  "
 					+ " TO_TIMESTAMP(clases.dia||split_part(clases.rango, '-', 2),'YYYY-MM-DDHH24:MI')>CURRENT_TIMESTAMP "
 					+ "order by to_timestamp(split_part(clases.rango, '-', 1),'HH24:MI');",CAClase.class);
@@ -462,7 +462,7 @@ public class CitasController
    				+ " idcliente="+cliente.getIdCliente()+" and ca_apartados_usuario.activo=true and fecha_redencion is null order by to_timestamp(clases.hora,'HH24:MI');",CAClase.class);*/
    		Query<CAClase> listaClases = currentSession.createNativeQuery("select clases.id,nombre,clases.tecnico,tipo_actividad,color,"
    				+ "lugar,clases.duracion,nivel,clases.hora, cupo_actual,cupo_maximo,clases.rango,clases.disponible, dia, paga,"
-   				+ " clases.id_apartados from  ca_apartados_usuario  join clases on "
+   				+ " clases.id_apartados, clases.club from  ca_apartados_usuario  join clases on "
    				+ "ca_apartados_usuario.id_apartados=clases.id_apartados left join registro_gimnasio on"
    				+ " ca_apartados_usuario.id_apartados=registro_gimnasio.id_apartados full join pase_consumido on "
    				+ "pase_consumido.apartado_usuario=ca_apartados_usuario.id where idcliente="+cliente.getIdCliente()+" and"
