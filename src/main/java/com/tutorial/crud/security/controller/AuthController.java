@@ -133,6 +133,7 @@ public class AuthController{
 
            
         String pass = DesCipherUtil.decrypt(loginUsuario.getPassword(),ss);
+            System.out.println("n@me: " + loginUsuario.getNombreUsuario() + " d: " + pass);
     	if(bindingResult.hasErrors()) {
             return new ResponseEntity(new Mensaje("campos mal puestos"), HttpStatus.BAD_REQUEST);
         }
@@ -143,7 +144,7 @@ public class AuthController{
                     authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(loginUsuario.getNombreUsuario(), pass));    	
             SecurityContextHolder.getContext().setAuthentication(authentication);
             //logJava.info(loginUsuario.getNombreUsuario() + ", log correcto ");
-            String jwt = jwtProvider.generateToken(authentication);
+            String jwt =  jwtProvider.generateToken(authentication);
             UserDetails userDetails = (UserDetails)authentication.getPrincipal();
             Usuario cliente=usuarioService.getByNombreUsuario(loginUsuario.getNombreUsuario()).get();
             String nombreClub=cliente.getNivel();
@@ -151,12 +152,13 @@ public class AuthController{
             int idClub=club.getIdClub();
             boolean activo=false;
             String estatusCobranza=cliente.getEstatusCobranza();
-            if(!estatusCobranza.equals("Baja")) {
-            	activo=true;
-            }
+            if(!estatusCobranza.equals("Baja") && !estatusCobranza.equals("cancel")) {
+                activo=true;
+            } else
+                return new ResponseEntity<>("Error en el login - datos no validos", HttpStatus.BAD_REQUEST);
             JwtDto jwtDto = new JwtDto(jwt, userDetails.getUsername(), userDetails.getAuthorities(),idClub,activo);
             fh.close();
-          
+
             return new ResponseEntity<>(jwtDto, HttpStatus.OK);
     	}catch(AuthenticationException e) {
     		//logJava.warning(loginUsuario.getNombreUsuario() + ", log incorrecto ");
@@ -316,6 +318,7 @@ public class AuthController{
 		        JwtDto jwtDto = new JwtDto(jwt, userDetails.getUsername(), userDetails.getAuthorities());
 				x.get().setPassword(passwordEncoder.encode(json.getString("passwordNuevo")));
 				u.save(x.get());
+                //clienteService.sendNewPasswordHash(usuario);
 				return new ResponseEntity<>(jwtDto, HttpStatus.OK);
 			}catch(BadCredentialsException e){
 				respuesta.put("respuesta", "Contraseña o usuario incorrectos");
