@@ -3039,7 +3039,7 @@ public class CitasController
    					Query<CAClase> listaClases;
    		        	listaClases = currentSession.createNativeQuery("select id,nombre,clases.tecnico,tipo_actividad,color, lugar,"
    		        			+ "clases.duracion,nivel,clases.hora,cupo_actual,cupo_maximo,clases.rango,clases.disponible,clases.dia,"
-   		        			+ " clases.paga, clases.id_apartados from clases  where id_apartados='"+body.getId()+"'  "
+   		        			+ " clases.paga, clases.id_apartados, clases.club from clases  where id_apartados='"+body.getId()+"'  "
    		        			+ "order by to_timestamp(clases.hora,'HH24:MI');",CAClase.class);   				
    		        	List<CAClase> lista= listaClases.getResultList();
                     if(lista.get(0).getPaga()==0) {
