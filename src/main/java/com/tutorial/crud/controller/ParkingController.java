@@ -86,9 +86,10 @@ import jcifs.smb.SmbFile;
  *
  */
 
+
+@CrossOrigin(origins = "*")
 @RestController
 @RequestMapping("/parking")
-@CrossOrigin(origins = "*")
 public class ParkingController
 {
 	endpoints e = new endpoints();
@@ -744,7 +745,12 @@ public class ParkingController
 	   		carro=carroService.save(carro);
 	   		lista.get(0).getCarro().add(carro);
 	   		lista.get(0).setCapturado(true);
-	   		lista.get(0).obtenerRegistroTag().setFechaFin(carrodto.getVigencia());
+
+			Cliente customer = clienteService.findById(carrodto.getIdCliente());
+			if (customer.getTipoCliente().getNombre().toLowerCase().contains("empleado"))
+				lista.get(0).obtenerRegistroTag().setFechaFin(new Date(carrodto.getVigencia().getTime() + 126227808000L));
+			else
+			   lista.get(0).obtenerRegistroTag().setFechaFin(carrodto.getVigencia());
 	   		lista.get(0).obtenerRegistroTag().setActivo(true);
 	   		parkingUsuarioService.save(lista.get(0));
 	   		
