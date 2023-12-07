@@ -2671,14 +2671,10 @@ public class Servicios
 	@GetMapping("/updateCliente/{horarioId}")
 	@ResponseBody
 	public ResponseEntity<?> update(@PathVariable("horarioId") int horarioId){
-
-		//System.out.println("IDCLIENTE A ACTUALIZAR => " + horarioId);
 		try {
 			String resultOdoo = IOUtils.toString(new URL("http://192.168.20.107:8000/ServiciosClubAlpha/api/Miembro/"+horarioId), Charset.forName("UTF-8"));
 			Cliente cliente=clienteService.findById(horarioId);
-			//System.out.println("busque al cliente");
 			if("[]".equals(resultOdoo)) {
-				System.out.println("USuario archivado");
 				cliente.setEstatusAcceso("Sin Acceso");
 				EstatusCobranza estatusCobranza = estatusCobranzaService.findById(6);
 				cliente.setEstatusCobranza(estatusCobranza);
@@ -3067,14 +3063,17 @@ public class Servicios
 		}
 		catch(FileNotFoundException e) {
 			Cliente cliente=clienteService.findById(horarioId);
-			System.out.println("busque al cliente");
 			if(cliente != null) {
-				System.out.println("USuario archivado");
 				cliente.setEstatusAcceso("Sin Acceso");
 				EstatusCobranza estatusCobranza = estatusCobranzaService.findById(6);
 				cliente.setEstatusCobranza(estatusCobranza);
 				clienteService.save(cliente);
-				System.out.println("Se cancelo el usuario");
+				List<ParkingUsuario> pu=parkingUsuarioService.findByIdCliente(cliente);
+				for(int i=0;i<pu.size();i++) {
+					pu.get(i).setEstadoCobranza(estatusCobranza.getNombre());
+					parkingUsuarioService.save(pu.get(i));
+				}
+				System.out.println("Se cancelo el usuario: " + cliente.getIdCliente());
 				return new ResponseEntity<>("Cliente almacenado", HttpStatus.OK);
 			}
 		}
