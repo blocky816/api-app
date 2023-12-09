@@ -397,7 +397,7 @@ public class CitasController
         Query<CAClase> listaClases;
 			listaClases = currentSession.createNativeQuery("select id,nombre,clases.tecnico,tipo_actividad,color, lugar,"
         			+ "clases.duracion,nivel,clases.hora,cupo_actual,cupo_maximo,clases.rango,clases.disponible,clases.dia,"
-        			+ " clases.paga, clases.id_apartados from clases  where dia='"+dia+"'  and fitness is true and club='"+club+"' and"
+        			+ " clases.paga, clases.id_apartados, clases.club from clases  where dia='"+dia+"'  and fitness is true and club='"+club+"' and"
         			+ " disponible=true  order by to_timestamp(split_part(clases.rango, '-', 1),'HH24:MI');",CAClase.class); 	
 
 		
@@ -440,7 +440,7 @@ public class CitasController
         	
         	listaClases = currentSession.createNativeQuery("select id,nombre,clases.tecnico,tipo_actividad,color,"
     				+ "lugar,clases.duracion,nivel,clases.hora,cupo_actual,cupo_maximo,clases.rango,clases.disponible,clases.dia,"
-    				+ "clases.paga, clases.id_apartados from clases  where dia='"+dia+"'  and club='"+club+"'and disponible=false"
+    				+ "clases.paga, clases.id_apartados, clases.club from clases  where dia='"+dia+"'  and club='"+club+"'and disponible=false"
     				+ " order by to_timestamp(clases.hora,'HH24:MI')",CAClase.class);	
 
         //FROM CAClase WHERE id IN (select h.id FROM CAHorario h WHERE h.lunes = true) and clases.tecnico='CLUB ALPHA 2'
