@@ -30,8 +30,8 @@ import java.util.TimeZone;
 import java.util.concurrent.TimeUnit;
 
 import com.tutorial.crud.dto.*;
-import com.tutorial.crud.exception.ResourceNotFoundException;
-import com.tutorial.crud.repository.QREstacionamientoCostoRepository;
+//import com.tutorial.crud.exception.ResourceNotFoundException;
+//import com.tutorial.crud.repository.QREstacionamientoCostoRepository;
 import com.tutorial.crud.repository.QRParkingRepository;
 import org.apache.commons.io.IOUtils;
 import org.apache.tomcat.jni.Local;
@@ -44,7 +44,6 @@ import org.json.JSONException;
 import org.json.JSONObject;
 import org.postgresql.util.PSQLException;
 
-import javax.mail.Quota;
 import javax.persistence.EntityManager;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -260,8 +259,8 @@ public class ParkingController
 	@Autowired
 	ConfiguracionSancionService configuracionSancionService;
 
-	@Autowired
-	QREstacionamientoCostoRepository qrEstacionamientoCostoRepository;
+	/*@Autowired
+	QREstacionamientoCostoRepository qrEstacionamientoCostoRepository;*/
 
 	private static LocalDateTime timeBefore = LocalDateTime.now().withNano(0);
 	private static LocalDateTime timeNow;
