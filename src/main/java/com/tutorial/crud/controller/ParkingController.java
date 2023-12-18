@@ -30,6 +30,8 @@ import java.util.TimeZone;
 import java.util.concurrent.TimeUnit;
 
 import com.tutorial.crud.dto.*;
+//import com.tutorial.crud.exception.ResourceNotFoundException;
+//import com.tutorial.crud.repository.QREstacionamientoCostoRepository;
 import com.tutorial.crud.repository.QRParkingRepository;
 import org.apache.commons.io.IOUtils;
 import org.apache.tomcat.jni.Local;
@@ -256,6 +258,9 @@ public class ParkingController
 
 	@Autowired
 	ConfiguracionSancionService configuracionSancionService;
+
+	/*@Autowired
+	QREstacionamientoCostoRepository qrEstacionamientoCostoRepository;*/
 
 	private static LocalDateTime timeBefore = LocalDateTime.now().withNano(0);
 	private static LocalDateTime timeNow;
@@ -2823,6 +2828,7 @@ public class ParkingController
 				employeeService.saveEmployees();
 				//Employee employee = employeeService.findById(idEmpleado);
 				List<PaseUsuario> paseUsuarioList = employeeService.getParkingQR(idEmpleado);
+				if (paseUsuarioList == null) throw new RuntimeException("Empleado no activo o no existe");
 				return new ResponseEntity<>(paseUsuarioList, HttpStatus.OK);
 			} catch (Exception e) {
 				System.out.println("Exception en QR Empleado => " + e.getMessage());
@@ -3017,6 +3023,8 @@ public class ParkingController
 				//System.out.println("QRREquest => " + qrParkingDTO);
 				return new ResponseEntity<>(qrParkingService.save(qrParkingDTO), HttpStatus.CREATED);
 			} catch(Exception e) {
+				System.out.println("Error QRParking POST: " + e.getMessage());
+				//e.printStackTrace();
 				return new ResponseEntity<>(HttpStatus.NOT_FOUND);
 			}
 		}
@@ -3026,9 +3034,23 @@ public class ParkingController
 			try	{
 				return new ResponseEntity<>(qrParkingService.generarCorte(qrParkingDTO.getClub(), qrParkingDTO.getIdUsuario()), HttpStatus.OK);
 			} catch(Exception e) {
+				System.out.println("fallo el corte!!!");
+				e.getMessage();
+				e.printStackTrace();
 				return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
 			}
 		}
+
+		@GetMapping("/getChipInfo/{chipID}")
+		public ResponseEntity<?> getChipInfo(@PathVariable String chipID) {
+			return new ResponseEntity<>(parkingUsuarioService.getChipInfo(chipID), HttpStatus.OK);
+		}
+
+		/*@GetMapping("/getQRCostByUser/{userID}")
+		public ResponseEntity<?> getCostByUser(@PathVariable int userID) throws Exception {
+			QREstacionamientoCosto qrEstacionamientoCosto = qrEstacionamientoCostoRepository.findById(userID).orElseThrow(() -> new ResourceNotFoundException("User not found on :: " + userID));
+			return new ResponseEntity<>(qrEstacionamientoCosto, HttpStatus.OK);
+		}*/
 	 	public String update(int horarioId){
 			
 			try {
