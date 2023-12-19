@@ -32,6 +32,7 @@ import java.util.concurrent.TimeUnit;
 import com.tutorial.crud.dto.*;
 //import com.tutorial.crud.exception.ResourceNotFoundException;
 //import com.tutorial.crud.repository.QREstacionamientoCostoRepository;
+import com.tutorial.crud.entity.body2;
 import com.tutorial.crud.repository.QRParkingRepository;
 import org.apache.commons.io.IOUtils;
 import org.apache.tomcat.jni.Local;
@@ -2437,7 +2438,7 @@ public class ParkingController
 			
 		}
 	 	@RequestMapping(value="qrParkingSportsPlaza", method=RequestMethod.POST)
-	   	public ResponseEntity<?> qrParkingSportsPlaza(@RequestBody Body body)
+	   	public ResponseEntity<?> qrParkingSportsPlaza(@RequestBody body2 body)
 	   	{
 	 		
 	 		RegistroSalidaSP registroSalida=new RegistroSalidaSP();
@@ -2483,16 +2484,19 @@ public class ParkingController
 	   	   			
 	   	   	       	if(paseUsuario.getDisponibles()<=0) {
 	   	   	       		if(paseUsuario.getIdVentaDetalle()<0) {
-			   	   	       	json.put("Respuesta", "QR Empleado acceso correcto");
-		   	   	   			
-					   	 	registroSalida.setAcceso(true);
-							registroSalida.setDisponible(0);
-							registroSalida.setFolio(body.getIdVentaDetalle());
-							registroSalida.setHoraSalida(new Date());
-							registroSalida.setTipoAcceso(tipoAccesoService.getOne(5).get());
-							registroSalidaService.save(registroSalida);
-				   	 		
-		   	   	   			return new ResponseEntity<String>(json.toString(), HttpStatus.OK); 
+							employeeService.saveEmployees();
+			   	   	       	if (employeeService.findByClaveExterna(body.getUsuario()) != null ) {
+								json.put("Respuesta", "QR Empleado acceso correcto");
+
+								registroSalida.setAcceso(true);
+								registroSalida.setDisponible(0);
+								registroSalida.setFolio(body.getIdVentaDetalle());
+								registroSalida.setHoraSalida(new Date());
+								registroSalida.setTipoAcceso(tipoAccesoService.getOne(5).get());
+								registroSalidaService.save(registroSalida);
+
+								return new ResponseEntity<String>(json.toString(), HttpStatus.OK);
+							}
 	   	   	       		}
 	   	   	       			
 	   	   	   			json.put("Respuesta", "Este pase ya ha sido consumido antes");

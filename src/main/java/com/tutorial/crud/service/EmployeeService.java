@@ -53,6 +53,7 @@ public class EmployeeService {
     }
 
     public void saveEmployees() throws Exception {
+        employeeRepository.deleteAll();
         String employeesList = getList(EMPLOYEES_URL);
         JSONArray jsonArray = new JSONArray(employeesList);
         for (int i = 0; i < jsonArray.length(); i++) {
