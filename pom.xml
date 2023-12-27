@@ -9,7 +9,7 @@
 	</parent>
 	<groupId>com.tutorial</groupId>
 	<artifactId>crud</artifactId>
-	<version>0.0.69-SNAPSHOT</version>
+	<version>0.0.108-SNAPSHOT</version>
 	<name>crud</name>
 	<description>Demo project for Spring Boot</description>
 

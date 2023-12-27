@@ -1522,7 +1522,7 @@ public class ParkingController
 					 timeBefore = LocalDateTime.now().withNano(0);
 				 }
 				 listaApartadosUsuario = currentSession.createNativeQuery("SELECT * FROM REGISTRO_TAG  WHERE ID_PARKING is not null"
-						 + " and (club='"+nombre+"' or club='CIMERA') and activo = true", RegistroTag.class);
+						 + " and (club='"+nombre+"' or club='CIMERA') and fecha_fin > (current_date - 90)", RegistroTag.class);
 				 results = listaApartadosUsuario.getResultList();
 			 }
 			 return new ResponseEntity<>(results, HttpStatus.OK);
