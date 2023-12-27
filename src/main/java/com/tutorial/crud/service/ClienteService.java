@@ -9,6 +9,7 @@
 */
 package com.tutorial.crud.service;
 
+import java.io.IOException;
 import java.util.Date;
 import java.util.List;
 import java.util.UUID;
@@ -17,6 +18,7 @@ import com.tutorial.crud.entity.*;
 import org.hibernate.query.Query;
 
 import com.tutorial.crud.dto.ClienteDTOO;
+import org.json.JSONArray;
 
 
 //Interfaz en el que manda a llamar los métodos creados en ...ServiceImpl.java
@@ -50,4 +52,13 @@ public interface ClienteService {
 
 	//public void sendNewPasswordHash(String userID);
 	//public List<Cliente> findAllByClub(Club club);
+	public String getSinEtapa(int club) throws Exception;
+
+	public String getConEtapa(int club) throws Exception;
+
+	public void actualizarActivosxClub(int club);
+
+	public void actualizarEtapasCanceladosxClub(int club);
+
+	public Cliente findByIdCliente(int customerID);
 }

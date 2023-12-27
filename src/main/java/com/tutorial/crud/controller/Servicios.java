@@ -18,10 +18,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.time.Instant;
-import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.time.ZoneId;
+import java.time.*;
 import java.util.*;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
@@ -2673,18 +2670,15 @@ public class Servicios
 	public ResponseEntity<?> update(@PathVariable("horarioId") int horarioId){
 		try {
 			String resultOdoo = IOUtils.toString(new URL("http://192.168.20.107:8000/ServiciosClubAlpha/api/Miembro/"+horarioId), Charset.forName("UTF-8"));
-			Cliente cliente=clienteService.findById(horarioId);
 			if("[]".equals(resultOdoo)) {
-				cliente.setEstatusAcceso("Sin Acceso");
+				Cliente customer=clienteService.findById(horarioId);
+				customer.setEstatusAcceso("Sin Acceso");
 				EstatusCobranza estatusCobranza = estatusCobranzaService.findById(6);
-				cliente.setEstatusCobranza(estatusCobranza);
-				clienteService.save(cliente);
+				customer.setEstatusCobranza(estatusCobranza);
+				clienteService.save(customer);
 				return new ResponseEntity<>("Cliente almacenado", HttpStatus.OK);
 			}
 			JSONObject json = new JSONObject(IOUtils.toString(new URL("http://192.168.20.107:8000/ServiciosClubAlpha/api/Miembro/"+horarioId), Charset.forName("UTF-8")));
-
-			//System.out.println("Id cliente => " + horarioId);
-			//System.out.qprintln("Result de oddo estatus de cliente => " + json.getJSONObject("EstatusCliente"));
 
 			NuevoUsuario nuevoUsuario=new NuevoUsuario();
 			nuevoUsuario.setCliente(json.getString("Nombre")+" "+json.getString("ApellidoPaterno")+" "+json.getString("ApellidoMaterno"));
@@ -2694,12 +2688,17 @@ public class Servicios
 			nuevoUsuario.setEstatusCobranza(json.getJSONObject("EstatusCobranza").getString("Nombre"));
 			nuevoUsuario.setNivel1(json.getJSONObject("Club").getString("Nombre"));
 			nuevoUsuario.setNombre(json.getString("NoMembresia"));
-			nuevoUsuario.setNombreUsuario(Integer.toString(horarioId));
+			//nuevoUsuario.setNombreUsuario(Integer.toString(horarioId));
+			nuevoUsuario.setNombreUsuario(String.valueOf(horarioId));
 			String x[];
-			x = String.valueOf(json.get("FechaNacimiento")).split("T");
-			x = x[0].split("-");
-			nuevoUsuario.setPassword(horarioId +"."+ x[0] + x[1] + x[2]);
-			//System.out.println("PAse fechade nacimeinto");
+			//x = String.valueOf(json.get("FechaNacimiento")).split("T");
+			//x = x[0].split("-");
+			x = json.getString("FechaNacimiento").split("-");
+			try {
+				nuevoUsuario.setPassword(horarioId +"."+ x[0] + x[1] + x[2]);
+			} catch (Exception ex) {
+				logger.error("Fecha de nacimiento incorrecta para usuario: {} => {}", horarioId , ex.toString());
+			}
 			Usuario usuario;
 			try {
 				usuario=usuarioService.getByNombreUsuario(nuevoUsuario.getNombreUsuario()).get() ;
@@ -2723,14 +2722,13 @@ public class Servicios
 				usuario.setRoles(roles);
 				usuarioService.save(usuario);
 			}catch(Exception e) {
-				e.printStackTrace();
-				System.out.println("Error crear usuario: " + e.getMessage());
+				logger.error("Error al crear usuario: {} => {}", horarioId , e.toString());
 			}
 
 			//SimpleDateFormat formato = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss");
 			SimpleDateFormat formato = new SimpleDateFormat("yyyy-MM-dd");
-
-			if(cliente!=null) {
+			Cliente cliente = clienteService.findById(horarioId);
+			if(cliente != null) {
 				//System.out.println("CLiente no es nulo.");
 				cliente.setApellidoMaterno(json.getString("ApellidoMaterno"));
 				cliente.setApellidoPaterno(json.getString("ApellidoPaterno"));
@@ -2824,7 +2822,12 @@ public class Servicios
 				cliente.setIdSexo(json.getInt("IDSexo"));
 				cliente.setMensualidadPagada(json.getBoolean("MensualidadPagada"));
 				cliente.setNombre(json.getString("Nombre"));
-				cliente.setNoMembresia(json.getLong("NoMembresia"));
+				try {
+					cliente.setNoMembresia(json.getLong("NoMembresia"));
+				} catch (Exception e) {
+					cliente.setNoMembresia(0L);
+					logger.error("Error en la membresia de cliente: {} => {}", horarioId , e.toString());
+				}
 				cliente.setSexo(json.getString("Sexo"));
 				cliente.setTieneAcceso(json.getBoolean("TieneAcceso"));
 				cliente.setTipoAcceso(json.getBoolean("TieneAcceso"));
@@ -2894,7 +2897,6 @@ public class Servicios
 					parkingUsuarioService.save(pu.get(i));
 				}
 			}else {
-				//System.out.println("Es cliente nuevo ");
 				cliente=new Cliente();
 				cliente.setApellidoMaterno(json.getString("ApellidoMaterno"));
 				cliente.setApellidoPaterno(json.getString("ApellidoPaterno"));
@@ -2988,7 +2990,12 @@ public class Servicios
 				cliente.setIdSexo(json.getInt("IDSexo"));
 				cliente.setMensualidadPagada(json.getBoolean("MensualidadPagada"));
 				cliente.setNombre(json.getString("Nombre"));
-				cliente.setNoMembresia(json.getLong("NoMembresia"));
+				try {
+					cliente.setNoMembresia(json.getLong("NoMembresia"));
+				} catch (Exception ex) {
+					cliente.setNoMembresia(0L);
+					logger.error("Error en la membresia de cliente: {} => {}", horarioId , ex.toString());
+				}
 				cliente.setSexo(json.getString("Sexo"));
 				cliente.setTieneAcceso(json.getBoolean("TieneAcceso"));
 				cliente.setTipoAcceso(json.getBoolean("TieneAcceso"));
@@ -3074,13 +3081,13 @@ public class Servicios
 					parkingUsuarioService.save(pu.get(i));
 				}
 				System.out.println("Se cancelo el usuario: " + cliente.getIdCliente());
+				logger.info("Se cancelo el usuario: {}", horarioId);
 				return new ResponseEntity<>("Cliente almacenado", HttpStatus.OK);
 			}
 		}
 		catch(Exception e) {
+			logger.error("Error al actualizar cliente: {} => {}", horarioId, e.toString());
 			//e.printStackTrace();
-			System.out.println("Error al actualizar cliente: " + e.getMessage());
-			e.printStackTrace();
 			return new ResponseEntity<>(HttpStatus.CONFLICT);
 		}
 
@@ -7491,16 +7498,21 @@ public class Servicios
 
 
 	@Scheduled(cron = "0 0 3 * * *")
-	public void updateCustomer() throws MalformedURLException {
+	@GetMapping("/updateAllCusotmers/")
+	//public void updateCustomer() {
+	public ResponseEntity<?> updateCustomer() {
 		try {
 			List<Cliente> clientesList = clienteService.findAllByEstatusMembresia();
 
 			for(Cliente record: clientesList) {
 				this.update(record.getIdCliente());
 			}
+			System.out.println("Termine de actualizar a los clientes at: " + LocalTime.now());
 		} catch (Exception e) {
 			System.out.println(e.getMessage());
+			//e.printStackTrace();
 		}
+		return new ResponseEntity<>("Termine de actualizar a los clientes at: " + LocalTime.now(), HttpStatus.OK);
 	}
 
 		@GetMapping("/photo_test/{idCliente}")
@@ -7540,6 +7552,20 @@ public class Servicios
 			update(Integer.parseInt(customerID));
 		} catch (NumberFormatException e) {}
 		return clienteService.getPasswordHash(customerID);
+	}
+
+	@GetMapping("/actualizarActivosxClub/{clubID}")
+	public ResponseEntity<?> actualizarActivosxClub(@PathVariable int clubID) {
+		clienteService.actualizarActivosxClub(clubID);
+		logger.info("Clientes Alpha {} activos y al corriente actualizados a las {}", clubID, LocalTime.now().withNano(0));
+		return new ResponseEntity<>(HttpStatus.OK);
+	}
+
+	@GetMapping("/actualizarEtapasCanceladosxClub/{clubID}")
+	public ResponseEntity<?> actualizarEtapasCanceladosxClub(@PathVariable int clubID) {
+		clienteService.actualizarEtapasCanceladosxClub(clubID);
+		logger.info("Clientes Alpha {} bajas y etapas actualizados a las {}", clubID, LocalTime.now().withNano(0));
+		return new ResponseEntity<>(HttpStatus.OK);
 	}
 }//fin de la clase
 

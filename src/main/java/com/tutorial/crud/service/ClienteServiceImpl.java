@@ -17,19 +17,24 @@ import java.sql.SQLOutput;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.time.LocalDateTime;
+import java.time.LocalTime;
 import java.time.ZoneId;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
-import java.util.UUID;
+import java.util.*;
 
 import javax.persistence.EntityManager;
 
+import com.google.gson.annotations.JsonAdapter;
+import com.tutorial.crud.controller.Servicios;
 import com.tutorial.crud.entity.*;
 import com.tutorial.crud.repository.ClienteRepository;
+import com.tutorial.crud.scheduling.ScheduledTasks;
 import com.tutorial.crud.security.service.UsuarioService;
 import org.hibernate.Session;
 import org.hibernate.query.Query;
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -39,6 +44,8 @@ import com.tutorial.crud.dto.ClienteDTOO;
 @Service //marca la clase java que realiza algún servicio
 public class ClienteServiceImpl implements ClienteService {
 
+	private static final Logger log = LoggerFactory.getLogger(ScheduledTasks.class);
+	private static final SimpleDateFormat dateFormat = new SimpleDateFormat("HH:mm:ss");
 	@Autowired
 	private EntityManager entityManager;
 	
@@ -252,6 +259,7 @@ public class ClienteServiceImpl implements ClienteService {
 
 	@Override
 	public List<Cliente> findAllByEstatusMembresia() {
+		System.out.println("Iniciandp consulta de clientes activos a las: " + LocalTime.now());
 		Session currentSession = entityManager.unwrap(Session.class);
 		EstatusCobranza estatusCobranza = estatusCobranzaService.findById(1);
 		System.out.println("EStatus cobranza : " + estatusCobranza.getNombre());
@@ -261,7 +269,7 @@ public class ClienteServiceImpl implements ClienteService {
 
 		List<Cliente> lista = clientesActivos.getResultList();
 
-		//System.out.println("Lista de clinetes ectivos: " + lista.size());
+		System.out.println("Lista de clinetes ectivos: " + lista.size() + " at: " + LocalTime.now());
 
 		return lista;
 	}
@@ -280,18 +288,24 @@ public class ClienteServiceImpl implements ClienteService {
 			else customer.setEstatusAcceso("Sin Acceso");
 			save(customer);
 
+
 			List<ParkingUsuario> pu = parkingUsuarioService.findByIdCliente(customer);
-			for(int i=0; i < pu.size(); i++) {
-				pu.get(i).setEstadoCobranza(customer.getEstatusCobranza().getNombre());
-				Date date = pu.get(i).obtenerRegistroTag().getFechaFin();
-				LocalDateTime endDateTag = date.toInstant().atZone(ZoneId.systemDefault()).toLocalDateTime();
-				//System.out.println("Localdatetime = " + endDateTag);
-				if(customer.getEstatusCobranza().getIdEstatusCobranza() != 1 && endDateTag.isAfter(LocalDateTime.now()))
-					pu.get(i).obtenerRegistroTag().setActivo(false);
-				else if (customer.getEstatusCobranza().getIdEstatusCobranza() == 1 && endDateTag.isAfter(LocalDateTime.now()))
-					pu.get(i).obtenerRegistroTag().setActivo(true);
-				parkingUsuarioService.save(pu.get(i));
-			}
+			if (Objects.nonNull(pu))
+				for (int i = 0; i < pu.size(); i++)
+					try {
+						pu.get(i).setEstadoCobranza(customer.getEstatusCobranza().getNombre());
+						Date date = pu.get(i).obtenerRegistroTag().getFechaFin();
+						LocalDateTime endDateTag = date.toInstant().atZone(ZoneId.systemDefault()).toLocalDateTime();
+						if (customer.getEstatusCobranza().getIdEstatusCobranza() != 1 && endDateTag.isAfter(LocalDateTime.now()))
+							pu.get(i).obtenerRegistroTag().setActivo(false);
+						else if (customer.getEstatusCobranza().getIdEstatusCobranza() == 1 && endDateTag.isAfter(LocalDateTime.now()))
+							pu.get(i).obtenerRegistroTag().setActivo(true);
+						parkingUsuarioService.save(pu.get(i));
+					} catch (Exception e) {
+						log.error("Error al desactivar/activar chips del user: {} => {}", customerID , e.toString());
+					}
+		} else {
+			new Servicios().update(customerID);
 		}
 	}
 
@@ -299,6 +313,101 @@ public class ClienteServiceImpl implements ClienteService {
 		return usuarioService.getByNombreUsuario(customerID).isPresent() ?
 				usuarioService.getByNombreUsuario(customerID).get().getPassword() : null;
 	}
+
+	@Override
+	public String getSinEtapa(int club) throws IOException, InterruptedException {
+		// create a client
+		var client = HttpClient.newHttpClient();
+		// create a request
+		var request = HttpRequest.newBuilder(
+						URI.create("http://192.168.20.107:8000/ServiciosClubAlpha/api/sin/etapas/" + club))
+				.header("accept", "application/json")
+				//.headers("Content-Type", "text/plain;charset=UTF-8")
+				.GET()
+				.build();
+
+		// use the client to send the request
+		var response = client.send(request, HttpResponse.BodyHandlers.ofString());
+		// the response:
+		//System.out.println("Response body getSinEtapas => " + response.body());
+		return response.body();
+	}
+
+	@Override
+	public String getConEtapa(int club) throws IOException, InterruptedException {
+		// create a client
+		var client = HttpClient.newHttpClient();
+		// create a request
+		var request = HttpRequest.newBuilder(
+						URI.create("http://192.168.20.107:8000/ServiciosClubAlpha/api/con/etapas/" + club))
+				.header("accept", "application/json")
+				//.headers("Content-Type", "text/plain;charset=UTF-8")
+				.GET()
+				.build();
+
+		// use the client to send the request
+		var response = client.send(request, HttpResponse.BodyHandlers.ofString());
+		// the response:
+		//System.out.println("Response body getSinEtapas => " + response.body());
+		return response.body();
+	}
+
+	@Override
+	public void actualizarActivosxClub(int club) {
+		try {
+			log.info("Iniciando la actualizacion de activos y al corriente {} ...", dateFormat.format(new Date()));
+			JSONArray activos = new JSONArray(getSinEtapa(club));
+			for (int i = 0; i < activos.length(); i++) {
+				String idStr = activos.getJSONObject(i).getString("id_cliente");
+				try {
+					activateCustomer(Integer.parseInt(activos.getJSONObject(i).getString("id_cliente")), 1);
+				} catch (NumberFormatException e) {
+					log.error("Error parseando id {} => {}", idStr, e.toString());
+				}
+			}
+		} catch (Exception e) {
+			log.error("Error al actualizar activos y al corriente {} => {}", dateFormat.format(new Date()) , e.toString());
+		}
+	}
+
+	@Override
+	public void actualizarEtapasCanceladosxClub(int club) {
+		try {
+			JSONArray etapas = new JSONArray(getConEtapa(club));
+			log.info("Iniciando la actualizacion de etapas {} ...", dateFormat.format(new Date()));
+			for (int i = 0; i < etapas.length(); i++) {
+				String idStr = etapas.getJSONObject(i).getString("id_cliente");
+				try {
+					int idcliente = Integer.parseInt(idStr.replace("/", "").trim());
+					switch (etapas.getJSONObject(i).getString("stage")) {
+						case "E1":
+							activateCustomer(idcliente, 2);
+							break;
+						case "E2":
+							activateCustomer(idcliente, 3);
+							break;
+						case "E3":
+							activateCustomer(idcliente, 3);
+							break;
+						case "cancel":
+							activateCustomer(idcliente, 6);
+							break;
+					}
+				} catch (Exception e) {
+					log.error("Error parseando id {} => {}", idStr, e.toString());
+				}
+			}
+		} catch (Exception e) {
+			log.error("Error al actualizar etapas y bajas {} => {}", dateFormat.format(new Date()) , e.toString());
+		}
+	}
+
+	@Override
+	public Cliente findByIdCliente(int customerID) {
+		return clienteRepository.findByIdCliente(customerID);
+	}
+
+
 
 	/*public void sendNewPasswordHash(String userID) {
 		var client = HttpClient.newHttpClient();
