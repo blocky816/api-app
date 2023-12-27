@@ -19,7 +19,7 @@ public class ScheduledTasks {
     @Autowired
     private ClienteServiceImpl clienteService;
 
-    @Scheduled(cron = "0 0 23 * *") // Cron expression for running every minute
+    @Scheduled(cron = "0 0 23 * * *") // Cron expression for running every minute
     public void updateCollectionAlpha2() {
         clienteService.actualizarActivosxClub(6);
         log.info("Clientes Alpha 2 activos a las {}", dateFormat.format(new Date()));
