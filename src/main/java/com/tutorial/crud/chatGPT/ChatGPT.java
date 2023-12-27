@@ -66,7 +66,6 @@ public class ChatGPT {
         //List<AnswerChatGPT> answerChatGPTList = <answerChatGPTService.getDietInCurrentMonth(customer.getIdCliente(), startDate, endDate);
         List<AnswerChatGPT> answerChatGPTList = answerChatGPTRepository.findByCustomerAndCreatedAtBetweenOrderByCreatedAtDesc(customer, startDate, endDate);
 
-        //String question = "{\n \"model\": \"gpt-4\",\n \"messages\": [\n {\n \"role\": \"system\",\n \"content\": \"Eres una maquina que sólo genera documentos json sin abreviar para dietas de una semana completa con los datos que se te dan, las dietas incluyen bebidas y están pensadas para gente que vive en el estado de Puebla en el país México. Todos los campos del json deben estar llenos y sin abreviar. El formato es:\\n{\\n  \\\"lunes\\\": {\\n    \\\"desayuno\\\": \\\"\\\",\\n    \\\"colación1\\\": \\\"\\\",\\n    \\\"comida\\\": \\\"\\\",\\n    \\\"colación2\\\": \\\"\\\",\\n    \\\"cena\\\": \\\"\\\"\\n  }\\n}\\n\"\n },\n {\n \"role\": \"user\",\n \"content\": \"" + customerPrompt + "\" }\n ],\n \"temperature\": 1.45,\n \"max_tokens\": 3600,\n \"top_p\": 0.86,\n \"frequency_penalty\": 0.13,\n \"presence_penalty\": 1.59\n }";
         String question = "{\n \"model\": \"gpt-4\",\n \"messages\": [\n {\n \"role\": \"system\",\n \"content\": \"Eres una maquina que sólo genera documentos json sin abreviar para dietas con porciones en gramos de una semana completa con los datos que se te dan, las dietas incluyen bebidas y están pensadas para gente que vive en el estado de Puebla en el país México. Todos los campos del json deben estar llenos y sin abreviar. El formato es:\\n{\\n  \\\"lunes\\\": {\\n    \\\"desayuno\\\": \\\"\\\",\\n    \\\"colación1\\\": \\\"\\\",\\n    \\\"comida\\\": \\\"\\\",\\n    \\\"colación2\\\": \\\"\\\",\\n    \\\"cena\\\": \\\"\\\"\\n  }\\n}\\n\"\n },\n {\n \"role\": \"user\",\n \"content\": \"" + customerPrompt + "\" }\n ],\n \"temperature\": 1.78,\n \"max_tokens\": 4095,\n \"top_p\": 0.86,\n \"frequency_penalty\": 0.2,\n \"presence_penalty\": 1.01\n }";
 
         //System.out.println("Body a enviar => " + question);
@@ -83,8 +82,12 @@ public class ChatGPT {
         HttpResponse<String> response;
         try {
              response = client.send(request, HttpResponse.BodyHandlers.ofString());
+            //System.out.println("REspuesta de CHATGTP => " + response.body());
+            //return response.body();
+            //System.out.println("REspuesta de CHATGTP.java => " + response.body());
             String content = new JSONObject(response.body()).getJSONArray("choices").getJSONObject(0).getJSONObject("message").getString("content").toString();
             String breakfast = new JSONObject(content).getJSONObject("lunes").getString("desayuno");
+            //System.out.println("breakfast de ChatGTP.java: " + breakfast);
             answerChatGPT.setCustomer(customer);
             answerChatGPT.setQuestion(question);
             answerChatGPT.setAnswer(response.body());
@@ -116,7 +119,7 @@ public class ChatGPT {
                 + "\"IDCliente\":" + customer.getIdCliente() + ",  \r\n"
                 + "\"IDClub\":"+ customer.getClub().getIdClub()+ ",   \r\n"
                 + "\"Cantidad\":1, \r\n"
-                + "\"IDProductoServicio\":"+ 2585 +",  \r\n"
+                + "\"IDProductoServicio\":"+ 3296 +",  \r\n"
                 + "\"Observaciones\":\"Dieta solicitada a ChatGPT\",\r\n"
                 + "\"DescuentoPorciento\":0,  \r\n"
                 + "\"FechaInicio\":\""+new java.sql.Date(new Date().getTime())+" 00:00:00\", \r\n" //2023-10-30
@@ -127,7 +130,7 @@ public class ChatGPT {
 
         int statusCode = 500;
         try {
-            URL url = new URL("http://192.168.20.104:8000/ServiciosClubAlpha/api/OrdenDeVenta/Registra");
+            URL url = new URL("http://192.168.20.107:8000/ServiciosClubAlpha/api/OrdenDeVenta/Registra");
             String postData = body2;
             HttpURLConnection conn = (HttpURLConnection) url.openConnection();
             conn.setRequestMethod("POST");

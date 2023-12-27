@@ -33,7 +33,7 @@ public class AnswerChatGPTService {
         Cliente customer = clienteService.findById(customerID);
         ClienteBascula clienteBascula = clienteBasculaService.getUltimoPesaje(customer.getIdCliente());
         if (clienteBascula == null) throw new RuntimeException("Cliente no tiene pesajes");
-        List<FormularioRespuesta> formularioRespuestaList = formularioRespuestaRepository.findLastAnswersFormByCustomer(customer.getIdCliente(), 1);
+        List<FormularioRespuesta> formularioRespuestaList = formularioRespuestaRepository.findLastAnswersFormByCustomer(customer.getIdCliente(), 4);
         if (formularioRespuestaList.isEmpty() || formularioRespuestaList == null) throw new RuntimeException("Formulario vacio");
         List<AnswerChatGPT> answerChatGPTList = answerChatGPTRepository.findByCustomerAndCreatedAtBetweenOrderByCreatedAtDesc(customer, startDate, endDate);
         if(answerChatGPTList.isEmpty()) throw new RuntimeException("No hay dietas en el mes");

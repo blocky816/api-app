@@ -3155,7 +3155,7 @@ public class Servicios
 						+ "\"IDCliente\":"+cliente.getIdCliente()+",  \r\n"
 						+ "\"IDClub\":"+cliente.getClub().getIdClub()+",   \r\n"
 						+ "\"Cantidad\":1, \r\n"
-						+ "\"IDProductoServicio\":"+body.getProducto()+",  \r\n"
+						+ "\"IDProductoServicio\":"+2731+",  \r\n"//+body.getProducto()+",  \r\n"
 						+ "\"Observaciones\":\"\" ,   \r\n"
 						+ "\"DescuentoPorciento\":0,  \r\n"
 						+ "\"FechaInicio\":\""+new java.sql.Date(new Date().getTime())+" 00:00:00\", \r\n"
@@ -5165,6 +5165,7 @@ public class Servicios
 
 				double cantidad=fijarNumero(producto.getTotal()/producto.getPrecioUnitarioIVA(),2);
 				item.setQuantity(cantidad);
+				item.setTaxObject("01");
 
 				if(producto.getPrecioUnitario()==producto.getPrecioUnitarioIVA()) {
 					item.setTaxObject("01");
@@ -5329,8 +5330,8 @@ public class Servicios
 		Connection conn = null;
 		ArrayList<ReciboSAT> listaReporte = new ArrayList<ReciboSAT>();
 
-		// Consultar recibos de Odoo
-		/*try {
+		 //Consultar recibos de Odoo
+		try {
 			HttpClient client = HttpClient.newHttpClient();
 			HttpRequest request = HttpRequest.newBuilder()
 					.header("Content-Type", "application/json")
@@ -5375,18 +5376,21 @@ public class Servicios
 			}
 		} catch (IOException | InterruptedException | JSONException e) {
 			System.out.println("EXCEPTION => " + e.getMessage() + " CAUSE => " + e.getCause());
-		}*/
+		}
 
 		// Consultar recibos de Globalsoft
+		/*
 		try {
-			conn = DriverManager.getConnection("jdbc:sqlserver://192.168.20.109;database=globalsoft", "sa", "fcap1322$");
+			System.out.println("iniciando consulta");
+			conn = DriverManager.getConnection("jdbc:sqlserver://192.168.20.23;database=globalsoft", "sa", "fcap1322$");
 
 			PreparedStatement ps=conn.prepareStatement("exec globalsoft.dbo.sp_Consulta_Recibo_Conceptos_por_Fecha_SAT ?,? ");
 			ps.setDate(1, fechaInicio);
 			ps.setDate(2, fechaFin);
 			ResultSet rs =ps.executeQuery();
-
+			System.out.println("Terminando de consultar");
 			while (rs.next()) {
+				System.out.println("leyendo registro: "+rs.getString(3));
 				ReciboSAT to=new ReciboSAT();
 				to.setFechaCaptura(rs.getDate(1));
 				to.setFolio(rs.getString(2));
@@ -5424,6 +5428,8 @@ public class Servicios
 				System.out.println("Error: " + ex.getMessage());
 			}
 		}
+
+		*/
 		/*if (!listaReporte.isEmpty()){  // este bloque se borrará
 			//System.out.println("Facturas recuperadas de Odoo by..." + nombre);
 			System.out.println("Facturas recuperadas de Odoo + globalsoft by..." + nombre);
@@ -5521,6 +5527,7 @@ public class Servicios
 
 				double cantidad=fijarNumero(producto.getTotal()/producto.getPrecioUnitarioIVA(),2);
 				item.setQuantity(cantidad);
+				item.setTaxObject("01");
 
 				if(producto.getPrecioUnitario()==producto.getPrecioUnitarioIVA()) {
 					item.setTaxObject("01");
@@ -5871,6 +5878,7 @@ public class Servicios
 
 				double cantidad=fijarNumero(producto.getTotal()/producto.getPrecioUnitarioIVA(),2);
 				item.setQuantity(cantidad);
+				item.setTaxObject("01");
 
 				if(producto.getPrecioUnitario()==producto.getPrecioUnitarioIVA()) {
 					item.setTaxObject("01");
@@ -6040,7 +6048,7 @@ public class Servicios
 			itemAux=new ArrayList<Item>();
 
 			for(int j=1;j!=0 && i<items.size();i++) {
-				j=(i+1)%100;
+				j=(i+1)%50;
 				itemAux.add(items.get(i));
 
 			}
@@ -6345,6 +6353,7 @@ public class Servicios
 
 				double cantidad=fijarNumero(producto.getTotal()/producto.getPrecioUnitarioIVA(),2);
 				item.setQuantity(cantidad);
+				item.setTaxObject("01");
 
 				if(producto.getPrecioUnitario()==producto.getPrecioUnitarioIVA()) {
 					item.setTaxObject("01");
@@ -6412,12 +6421,14 @@ public class Servicios
 			System.out.println(query);
 			JSONObject obj=new JSONObject("{}");
 			respuesta2=consultarAPI(query, obj);
-			System.out.println(respuesta2);
+			System.out.println("Mi respuesta2 recién consultada es:"+respuesta2);
 			return new ResponseEntity<>(respuesta2.toString(), HttpStatus.OK);
 		}catch(Exception e) {
+			e.printStackTrace();
+
 			try {
 				System.out.println();
-				System.out.println(respuesta2);
+				System.out.println("Intentando mi respuesta2:"+respuesta2);
 				String mensajeRespuesta=respuesta2.getString("Message");
 				if(mensajeRespuesta.equals("Este RFC del receptor no existe en la lista de RFC inscritos no cancelados del SAT.")) {
 					return new ResponseEntity<>(respuesta2.toString(), HttpStatus.CONFLICT);
@@ -6486,7 +6497,7 @@ public class Servicios
 
 
 			}
-			System.out.println(respuesta2);
+			System.out.println("Mi respuesta2 es:"+respuesta2);
 			return new ResponseEntity<>(respuesta2.toString(), HttpStatus.CONFLICT);
 		}
 
@@ -6531,6 +6542,7 @@ public class Servicios
 
 				double cantidad=fijarNumero(producto.getTotal()/producto.getPrecioUnitarioIVA(),2);
 				item.setQuantity(cantidad);
+				item.setTaxObject("01");
 
 				if(producto.getPrecioUnitario()==producto.getPrecioUnitarioIVA()) {
 					item.setTaxObject("01");
@@ -6552,6 +6564,9 @@ public class Servicios
 						tax.setBase(fijarNumero(totalImpuestos*6.25,2));
 						taxes.add(tax);
 						item.setTaxes(taxes);
+					}
+					else{
+						System.out.println("No entró el producto: "+producto.getCodigo());
 					}
 					item.setUnitPrice(fijarNumero(producto.getTotal()/1.16/cantidad,2));
 				}
@@ -6729,6 +6744,10 @@ public class Servicios
 				is = conn.getInputStream();
 			}
 			else {
+				System.out.println("Mi status code es:"+statusCode);
+				System.out.println("Mi query de consulta:"+query);
+				System.out.println("Mi object de consulta:"+object.toString());
+
 				is = conn.getErrorStream();
 			}
 
