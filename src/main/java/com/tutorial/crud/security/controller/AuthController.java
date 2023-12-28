@@ -133,7 +133,7 @@ public class AuthController{
 
            
         String pass = DesCipherUtil.decrypt(loginUsuario.getPassword(),ss);
-            System.out.println("n@me: " + loginUsuario.getNombreUsuario() + " d: " + pass);
+            //System.out.println("n@me: " + loginUsuario.getNombreUsuario() + " d: " + pass);
     	if(bindingResult.hasErrors()) {
             return new ResponseEntity(new Mensaje("campos mal puestos"), HttpStatus.BAD_REQUEST);
         }

@@ -7445,7 +7445,7 @@ public class Servicios
 	}
 
 	public Foto resizeUserImage(@PathVariable("idCliente") int idCliente) throws MalformedURLException {
-
+		String imageName = "";
 		try {
 			// Aqui se obtiene la imagen original
 			String fotoBase64 = IOUtils.toString(new URL("http://192.168.20.107:8000/fotografia/usuario/" + idCliente + ".jpg"), Charset.forName("UTF-8"));
@@ -7454,7 +7454,7 @@ public class Servicios
 
 
 			// Creo la imagen en el sistema de archivos para trabajar con ella
-			String imageName = idCliente + ".jpg";
+			imageName = idCliente + ".jpg";
 			try (OutputStream stream = new FileOutputStream(imageName)) {
 				stream.write(imageBase64);
 
@@ -7509,14 +7509,21 @@ public class Servicios
 		} catch(IOException e) {
 			System.out.println("IO EXCEPTION => " + e.getMessage());
 		} catch (Exception e) {
-			System.out.println("ERROR FILE (no existe foto) => " + e.getMessage() + " CAUSE => " + e.getCause());
+			logger.error("ERROR FILE (no existe foto) para cliente: {}", idCliente);
+		} finally {
+			try {
+				File imagen = new File(imageName);
+				imagen.delete();
+			} catch (Exception ex) {
+				logger.error("No se pudo eliminar la imagen: {}", imageName);
+			}
 		}
 		return null;
 		//return new ResponseEntity<>("Error de foto", HttpStatus.INTERNAL_SERVER_ERROR);
 	}
 
 
-	@Scheduled(cron = "0 0 3 * * *")
+	//@Scheduled(cron = "0 0 3 * * *")
 	@GetMapping("/updateAllCusotmers/")
 	//public void updateCustomer() {
 	public ResponseEntity<?> updateCustomer() {
@@ -7576,14 +7583,12 @@ public class Servicios
 	@GetMapping("/actualizarActivosxClub/{clubID}")
 	public ResponseEntity<?> actualizarActivosxClub(@PathVariable int clubID) {
 		clienteService.actualizarActivosxClub(clubID);
-		logger.info("Clientes Alpha {} activos y al corriente actualizados a las {}", clubID, LocalTime.now().withNano(0));
 		return new ResponseEntity<>(HttpStatus.OK);
 	}
 
 	@GetMapping("/actualizarEtapasCanceladosxClub/{clubID}")
 	public ResponseEntity<?> actualizarEtapasCanceladosxClub(@PathVariable int clubID) {
 		clienteService.actualizarEtapasCanceladosxClub(clubID);
-		logger.info("Clientes Alpha {} bajas y etapas actualizados a las {}", clubID, LocalTime.now().withNano(0));
 		return new ResponseEntity<>(HttpStatus.OK);
 	}
 }//fin de la clase

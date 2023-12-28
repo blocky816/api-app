@@ -63,6 +63,8 @@ public class ClienteServiceImpl implements ClienteService {
 	ClienteRepository clienteRepository;
 	@Autowired
 	ParkingUsuarioService parkingUsuarioService;
+	@Autowired
+	Servicios servicios;
 	@Override 
 	public List<Cliente> findAll() {
 		List<Cliente> listCliente= clienteDAO.findAll();
@@ -305,7 +307,7 @@ public class ClienteServiceImpl implements ClienteService {
 						log.error("Error al desactivar/activar chips del user: {} => {}", customerID , e.toString());
 					}
 		} else {
-			new Servicios().update(customerID);
+			servicios.update(customerID);
 		}
 	}
 
@@ -355,18 +357,23 @@ public class ClienteServiceImpl implements ClienteService {
 	@Override
 	public void actualizarActivosxClub(int club) {
 		try {
-			log.info("Iniciando la actualizacion de activos y al corriente {} ...", dateFormat.format(new Date()));
+			log.info("Iniciando la actualizacion de activos y al corriente {} del club {} ...", dateFormat.format(new Date()), club);
 			JSONArray activos = new JSONArray(getSinEtapa(club));
 			for (int i = 0; i < activos.length(); i++) {
 				String idStr = activos.getJSONObject(i).getString("id_cliente");
 				try {
-					activateCustomer(Integer.parseInt(activos.getJSONObject(i).getString("id_cliente")), 1);
+					int idCliente = Integer.parseInt(idStr.replace("/", "").trim());
+					activateCustomer(idCliente, 1);
 				} catch (NumberFormatException e) {
 					log.error("Error parseando id {} => {}", idStr, e.toString());
+				} catch (Exception e) {
+					log.error("No se pudo activar al corriente el usuario: {} => {}", idStr, e.toString());
 				}
 			}
+			log.info("Clientes Alpha {} activos y al corriente actualizados a las {}", club, LocalTime.now().withNano(0));
 		} catch (Exception e) {
-			log.error("Error al actualizar activos y al corriente {} => {}", dateFormat.format(new Date()) , e.toString());
+			log.error("Error al actualizar activos y al corriente {} del club {} => {}", dateFormat.format(new Date()), club, e.toString());
+			e.printStackTrace();
 		}
 	}
 
@@ -374,31 +381,35 @@ public class ClienteServiceImpl implements ClienteService {
 	public void actualizarEtapasCanceladosxClub(int club) {
 		try {
 			JSONArray etapas = new JSONArray(getConEtapa(club));
-			log.info("Iniciando la actualizacion de etapas {} ...", dateFormat.format(new Date()));
+			log.info("Iniciando la actualizacion de etapas {} del club {} ...", dateFormat.format(new Date()), club);
 			for (int i = 0; i < etapas.length(); i++) {
 				String idStr = etapas.getJSONObject(i).getString("id_cliente");
 				try {
-					int idcliente = Integer.parseInt(idStr.replace("/", "").trim());
+					int idCliente = Integer.parseInt(idStr.replace("/", "").trim());
 					switch (etapas.getJSONObject(i).getString("stage")) {
 						case "E1":
-							activateCustomer(idcliente, 2);
+							activateCustomer(idCliente, 2);
 							break;
 						case "E2":
-							activateCustomer(idcliente, 3);
+							activateCustomer(idCliente, 3);
 							break;
 						case "E3":
-							activateCustomer(idcliente, 3);
+							activateCustomer(idCliente, 4);
 							break;
 						case "cancel":
-							activateCustomer(idcliente, 6);
+							activateCustomer(idCliente, 6);
 							break;
 					}
-				} catch (Exception e) {
+				} catch (NumberFormatException e) {
 					log.error("Error parseando id {} => {}", idStr, e.toString());
+				} catch (Exception e) {
+					log.error("No se pudo actualizar el estatus de cobranza del usuario: {} => {}", idStr, e.toString());
 				}
 			}
+			log.info("Clientes Alpha {} bajas y etapas actualizados a las {}", club, LocalTime.now().withNano(0));
 		} catch (Exception e) {
-			log.error("Error al actualizar etapas y bajas {} => {}", dateFormat.format(new Date()) , e.toString());
+			log.error("Error al actualizar etapas y bajas {} del club {} => {}", dateFormat.format(new Date()) , club, e.toString());
+			e.printStackTrace();
 		}
 	}
 
