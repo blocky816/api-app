@@ -1505,8 +1505,8 @@ public class ParkingController
 						+ " and (REGISTRO_TAG.club='Futbol City' or REGISTRO_TAG.club='CIMERA')", RegistroTag.class);*/
 					 timeBefore = LocalDateTime.now().withNano(0);
 				 }
-				 listaApartadosUsuario=currentSession.createNativeQuery("SELECT * FROM REGISTRO_TAG  WHERE ID_PARKING is not null and activo = true"
-						 + " and (club='Futbol City' or club='CIMERA') and fecha_fin > '2023-01-01 00:00:00'", RegistroTag.class);
+				 listaApartadosUsuario=currentSession.createNativeQuery("SELECT * FROM REGISTRO_TAG  WHERE ID_PARKING is not null"
+						 + " and (club='Futbol City' or club='CIMERA') and fecha_fin > (current_date - 720)", RegistroTag.class);
 				 results = listaApartadosUsuario.getResultList();
 			 }else {
 				 if (timeNow.isAfter(timeBefore.plusSeconds(1800))) {
@@ -1522,7 +1522,7 @@ public class ParkingController
 					 timeBefore = LocalDateTime.now().withNano(0);
 				 }
 				 listaApartadosUsuario = currentSession.createNativeQuery("SELECT * FROM REGISTRO_TAG  WHERE ID_PARKING is not null"
-						 + " and (club='"+nombre+"' or club='CIMERA') and fecha_fin > '2023-01-01 00:00:00'", RegistroTag.class);
+						 + " and (club='"+nombre+"' or club='CIMERA') and fecha_fin > (current_date - 720)", RegistroTag.class);
 				 results = listaApartadosUsuario.getResultList();
 			 }
 			 return new ResponseEntity<>(results, HttpStatus.OK);
