@@ -29,7 +29,7 @@ public class TipoMembresia
 	@Column(name="terminalId", unique = true)*/
 	@Id //Define la llave primaria 
 	@Column(name="id_tipomembresia") //Permite establecer el nombre de la columna de la tabla con la que el atributo debe de mapear.
-	private int IdTipoMembresia;
+	private int idTipoMembresia;
 	
 	@Column(name="nombre")
 	private String nombre;
@@ -59,12 +59,12 @@ public class TipoMembresia
 
 	public int getIdTipoMembresia() 
 	{
-		return IdTipoMembresia;
+		return idTipoMembresia;
 	}
 
 	public void setTerminalId(int termianlId) 
 	{
-		IdTipoMembresia = termianlId;
+		idTipoMembresia = termianlId;
 	}
 
 
@@ -118,12 +118,12 @@ public class TipoMembresia
 	}
 
 	public void setIdTipoMembresia(int idTipoMembresia) {
-		IdTipoMembresia = idTipoMembresia;
+		idTipoMembresia = idTipoMembresia;
 	}
 
 	@Override
 	public String toString() {
-		return "TipoMembresia [IdTipoMembresia=" + IdTipoMembresia + ", nombre=" + nombre + ", Activo=" + Activo
+		return "TipoMembresia [IdTipoMembresia=" + idTipoMembresia + ", nombre=" + nombre + ", Activo=" + Activo
 				+ ", FechaCreacion=" + FechaCreacion + ", FechaModificacion=" + FechaModificacion + ", horarioacceso="
 				+ horarioacceso + "]";
 	}
