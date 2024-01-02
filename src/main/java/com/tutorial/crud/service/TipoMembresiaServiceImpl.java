@@ -10,6 +10,7 @@ package com.tutorial.crud.service;
 
 import java.util.List;
 
+import com.tutorial.crud.repository.TipoMembresiaRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -21,6 +22,8 @@ public class TipoMembresiaServiceImpl implements TipoMembresiaService {
 	
 	@Autowired //Inyecta a nuestro DAO y lo utiliza.
 	private TipoMembresiaDAO tipoMembresiaDAO;
+	@Autowired
+	private TipoMembresiaRepository tipoMembresiaRepository;
 	//Método en el cual manda a llamar TipoMembresiaDAO y le asigna lo que tenga a la lista. 
 	@Override
 	public List<TipoMembresia> findAll() {
@@ -38,6 +41,11 @@ public class TipoMembresiaServiceImpl implements TipoMembresiaService {
 	public void save(TipoMembresia tipoMembresia) {
 		tipoMembresiaDAO.save(tipoMembresia);
 		
+	}
+
+	@Override
+	public TipoMembresia findFirstByNombreOrderByNombreAsc(String name) {
+		return tipoMembresiaRepository.findFirstByNombreOrderByIdTipoMembresiaAsc(name);
 	}
 
 }

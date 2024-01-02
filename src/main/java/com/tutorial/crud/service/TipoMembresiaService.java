@@ -21,4 +21,6 @@ public interface TipoMembresiaService {
     public TipoMembresia findById(int clave);
 
     public void save(TipoMembresia estatusCobranza);
+
+    public TipoMembresia findFirstByNombreOrderByNombreAsc(String name);
 }

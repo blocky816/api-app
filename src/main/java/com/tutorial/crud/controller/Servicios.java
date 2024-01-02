@@ -2734,8 +2734,11 @@ public class Servicios
 				cliente.setApellidoPaterno(json.getString("ApellidoPaterno"));
 				cliente.setNombreCompleto(json.getString("NombreCompleto"));
 				Categoria categoria=categoriaService.findById(json.getJSONObject("Categoria").getInt("Id"));
-				if(categoria!=null)
+				if(categoria!=null) {
+					categoria.setNombre(json.getJSONObject("Categoria").getString("Nombre").trim().toLowerCase());
+					categoriaService.save(categoria);
 					cliente.setCategoria(categoria);
+				}
 				else {
 					categoria=new Categoria();
 					categoria.setActivo(true);
@@ -2844,7 +2847,8 @@ public class Servicios
 					tipoClienteService.save(tipoCliente);
 					cliente.setTipoCliente(tipoCliente);
 				}
-				TipoMembresia tipoMembresia=tipoMembresiaService.findById(json.getJSONObject("TipoMembresia").getInt("Id"));
+				//TipoMembresia tipoMembresia=tipoMembresiaService.findById(json.getJSONObject("TipoMembresia").getInt("Id"));
+				TipoMembresia tipoMembresia=tipoMembresiaService.findFirstByNombreOrderByNombreAsc(json.getJSONObject("TipoMembresia").getString("Nombre").trim());
 				if(tipoMembresia != null)
 					cliente.setTipoMembresia(tipoMembresia);
 				else {
@@ -2902,8 +2906,11 @@ public class Servicios
 				cliente.setApellidoPaterno(json.getString("ApellidoPaterno"));
 				cliente.setNombreCompleto(json.getString("NombreCompleto"));
 				Categoria categoria=categoriaService.findById(json.getJSONObject("Categoria").getInt("Id"));
-				if(categoria!=null)
+				if(categoria!=null) {
+					categoria.setNombre(json.getJSONObject("Categoria").getString("Nombre").trim().toLowerCase());
+					categoriaService.save(categoria);
 					cliente.setCategoria(categoria);
+				}
 				else {
 					categoria=new Categoria();
 					categoria.setActivo(true);
@@ -3012,7 +3019,8 @@ public class Servicios
 					tipoClienteService.save(tipoCliente);
 					cliente.setTipoCliente(tipoCliente);
 				}
-				TipoMembresia tipoMembresia=tipoMembresiaService.findById(json.getJSONObject("TipoMembresia").getInt("Id"));
+				//TipoMembresia tipoMembresia=tipoMembresiaService.findById(json.getJSONObject("TipoMembresia").getInt("Id"));
+				TipoMembresia tipoMembresia=tipoMembresiaService.findFirstByNombreOrderByNombreAsc(json.getJSONObject("TipoMembresia").getString("Nombre").trim());
 				if(tipoMembresia != null)
 					cliente.setTipoMembresia(tipoMembresia);
 				else {
