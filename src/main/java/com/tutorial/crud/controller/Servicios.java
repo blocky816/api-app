@@ -2733,10 +2733,9 @@ public class Servicios
 				cliente.setApellidoMaterno(json.getString("ApellidoMaterno"));
 				cliente.setApellidoPaterno(json.getString("ApellidoPaterno"));
 				cliente.setNombreCompleto(json.getString("NombreCompleto"));
-				Categoria categoria=categoriaService.findById(json.getJSONObject("Categoria").getInt("Id"));
+				//Categoria categoria=categoriaService.findById(json.getJSONObject("Categoria").getInt("Id"));
+				Categoria categoria=categoriaService.findFirstByNombreOrderByIdAsc(json.getJSONObject("Categoria").getString("Nombre").trim());
 				if(categoria!=null) {
-					categoria.setNombre(json.getJSONObject("Categoria").getString("Nombre").trim().toLowerCase());
-					categoriaService.save(categoria);
 					cliente.setCategoria(categoria);
 				}
 				else {
@@ -2905,10 +2904,9 @@ public class Servicios
 				cliente.setApellidoMaterno(json.getString("ApellidoMaterno"));
 				cliente.setApellidoPaterno(json.getString("ApellidoPaterno"));
 				cliente.setNombreCompleto(json.getString("NombreCompleto"));
-				Categoria categoria=categoriaService.findById(json.getJSONObject("Categoria").getInt("Id"));
+				//Categoria categoria=categoriaService.findById(json.getJSONObject("Categoria").getInt("Id"));
+				Categoria categoria=categoriaService.findFirstByNombreOrderByIdAsc(json.getJSONObject("Categoria").getString("Nombre").trim());
 				if(categoria!=null) {
-					categoria.setNombre(json.getJSONObject("Categoria").getString("Nombre").trim().toLowerCase());
-					categoriaService.save(categoria);
 					cliente.setCategoria(categoria);
 				}
 				else {

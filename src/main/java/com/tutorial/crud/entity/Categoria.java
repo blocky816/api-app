@@ -21,10 +21,10 @@ public class Categoria
 {
 	@Id //Define la llave primaria.
 	@Column(name="id") //Permite establecer el nombre de la columna de la tabla con la que el atributo debe de mapear.
-	int Id; //Variables
+	int id; //Variables
 	
 	@Column(name="nombre") //Permite establecer el nombre de la columna de la tabla con la que el atributo debe de mapear.
-	String Nombre;
+	String nombre;
 	
 	@Column(name="activo") //Permite establecer el nombre de la columna de la tabla con la que el atributo debe de mapear.
 	private boolean Activo;
@@ -40,7 +40,7 @@ public class Categoria
 	
 	public Categoria(String Nombre, Boolean Activo, Date FechaCreacion) 
 	{
-		this.Nombre = Nombre;
+		this.nombre = Nombre;
 		Activo = true;
 		FechaCreacion = new Date();
 	}
@@ -48,22 +48,22 @@ public class Categoria
 	//Se generaron todos los Getters y Setters.
 	public int getId() 
 	{
-		return Id;
+		return id;
 	}
 
 	public void setId(int id) 
 	{
-		Id = id;
+		id = id;
 	}
 
 	public String getNombre() 
 	{
-		return Nombre;
+		return nombre;
 	}
 
 	public void setNombre(String nombre) 
 	{
-		Nombre = nombre;
+		nombre = nombre;
 	}
 
 	public boolean isActivo() 
@@ -96,4 +96,14 @@ public class Categoria
 		FechaModificacion = fechaModificacion;
 	}
 
+	@Override
+	public String toString() {
+		return "Categoria{" +
+				"id=" + id +
+				", nombre='" + nombre + '\'' +
+				", Activo=" + Activo +
+				", FechaCreacion=" + FechaCreacion +
+				", FechaModificacion=" + FechaModificacion +
+				'}';
+	}
 }

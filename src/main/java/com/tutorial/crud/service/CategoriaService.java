@@ -19,4 +19,5 @@ public interface CategoriaService
 	public List<Categoria> findAll();
     public Categoria findById(int id);
     public void save(Categoria categoria);
+    public Categoria findFirstByNombreOrderByIdAsc(String name);
 }
