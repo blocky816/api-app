@@ -15,13 +15,13 @@ public class ScheduledTasks {
     @Autowired
     private ClienteServiceImpl clienteService;
 
-    @Scheduled(cron = "0 0 23 * * *") // Cron expression for running every minute
+    @Scheduled(cron = "0 0 0 * * *") // Cron expression for running every minute
     public void updateCollectionAlpha2() {
         clienteService.actualizarActivosxClub(6);
         clienteService.actualizarEtapasCanceladosxClub(6);
     }
 
-    @Scheduled(cron = "0 0 2 * * *") // Cron expression for running every minute
+    @Scheduled(cron = "0 30 2 * * *") // Cron expression for running every minute
     public void updateCollectionAlpha3() {
         clienteService.actualizarActivosxClub(7);
         clienteService.actualizarEtapasCanceladosxClub(7);

@@ -11,6 +11,7 @@ package com.tutorial.crud.service;
 //Librerías
 import java.util.List;
 
+import com.tutorial.crud.repository.CategoriaRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -22,7 +23,8 @@ public class CategoríaServiceImpl implements CategoriaService
 { 
 	@Autowired //Inyecta a nuestro DAO y lo utiliza. 
     private CategoriaDAO categoriaDAO;
-	
+	@Autowired
+	private CategoriaRepository categoriaRepository;
 	//Método en el cual manda a llamar categoriaDAO y le asigna lo que tenga a la lista. 
 	@Override
 	public List<Categoria> findAll() 
@@ -44,5 +46,10 @@ public class CategoríaServiceImpl implements CategoriaService
 	public void save(Categoria categoria) 
 	{
 		categoriaDAO.save(categoria);
+	}
+
+	@Override
+	public Categoria findFirstByNombreOrderByIdAsc(String name) {
+		return categoriaRepository.findFirstByNombreOrderByIdAsc(name);
 	}
 }
