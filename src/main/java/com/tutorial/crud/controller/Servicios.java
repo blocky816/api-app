@@ -2743,7 +2743,7 @@ public class Servicios
 					categoria.setActivo(true);
 					categoria.setFechaCreacion(new Date());
 					categoria.setFechaModificacion(new Date());
-					categoria.setId(json.getJSONObject("Categoria").getInt("Id"));
+					//categoria.setId(json.getJSONObject("Categoria").getInt("Id"));
 					categoria.setNombre(json.getJSONObject("Categoria").getString("Nombre"));
 					categoriaService.save(categoria);
 					cliente.setCategoria(categoria);
@@ -2856,9 +2856,9 @@ public class Servicios
 					tipoMembresia.setFechaCreacion(new Date());
 					tipoMembresia.setFechaModificacion(new Date());
 					tipoMembresia.setHorarioacceso(horarioAccesoService.findById(2));
-					tipoMembresia.setIdTipoMembresia(json.getJSONObject("TipoMembresia").getInt("Id"));
+					//tipoMembresia.setIdTipoMembresia(json.getJSONObject("TipoMembresia").getInt("Id"));
 					tipoMembresia.setNombre(json.getJSONObject("TipoMembresia").getString("Nombre"));
-					tipoMembresia.setTerminalId(json.getJSONObject("TipoMembresia").getInt("Id"));
+					//tipoMembresia.setTerminalId(json.getJSONObject("TipoMembresia").getInt("Id"));
 					tipoMembresiaService.save(tipoMembresia);
 					cliente.setTipoMembresia(tipoMembresia);
 				}
@@ -2914,7 +2914,7 @@ public class Servicios
 					categoria.setActivo(true);
 					categoria.setFechaCreacion(new Date());
 					categoria.setFechaModificacion(new Date());
-					categoria.setId(json.getJSONObject("Categoria").getInt("Id"));
+					//categoria.setId(json.getJSONObject("Categoria").getInt("Id"));
 					categoria.setNombre(json.getJSONObject("Categoria").getString("Nombre"));
 					categoriaService.save(categoria);
 					cliente.setCategoria(categoria);
@@ -3027,9 +3027,9 @@ public class Servicios
 					tipoMembresia.setFechaCreacion(new Date());
 					tipoMembresia.setFechaModificacion(new Date());
 					tipoMembresia.setHorarioacceso(horarioAccesoService.findById(2));
-					tipoMembresia.setIdTipoMembresia(json.getJSONObject("TipoMembresia").getInt("Id"));
+					//tipoMembresia.setIdTipoMembresia(json.getJSONObject("TipoMembresia").getInt("Id"));
 					tipoMembresia.setNombre(json.getJSONObject("TipoMembresia").getString("Nombre"));
-					tipoMembresia.setTerminalId(json.getJSONObject("TipoMembresia").getInt("Id"));
+					//tipoMembresia.setTerminalId(json.getJSONObject("TipoMembresia").getInt("Id"));
 					tipoMembresiaService.save(tipoMembresia);
 					cliente.setTipoMembresia(tipoMembresia);
 				}
