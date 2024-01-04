@@ -9,17 +9,18 @@
 package com.tutorial.crud.entity;
 
 //Librería 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 import java.util.Date;
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.Id;
-import javax.persistence.Table;
- 
+import javax.persistence.*;
+
 @Entity //Sirve únicamente para indicarle a JPA que esa clase es una Entity.
 @Table(name="categoria") //se utiliza para poner el nombre real de la tabla en la base de datos
 public class Categoria 
 {
-	@Id //Define la llave primaria.
+	@Id
+	@GeneratedValue(strategy = GenerationType.AUTO)
+	//@JsonIgnore
 	@Column(name="id") //Permite establecer el nombre de la columna de la tabla con la que el atributo debe de mapear.
 	int id; //Variables
 	
@@ -63,7 +64,7 @@ public class Categoria
 
 	public void setNombre(String nombre) 
 	{
-		nombre = nombre;
+		this.nombre = nombre;
 	}
 
 	public boolean isActivo() 

@@ -10,13 +10,7 @@ package com.tutorial.crud.entity;
 
 import java.util.Date;
 
-import javax.persistence.CascadeType;
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.Id;
-import javax.persistence.JoinColumn;
-import javax.persistence.OneToOne;
-import javax.persistence.Table;
+import javax.persistence.*;
 
 
 @Entity //Sirve únicamente para indicarle a JPA que esa clase es una Entity.
@@ -27,7 +21,8 @@ public class TipoMembresia
 	@GeneratedValue(generator = "hibernate-uuid")
 	@GenericGenerator(name = "uuid", strategy = "uuid2")
 	@Column(name="terminalId", unique = true)*/
-	@Id //Define la llave primaria 
+	@Id //Define la llave primaria
+	@GeneratedValue(strategy = GenerationType.AUTO)
 	@Column(name="id_tipomembresia") //Permite establecer el nombre de la columna de la tabla con la que el atributo debe de mapear.
 	private int idTipoMembresia;
 	
@@ -118,7 +113,7 @@ public class TipoMembresia
 	}
 
 	public void setIdTipoMembresia(int idTipoMembresia) {
-		idTipoMembresia = idTipoMembresia;
+		this.idTipoMembresia = idTipoMembresia;
 	}
 
 	@Override
