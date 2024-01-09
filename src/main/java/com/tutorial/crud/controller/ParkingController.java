@@ -208,6 +208,9 @@ public class ParkingController
 
 	@Autowired
 	private EmployeeService employeeService;
+
+	@Autowired
+	Servicios servicios;
 	
 	@Value("${my.property.nombre}")
 	String nombre;
@@ -453,7 +456,8 @@ public class ParkingController
 				to.setClub(jarray.getJSONObject(i).getString("club"));
 				to.setCantidad(Math.round(jarray.getJSONObject(i).getFloat("cantidad")));
 
-				this.update(horarioId);
+				//this.update(horarioId);
+				servicios.update(horarioId);
 				to.setCliente(clienteService.findById(horarioId));
 				to.setPk(true);
 				lista.add(to);
