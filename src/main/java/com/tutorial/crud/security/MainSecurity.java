@@ -102,6 +102,7 @@ public class MainSecurity extends WebSecurityConfigurerAdapter {
                 .antMatchers("/formularios/getCustomerPrompt/{customerID}").permitAll()
                 .antMatchers("/formularios/getFoodCalories").permitAll()
                 .antMatchers("/formularios/currentDietByCustomer/{customerID}").permitAll()
+                .antMatchers("/alpha/activateCustomer/{customerID}/{statusCobranza}").permitAll()
                 .anyRequest().authenticated()
                 .and()
                 .exceptionHandling().authenticationEntryPoint(jwtEntryPoint)
