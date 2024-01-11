@@ -74,7 +74,7 @@ public class ParkingUsuario {
 	
 	private String observaciones;
 	
-	 @OneToOne(mappedBy = "parking")
+	 @OneToOne(mappedBy = "parking", cascade = CascadeType.ALL)
 	 private RegistroTag registroTag;	 
 	 
 	public String getEstadoCobranza() {
