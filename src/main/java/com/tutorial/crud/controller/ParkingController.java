@@ -501,7 +501,7 @@ public class ParkingController
 				}
 
 				//RegistroTag registroTag= registroTagService.findByIdChip(Long.parseLong(usuario.getObservaciones()));
-				RegistroTag registroTag= registroTagService.findByIdChip(idChip);
+				RegistroTag registroTag = registroTagService.findByIdChip(idChip);
 				try {
 					if(registroTag.isActivo()) {
 						json.put("respuesta", "El chip ingresado ya se encuentra activo");
@@ -515,7 +515,7 @@ public class ParkingController
 				System.out.println(registroTag);
 				usuario.setRegistroTag(registroTag);
 				registroTag.setParking(usuario);
-				registroTagService.save(registroTag);
+				//registroTagService.save(registroTag);
 
 				ParkingUsuarioDTO vista=new ParkingUsuarioDTO();
 
@@ -555,6 +555,9 @@ public class ParkingController
 			System.out.println("Error de json: " + e.getMessage());
 		} catch(IOException | InterruptedException ex) {
 			System.out.println("Error de IO exception: " + ex.getMessage());
+		} catch (Exception e) {
+			System.out.println("No pude activar el chip de: " + horarioId + " => " + e.getMessage());
+			//e.printStackTrace();
 		}
 		return new ResponseEntity<>(null, HttpStatus.BAD_REQUEST);
 	}

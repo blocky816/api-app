@@ -31,7 +31,7 @@ public class RegistroTag {
 	@Column(name = "id_chip")
 	private long idChip;
 
-	@OneToOne(cascade = CascadeType.ALL)
+	@OneToOne()
     @JoinColumn(name = "id_parking", referencedColumnName = "id_venta_detalle")
     private ParkingUsuario parking;
 
