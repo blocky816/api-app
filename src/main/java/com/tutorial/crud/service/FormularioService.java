@@ -1,8 +1,11 @@
 package com.tutorial.crud.service;
 
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.tutorial.crud.aopDao.Pregunta;
 import com.tutorial.crud.chatGPT.ChatGPT;
+import com.tutorial.crud.controller.FormularioController;
 import com.tutorial.crud.dto.BodyFormulario;
 import com.tutorial.crud.dto.FormularioDTO;
 import com.tutorial.crud.entity.*;
@@ -10,7 +13,9 @@ import com.tutorial.crud.repository.AnswerChatGPTRepository;
 import com.tutorial.crud.repository.FormularioRepository;
 import com.tutorial.crud.repository.FormularioRespuestaRepository;
 import org.hibernate.mapping.Formula;
+import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -47,6 +52,9 @@ public class FormularioService {
     @Autowired
     AnswerChatGPTRepository answerChatGPTRepository;
 
+    @Autowired
+    ClubService clubService;
+
     public Integer getLastFormularioId() {
         return formularioRepository.getLastFormularioId();
     }
@@ -80,7 +88,6 @@ public class FormularioService {
     public void asignarCliente(ObjectNode request) throws Exception {
         int idCliente = request.get("idCliente").asInt();
         int folio = request.get("folio").asInt();
-
         if (idCliente < 1 || folio < 1) {
             throw new NullPointerException("Todos los campos son obligatorios");
         }
@@ -306,4 +313,41 @@ public class FormularioService {
         }
         return diferencia;
     }
+
+   /* public void assignDietForm(int customerID) {
+        Cliente customer = clienteService.findById(customerID);
+        List<FormularioRespuesta> formularioRespuestas = formularioRespuestaRepository.findLastAnswersFormByCustomer(customerID, 4);
+        if (customer != null && customer.getFormulario() == null && formularioRespuestas.isEmpty()) {
+            ObjectMapper mapper = new ObjectMapper();
+            JsonNode node = mapper.createObjectNode();
+            ((ObjectNode) node).put("idCliente", customerID);
+            ((ObjectNode) node).put("folio", 4);
+            try {
+                this.asignarCliente((ObjectNode) node);
+            } catch (Exception e) {
+                System.out.println("Error al asignar form: " + e.getMessage());
+            }
+        }
+    }
+
+    public void assignDietForms() {
+        List<Cliente> customers = clienteService.findAll();
+        System.out.println("clientes All: " + customers.size());
+        for (Cliente customer: customers) {
+            try {
+                assignDietForm(customer.getIdCliente());
+            } catch (Exception e) { }
+        }
+    }
+
+    /*public void assignDietFormsByClub(int clubID) {
+        Club club = clubService.findById(clubID);
+        List<Cliente> customers = clienteService.findAllByClub(club);
+        System.out.println("clientes by club: " + customers.size());
+        for (Cliente customer: customers) {
+            try {
+                assignDietForm(customer.getIdCliente());
+            } catch (Exception e) { }
+        }
+    }*/
 }
