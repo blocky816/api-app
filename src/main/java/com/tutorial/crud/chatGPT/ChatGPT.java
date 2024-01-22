@@ -115,8 +115,9 @@ public class ChatGPT {
     }
 
     public int chargeDiet(Cliente customer) {
+        int holder = (customer.getIdTitular() != 0) ? customer.getIdTitular() : customer.getIdCliente();
         String body2 = "{\r\n"
-                + "\"IDCliente\":" + customer.getIdCliente() + ",  \r\n"
+                + "\"IDCliente\":" + holder + ",  \r\n"
                 + "\"IDClub\":"+ customer.getClub().getIdClub()+ ",   \r\n"
                 + "\"Cantidad\":1, \r\n"
                 + "\"IDProductoServicio\":"+ 3296 +",  \r\n"
@@ -151,6 +152,7 @@ public class ChatGPT {
             conn.disconnect();*/
 
         } catch (Exception e) {
+            System.out.println("Error al cargar dieta en odoo cliente: " + holder + " => "+ e.getMessage());
         }
         return statusCode;
     }
