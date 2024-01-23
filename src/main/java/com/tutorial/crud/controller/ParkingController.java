@@ -18,15 +18,7 @@ import java.sql.Timestamp;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.Date;
-import java.util.HashSet;
-import java.util.List;
-import java.util.NoSuchElementException;
-import java.util.Optional;
-import java.util.Set;
-import java.util.TimeZone;
+import java.util.*;
 import java.util.concurrent.TimeUnit;
 
 import com.tutorial.crud.dto.*;
@@ -1563,6 +1555,7 @@ public class ParkingController
 		 			+ "hora_entrada;");
 		
 		 	List<Object[]> listResults = listaClases.getResultList();
+			currentSession.close();
 			List<RegistroParkingDTO> listaDTO= new ArrayList<RegistroParkingDTO>();
 			for (Object[] record : listResults) {
 				RegistroParkingDTO registroParking=new RegistroParkingDTO();
@@ -1598,277 +1591,288 @@ public class ParkingController
 				
 			}
 			for (int i=0;i<chipHoras.size();i++) {
-					int idVentaDetalle = chipHoras.get(i).getIdChip().getParking();
-					ParkingUsuario park = parkingUsuarioService.getOne(idVentaDetalle).get();
+					try {
+						int idVentaDetalle = chipHoras.get(i).getIdChip().getParking();
+						ParkingUsuario park = parkingUsuarioService.getOne(idVentaDetalle).get();
 
-					int horas = chipHoras.get(i).getHoras();
-					String club = chipHoras.get(i).getIdChip().getClub();
-					String tipoCliente = "";
-					if (park.getRhEmpleado() == null)
-						tipoCliente = park.getCliente().getTipoCliente().getNombre();
-				/*System.out.println(horas>=4 && idVentaDetalle>0 && (!tipoCliente.equals("EQUIPO PUEBLA") && !tipoCliente.equals("PRACTICANTES")
-						 && !tipoCliente.equals("EMPLEADOS ADMINISTRATIVOS Y OPERATIVOS")  && !tipoCliente.equals("EMPLEADOS CIM")
-						 && !tipoCliente.equals("EMPLEADOS DIRECTIVOS") && !tipoCliente.equals("EMPLEADOS FAMILIARES DIRECTOS") 
-						 && !tipoCliente.equals("EMPLEADOS PLATINUM")));*/
-				/*boolean excepciones=!tipoCliente.equals("EQUIPO PUEBLA") && !tipoCliente.equals("PRACTICANTES")
-						 && !tipoCliente.equals("EMPLEADOS ADMINISTRATIVOS Y OPERATIVOS")  && !tipoCliente.equals("EMPLEADOS CIM")
-						 && !tipoCliente.equals("EMPLEADOS DIRECTIVOS") && !tipoCliente.equals("EMPLEADOS FAMILIARES DIRECTOS") 
-						 && !tipoCliente.equals("EMPLEADOS PLATINUM") && !club.equals("Futbol City") ;*/
-					boolean excepciones = !tipoCliente.contains("Empleados");
-					if (horas >= 4 && club.equals("CIMERA") && idVentaDetalle > 0 && excepciones) {
-						List<Amonestaciones> amonestacionesPorChip = new ArrayList<Amonestaciones>();
-						Amonestaciones amonestacionNueva = new Amonestaciones();
-						try {
-							amonestacionesPorChip = amonestacionesService.getByIdChip(chipHoras.get(i).getIdChip().obtenerIdChip());
-							amonestacionNueva.setCantidadAmonestaciones(amonestacionesPorChip.size() + 1);
-							amonestacionNueva.setIdChip(amonestacionesPorChip.get(0).getIdChip());
-							amonestacionNueva.setHoraEntrada(chipHoras.get(i).getHoraEntrada());
-							amonestacionNueva.setHoraSalida(chipHoras.get(i).getHoraSalida());
-							amonestacionesPorChip.add(amonestacionNueva);
-						} catch (NoSuchElementException e) {
-							amonestacionNueva.setCantidadAmonestaciones(1);
-							amonestacionNueva.setIdChip(chipHoras.get(i).getIdChip().obtenerIdChip());
-							amonestacionNueva.setHoraEntrada(chipHoras.get(i).getHoraEntrada());
-							amonestacionNueva.setHoraSalida(chipHoras.get(i).getHoraSalida());
-							amonestacionesPorChip.add(amonestacionNueva);
-						}
-						RegistroTag chip = registroTagService.findByIdChip(amonestacionesPorChip.get(0).getIdChip());
-						ParkingUsuario parkingUsuario = parkingUsuarioService.getOne(chip.getParking()).get();
-						String correoAmonestado = parkingUsuario.getCorreo();
-						String asunto = "Te has excedido del tiempo limite en el estacionamiento";
-						String texto = "";
-						String cabecera = "";
-						Correo correo;
-
-						int idCliente = parkingUsuario.getCliente().getIdCliente();
-						String nombre = parkingUsuario.getCliente().getNombre() + " " + parkingUsuario.getCliente().getApellidoPaterno() + " " + parkingUsuario.getCliente().getApellidoMaterno();
-						String horaEntrada = amonestacionNueva.getHoraEntrada();
-						String horaSalida = amonestacionNueva.getHoraSalida();
-						int idClub = parkingUsuario.getCliente().getClub().getIdClub();
-						String fechaInicio = amonestacionNueva.obtenerHoraEntrada();
-
+						int horas = chipHoras.get(i).getHoras();
+						String club = chipHoras.get(i).getIdChip().getClub();
+						String tipoCliente = "";
+						if (park.getRhEmpleado() == null)
+							tipoCliente = park.getCliente().getTipoCliente().getNombre();
+						/*System.out.println(horas>=4 && idVentaDetalle>0 && (!tipoCliente.equals("EQUIPO PUEBLA") && !tipoCliente.equals("PRACTICANTES")
+								 && !tipoCliente.equals("EMPLEADOS ADMINISTRATIVOS Y OPERATIVOS")  && !tipoCliente.equals("EMPLEADOS CIM")
+								 && !tipoCliente.equals("EMPLEADOS DIRECTIVOS") && !tipoCliente.equals("EMPLEADOS FAMILIARES DIRECTOS")
+								 && !tipoCliente.equals("EMPLEADOS PLATINUM")));*/
+						/*boolean excepciones=!tipoCliente.equals("EQUIPO PUEBLA") && !tipoCliente.equals("PRACTICANTES")
+								 && !tipoCliente.equals("EMPLEADOS ADMINISTRATIVOS Y OPERATIVOS")  && !tipoCliente.equals("EMPLEADOS CIM")
+								 && !tipoCliente.equals("EMPLEADOS DIRECTIVOS") && !tipoCliente.equals("EMPLEADOS FAMILIARES DIRECTOS")
+								 && !tipoCliente.equals("EMPLEADOS PLATINUM") && !club.equals("Futbol City") ;*/
+						boolean excepciones = !tipoCliente.contains("Empleados");
 						ConfiguracionSancion sancion2 = configuracionSancionService.findByConcepto("Parking segunda ocasion");
 						ConfiguracionSancion sancion3 = configuracionSancionService.findByConcepto("Parking tercera ocasion");
+						Calendar calendar = new GregorianCalendar();
+						if (horas >= 4 && club.equals("CIMERA") && idVentaDetalle > 0 && excepciones) {
+							List<Amonestaciones> amonestacionesPorChip = new ArrayList<Amonestaciones>();
+							Amonestaciones amonestacionNueva = new Amonestaciones();
+							try {
+								amonestacionesPorChip = amonestacionesService.getByIdChip(chipHoras.get(i).getIdChip().obtenerIdChip());
+								amonestacionNueva.setCantidadAmonestaciones(amonestacionesPorChip.size() + 1);
+								amonestacionNueva.setIdChip(amonestacionesPorChip.get(0).getIdChip());
+								amonestacionNueva.setHoraEntrada(chipHoras.get(i).getHoraEntrada());
+								amonestacionNueva.setHoraSalida(chipHoras.get(i).getHoraSalida());
+								amonestacionesPorChip.add(amonestacionNueva);
+							} catch (Exception e) {
+								amonestacionNueva.setCantidadAmonestaciones(1);
+								amonestacionNueva.setIdChip(chipHoras.get(i).getIdChip().obtenerIdChip());
+								amonestacionNueva.setHoraEntrada(chipHoras.get(i).getHoraEntrada());
+								amonestacionNueva.setHoraSalida(chipHoras.get(i).getHoraSalida());
+								amonestacionesPorChip.add(amonestacionNueva);
+								System.out.println("Error al crear amonestacion CIMERA chip: " + chipHoras.get(i) + " => " + e.getMessage());
+							}
+							RegistroTag chip = registroTagService.findByIdChip(amonestacionesPorChip.get(0).getIdChip());
+							ParkingUsuario parkingUsuario = parkingUsuarioService.getOne(chip.getParking()).get();
+							String correoAmonestado = parkingUsuario.getCorreo();
+							String asunto = "Te has excedido del tiempo limite en el estacionamiento";
+							String texto = "";
+							String cabecera = "";
+							Correo correo;
 
-						switch (amonestacionesPorChip.size()) {
-							case 1:
-								correo = new Correo(usuarioCorreo, contrasenaCorreo, correoAmonestado, copiaOculta);
-								asunto = asunto + " por primera ocasion";
-								cabecera = "primera";
-								texto = "<li>La estancia en el estacionamiento es de 4 horas por ingreso.</li>\r\n"
-										+ "<li>En caso de una segunda incidencia deberá cubrir, en la caja general del club, una sanción administrativa de $35.00.</li>\r\n"
-										+ "<li>En caso de una tercera incidencia deberá cubrir, en la caja general del club, una sanción administrativa de $65.00.</li>\r\n"
-										+ "<li>En caso de una cuarta incidencia se desactivará definitivamente el Chip</li>\r\n"
-										+ "<li>El chip permanecerá desactivado hasta cubrir la sanción administrativa.</li>\r\n";
-								correo.enviar_correo4(asunto,idCliente,nombre,horaEntrada,horaSalida,texto,cabecera);
-								break;
-							case 2:
-								String body2 = "{\r\n"
-										+ "\"IDCliente\":" + idCliente + ",  \r\n"
-										+ "\"IDClub\":" + idClub + ",   \r\n"
-										+ "\"Cantidad\":1, \r\n"
-										+ "\"IDProductoServicio\":" + sancion2 + ",  \r\n"
-										+ "\"Observaciones\":\" hora entrada: " + horaEntrada + " hora salida: " + horaSalida + "\" ,   \r\n"
-										+ "\"DescuentoPorciento\":0,  \r\n"
-										+ "\"FechaInicio\":\"" + fechaInicio + "\", \r\n"
-										+ "\"FechaFin\":\"" + fechaInicio + "\",  \r\n"
-										+ "\"CobroProporcional\":0, \r\n"
-										+ "\"Token\":\"77D5BDD4-1FEE-4A47-86A0-1E7D19EE1C74\"  \r\n"
-										+ "}";
-								configuracion o = configuracionService.findByServiceName("RegistraOV").get();
-								try {
-									System.out.println(e.conectaApiClubPOST(body2, o.getEndpointAlpha()));
-								} catch (Exception e) {
+							int idCliente = parkingUsuario.getCliente().getIdCliente();
+							String nombre = parkingUsuario.getCliente().getNombre() + " " + parkingUsuario.getCliente().getApellidoPaterno() + " " + parkingUsuario.getCliente().getApellidoMaterno();
+							String horaEntrada = amonestacionNueva.getHoraEntrada();
+							String horaSalida = amonestacionNueva.getHoraSalida();
+							int idClub = parkingUsuario.getCliente().getClub().getIdClub();
+							String fechaInicio = amonestacionNueva.obtenerHoraEntrada();
 
-								}
+							switch (amonestacionesPorChip.size()) {
+								case 1:
+									correo = new Correo(usuarioCorreo, contrasenaCorreo, correoAmonestado, copiaOculta);
+									asunto = asunto + " por primera ocasion";
+									cabecera = "primera";
+									texto = "<li>La estancia en el estacionamiento es de 4 horas por ingreso.</li>\r\n"
+											+ "<li>En caso de una segunda incidencia deberá cubrir, en la caja general del club, una sanción administrativa de $35.00.</li>\r\n"
+											+ "<li>En caso de una tercera incidencia deberá cubrir, en la caja general del club, una sanción administrativa de $65.00.</li>\r\n"
+											+ "<li>En caso de una cuarta incidencia se desactivará definitivamente el Chip</li>\r\n"
+											+ "<li>El chip permanecerá desactivado hasta cubrir la sanción administrativa.</li>\r\n";
+									correo.enviar_correo4(asunto,idCliente,nombre,horaEntrada,horaSalida,texto,cabecera);
+									break;
+								case 2:
+									String body2 = "{\r\n"
+											+ "\"IDCliente\":" + idCliente + ",  \r\n"
+											+ "\"IDClub\":" + idClub + ",   \r\n"
+											+ "\"Cantidad\":1, \r\n"
+											+ "\"IDProductoServicio\":" + sancion2.getCodigo() + ",  \r\n"
+											+ "\"Observaciones\":\" hora entrada: " + horaEntrada + " hora salida: " + horaSalida + "\" ,   \r\n"
+											+ "\"DescuentoPorciento\":0,  \r\n"
+											+ "\"FechaInicio\":\"" + fechaInicio + "\", \r\n"
+											+ "\"FechaFin\":\"" + fechaInicio + "\",  \r\n"
+											+ "\"CobroProporcional\":0, \r\n"
+											+ "\"Token\":\"77D5BDD4-1FEE-4A47-86A0-1E7D19EE1C74\"  \r\n"
+											+ "}";
+									configuracion o = configuracionService.findByServiceName("RegistraOV").get();
+									try {
+										System.out.println(e.conectaApiClubPOST(body2, o.getEndpointAlpha()));
+									} catch (Exception e) {
 
-								correo = new Correo(usuarioCorreo, contrasenaCorreo, correoAmonestado, copiaOculta);
-								asunto = asunto + " por segunda ocasion";
-								cabecera = "segunda";
-								texto = "<li>La estancia en el estacionamiento es de 4 horas por ingreso.</li>\r\n"
-										+ "<li>En caso de una tercera incidencia deberá cubrir, en la caja general del club, una sanción administrativa de $65.00.</li>\r\n"
-										+ "<li>En caso de una cuarta incidencia se desactivará definitivamente el Chip</li>\r\n"
-										+ "<li>El chip permanecerá desactivado hasta cubrir la sanción administrativa.</li>";
-								correo.enviar_correo4(asunto,idCliente,nombre,horaEntrada,horaSalida,texto,cabecera);
-								break;
-							case 3:
-								String body3 = "{\r\n"
-										+ "\"IDCliente\":" + idCliente + ",  \r\n"
-										+ "\"IDClub\":" + idClub + ",   \r\n"
-										+ "\"Cantidad\":1, \r\n"
-										+ "\"IDProductoServicio\":" + sancion3 + ",  \r\n"
-										+ "\"Observaciones\":\" hora entrada: " + horaEntrada + " hora salida: " + horaSalida + "\" ,   \r\n"
-										+ "\"DescuentoPorciento\":0,  \r\n"
-										+ "\"FechaInicio\":\"" + fechaInicio + "\", \r\n"
-										+ "\"FechaFin\":\"" + fechaInicio + "\",  \r\n"
-										+ "\"CobroProporcional\":0, \r\n"
-										+ "\"Token\":\"77D5BDD4-1FEE-4A47-86A0-1E7D19EE1C74\"  \r\n"
-										+ "}";
-								configuracion o2 = configuracionService.findByServiceName("RegistraOV").get();
-								try {
-									System.out.println(e.conectaApiClubPOST(body3, o2.getEndpointAlpha()));
+									}
 
-								} catch (Exception e) {
+									correo = new Correo(usuarioCorreo, contrasenaCorreo, correoAmonestado, copiaOculta);
+									asunto = asunto + " por segunda ocasion";
+									cabecera = "segunda";
+									texto = "<li>La estancia en el estacionamiento es de 4 horas por ingreso.</li>\r\n"
+											+ "<li>En caso de una tercera incidencia deberá cubrir, en la caja general del club, una sanción administrativa de $65.00.</li>\r\n"
+											+ "<li>En caso de una cuarta incidencia se desactivará definitivamente el Chip</li>\r\n"
+											+ "<li>El chip permanecerá desactivado hasta cubrir la sanción administrativa.</li>";
+									correo.enviar_correo4(asunto,idCliente,nombre,horaEntrada,horaSalida,texto,cabecera);
+									break;
+								case 3:
+									String body3 = "{\r\n"
+											+ "\"IDCliente\":" + idCliente + ",  \r\n"
+											+ "\"IDClub\":" + idClub + ",   \r\n"
+											+ "\"Cantidad\":1, \r\n"
+											+ "\"IDProductoServicio\":" + sancion3.getCodigo() + ",  \r\n"
+											+ "\"Observaciones\":\" hora entrada: " + horaEntrada + " hora salida: " + horaSalida + "\" ,   \r\n"
+											+ "\"DescuentoPorciento\":0,  \r\n"
+											+ "\"FechaInicio\":\"" + fechaInicio + "\", \r\n"
+											+ "\"FechaFin\":\"" + fechaInicio + "\",  \r\n"
+											+ "\"CobroProporcional\":0, \r\n"
+											+ "\"Token\":\"77D5BDD4-1FEE-4A47-86A0-1E7D19EE1C74\"  \r\n"
+											+ "}";
+									configuracion o2 = configuracionService.findByServiceName("RegistraOV").get();
+									try {
+										System.out.println(e.conectaApiClubPOST(body3, o2.getEndpointAlpha()));
 
-								}
+									} catch (Exception e) {
 
-								correo = new Correo(usuarioCorreo, contrasenaCorreo, correoAmonestado, copiaOculta);
-								asunto = asunto + " por tercera ocasion";
-								cabecera = "tercera";
-								texto = "<li>La estancia en el estacionamiento es de 4 horas por ingreso.</li>\r\n"
-										+ "<li>En caso de una cuarta incidencia se desactivará definitivamente el Chip</li>\r\n"
-										+ "<li>El chip permanecerá desactivado hasta cubrir la sanción administrativa.</li>";
-								//correo.enviar_correo4(asunto,idCliente,nombre,horaEntrada,horaSalida,texto,cabecera);
-								break;
-							case 4:
-								RegistroTag registroTag = registroTagService.findByIdChip(amonestacionesPorChip.get(0).getIdChip());
-								registroTag.setActivo(false);
-								registroTagService.save(registroTag);
-								correo = new Correo(usuarioCorreo, contrasenaCorreo, correoAmonestado, copiaOculta);
-								asunto = asunto + " por cuarta ocasion";
-								//correo.enviar_correo5(asunto,idCliente,nombre,horaEntrada,horaSalida);
+									}
 
-								break;
+									correo = new Correo(usuarioCorreo, contrasenaCorreo, correoAmonestado, copiaOculta);
+									asunto = asunto + " por tercera ocasion";
+									cabecera = "tercera";
+									texto = "<li>La estancia en el estacionamiento es de 4 horas por ingreso.</li>\r\n"
+											+ "<li>En caso de una cuarta incidencia se desactivará definitivamente el Chip</li>\r\n"
+											+ "<li>El chip permanecerá desactivado hasta cubrir la sanción administrativa.</li>";
+									correo.enviar_correo4(asunto,idCliente,nombre,horaEntrada,horaSalida,texto,cabecera);
+									break;
+								case 4:
+									RegistroTag registroTag = registroTagService.findByIdChip(amonestacionesPorChip.get(0).getIdChip());
+									registroTag.setActivo(false);
+									//hacemos calculos sobre el calendario
+									calendar.setTime(registroTag.getFechaFin());
+									//movemos el ccalendario
+									calendar.add(Calendar.YEAR, -1);
+									registroTag.setFechaFin(calendar.getTime());
+									registroTagService.save(registroTag);
+									correo = new Correo(usuarioCorreo, contrasenaCorreo, correoAmonestado, copiaOculta);
+									asunto = asunto + " por cuarta ocasion";
+									correo.enviar_correo5(asunto,idCliente,nombre,horaEntrada,horaSalida);
+									break;
+							}
 
-						}
+							amonestacionesService.save(amonestacionNueva);
+						} // CHIPS CIMERAS
+						else if (horas >= 4 && idVentaDetalle > 0 && excepciones && !club.equals("CIMERA")) {
+							List<Amonestaciones> amonestacionesPorChip = new ArrayList<Amonestaciones>();
+							Amonestaciones amonestacionNueva = new Amonestaciones();
+							try {
+								amonestacionesPorChip = amonestacionesService.getByIdChip(chipHoras.get(i).getIdChip().obtenerIdChip());
+								amonestacionNueva.setCantidadAmonestaciones(amonestacionesPorChip.size() + 1);
+								amonestacionNueva.setIdChip(amonestacionesPorChip.get(0).getIdChip());
+								amonestacionNueva.setHoraEntrada(chipHoras.get(i).getHoraEntrada());
+								amonestacionNueva.setHoraSalida(chipHoras.get(i).getHoraSalida());
+								amonestacionesPorChip.add(amonestacionNueva);
+							} catch (Exception e) {
+								amonestacionNueva.setCantidadAmonestaciones(1);
+								amonestacionNueva.setIdChip(chipHoras.get(i).getIdChip().obtenerIdChip());
+								amonestacionNueva.setHoraEntrada(chipHoras.get(i).getHoraEntrada());
+								amonestacionNueva.setHoraSalida(chipHoras.get(i).getHoraSalida());
+								amonestacionesPorChip.add(amonestacionNueva);
+								System.out.println("Error al crear amonestacion AlPHAS chip: " + chipHoras.get(i) + " => " + e.getMessage());
+							}
+							RegistroTag chip = registroTagService.findByIdChip(amonestacionesPorChip.get(0).getIdChip());
+							ParkingUsuario parkingUsuario = parkingUsuarioService.getOne(chip.getParking()).get();
+							String correoAmonestado = parkingUsuario.getCorreo();
+							String asunto = "Te has excedido del tiempo limite en el estacionamiento";
+							String texto = "";
+							String cabecera = "";
+							Correo correo;
 
-						amonestacionesService.save(amonestacionNueva);
-					} else if (horas >= 4 && idVentaDetalle > 0 && excepciones && !club.equals("CIMERA")) {
-						List<Amonestaciones> amonestacionesPorChip = new ArrayList<Amonestaciones>();
-						Amonestaciones amonestacionNueva = new Amonestaciones();
-						try {
-							amonestacionesPorChip = amonestacionesService.getByIdChip(chipHoras.get(i).getIdChip().obtenerIdChip());
-							amonestacionNueva.setCantidadAmonestaciones(amonestacionesPorChip.size() + 1);
-							amonestacionNueva.setIdChip(amonestacionesPorChip.get(0).getIdChip());
-							amonestacionNueva.setHoraEntrada(chipHoras.get(i).getHoraEntrada());
-							amonestacionNueva.setHoraSalida(chipHoras.get(i).getHoraSalida());
-							amonestacionesPorChip.add(amonestacionNueva);
-						} catch (NoSuchElementException e) {
-							amonestacionNueva.setCantidadAmonestaciones(1);
-							amonestacionNueva.setIdChip(chipHoras.get(i).getIdChip().obtenerIdChip());
-							amonestacionNueva.setHoraEntrada(chipHoras.get(i).getHoraEntrada());
-							amonestacionNueva.setHoraSalida(chipHoras.get(i).getHoraSalida());
-							amonestacionesPorChip.add(amonestacionNueva);
-						}
-						RegistroTag chip = registroTagService.findByIdChip(amonestacionesPorChip.get(0).getIdChip());
-						ParkingUsuario parkingUsuario = parkingUsuarioService.getOne(chip.getParking()).get();
-						String correoAmonestado = parkingUsuario.getCorreo();
-						String asunto = "Te has excedido del tiempo limite en el estacionamiento";
-						String texto = "";
-						String cabecera = "";
-						Correo correo;
-
-						int idCliente = parkingUsuario.getCliente().getIdCliente();
-						String nombre = parkingUsuario.getCliente().getNombre() + " " + parkingUsuario.getCliente().getApellidoPaterno() + " " + parkingUsuario.getCliente().getApellidoMaterno();
-						String horaEntrada = amonestacionNueva.getHoraEntrada();
-						String horaSalida = amonestacionNueva.getHoraSalida();
-						int idClub = parkingUsuario.getCliente().getClub().getIdClub();
-						String fechaInicio = amonestacionNueva.obtenerHoraEntrada();
+							int idCliente = parkingUsuario.getCliente().getIdCliente();
+							String nombre = parkingUsuario.getCliente().getNombre() + " " + parkingUsuario.getCliente().getApellidoPaterno() + " " + parkingUsuario.getCliente().getApellidoMaterno();
+							String horaEntrada = amonestacionNueva.getHoraEntrada();
+							String horaSalida = amonestacionNueva.getHoraSalida();
+							int idClub = parkingUsuario.getCliente().getClub().getIdClub();
+							String fechaInicio = amonestacionNueva.obtenerHoraEntrada();
 
 
-						switch (amonestacionesPorChip.size()) {
-							case 1:
-								correo = new Correo(usuarioCorreo, contrasenaCorreo, correoAmonestado, copiaOculta);
-								asunto = asunto + " por primera ocasion";
-								cabecera = "primera";
-								texto = "<li>La estancia en el estacionamiento es de 4 horas por ingreso.</li>\r\n"
-										+ "<li>En caso de una segunda incidencia deberá cubrir, en la caja general del club, una sanción administrativa de $35.00.</li>\r\n"
-										+ "<li>En caso de una tercera incidencia deberá cubrir, en la caja general del club, una sanción administrativa de $65.00.</li>\r\n"
-										+ "<li>En caso de una cuarta incidencia se desactivará definitivamente el Chip</li>\r\n"
-										+ "<li>El chip permanecerá desactivado hasta cubrir la sanción administrativa.</li>\r\n";
-						if(parkingUsuario.getCliente().getClub().getIdClub()==3)
-							correo.enviar_correo2(asunto,idCliente,nombre,horaEntrada,horaSalida,texto,cabecera);
-						else if (parkingUsuario.getCliente().getClub().getIdClub()==2)
-							correo.enviar_correo6(asunto,idCliente,nombre,horaEntrada,horaSalida,texto,cabecera);
-						else
-							correo.enviar_correo4(asunto,idCliente,nombre,horaEntrada,horaSalida,texto,cabecera);
-								break;
-							case 2:
-								String body2 = "{\r\n"
-										+ "\"IDCliente\":" + idCliente + ",  \r\n"
-										+ "\"IDClub\":" + idClub + ",   \r\n"
-										+ "\"Cantidad\":1, \r\n"
-										+ "\"IDProductoServicio\":2585,  \r\n"
-										+ "\"Observaciones\":\" hora entrada: " + horaEntrada + " hora salida: " + horaSalida + "\" ,   \r\n"
-										+ "\"DescuentoPorciento\":0,  \r\n"
-										+ "\"FechaInicio\":\"" + fechaInicio + "\", \r\n"
-										+ "\"FechaFin\":\"" + fechaInicio + "\",  \r\n"
-										+ "\"CobroProporcional\":0, \r\n"
-										+ "\"Token\":\"77D5BDD4-1FEE-4A47-86A0-1E7D19EE1C74\"  \r\n"
-										+ "}";
-								configuracion o = configuracionService.findByServiceName("RegistraOV").get();
-								try {
-									System.out.println(e.conectaApiClubPOST(body2, o.getEndpointAlpha()));
-								} catch (Exception e) {
+							switch (amonestacionesPorChip.size()) {
+								case 1:
+									correo = new Correo(usuarioCorreo, contrasenaCorreo, correoAmonestado, copiaOculta);
+									asunto = asunto + " por primera ocasion";
+									cabecera = "primera";
+									texto = "<li>La estancia en el estacionamiento es de 4 horas por ingreso.</li>\r\n"
+											+ "<li>En caso de una segunda incidencia deberá cubrir, en la caja general del club, una sanción administrativa de $35.00.</li>\r\n"
+											+ "<li>En caso de una tercera incidencia deberá cubrir, en la caja general del club, una sanción administrativa de $65.00.</li>\r\n"
+											+ "<li>En caso de una cuarta incidencia se desactivará definitivamente el Chip</li>\r\n"
+											+ "<li>El chip permanecerá desactivado hasta cubrir la sanción administrativa.</li>\r\n";
+									if(parkingUsuario.getCliente().getClub().getIdClub()==3)
+										correo.enviar_correo2(asunto,idCliente,nombre,horaEntrada,horaSalida,texto,cabecera);
+									else if (parkingUsuario.getCliente().getClub().getIdClub()==2)
+										correo.enviar_correo6(asunto,idCliente,nombre,horaEntrada,horaSalida,texto,cabecera);
+									else
+										correo.enviar_correo4(asunto,idCliente,nombre,horaEntrada,horaSalida,texto,cabecera);
+									break;
+								case 2:
+									String body2 = "{\r\n"
+											+ "\"IDCliente\":" + idCliente + ",  \r\n"
+											+ "\"IDClub\":" + idClub + ",   \r\n"
+											+ "\"Cantidad\":1, \r\n"
+											+ "\"IDProductoServicio\":" + sancion2.getCodigo() + ",  \r\n"
+											+ "\"Observaciones\":\" hora entrada: " + horaEntrada + " hora salida: " + horaSalida + "\" ,   \r\n"
+											+ "\"DescuentoPorciento\":0,  \r\n"
+											+ "\"FechaInicio\":\"" + fechaInicio + "\", \r\n"
+											+ "\"FechaFin\":\"" + fechaInicio + "\",  \r\n"
+											+ "\"CobroProporcional\":0, \r\n"
+											+ "\"Token\":\"77D5BDD4-1FEE-4A47-86A0-1E7D19EE1C74\"  \r\n"
+											+ "}";
+									configuracion o = configuracionService.findByServiceName("RegistraOV").get();
+									try {
+										System.out.println(e.conectaApiClubPOST(body2, o.getEndpointAlpha()));
+									} catch (Exception e) {
 
-								}
+									}
 
-								correo = new Correo(usuarioCorreo, contrasenaCorreo, correoAmonestado, copiaOculta);
-								asunto = asunto + " por segunda ocasion";
-								cabecera = "segunda";
-								texto = "<li>La estancia en el estacionamiento es de 4 horas por ingreso.</li>\r\n"
-										+ "<li>En caso de una tercera incidencia deberá cubrir, en la caja general del club, una sanción administrativa de $65.00.</li>\r\n"
-										+ "<li>En caso de una cuarta incidencia se desactivará definitivamente el Chip</li>\r\n"
-										+ "<li>El chip permanecerá desactivado hasta cubrir la sanción administrativa.</li>";
-						if(parkingUsuario.getCliente().getClub().getIdClub()==3)
-							correo.enviar_correo2(asunto,idCliente,nombre,horaEntrada,horaSalida,texto,cabecera);
-						else if (parkingUsuario.getCliente().getClub().getIdClub()==2)
-							correo.enviar_correo6(asunto,idCliente,nombre,horaEntrada,horaSalida,texto,cabecera);
-						else
-							correo.enviar_correo4(asunto,idCliente,nombre,horaEntrada,horaSalida,texto,cabecera);
-								break;
-							case 3:
-								String body3 = "{\r\n"
-										+ "\"IDCliente\":" + idCliente + ",  \r\n"
-										+ "\"IDClub\":" + idClub + ",   \r\n"
-										+ "\"Cantidad\":1, \r\n"
-										+ "\"IDProductoServicio\":2586,  \r\n"
-										+ "\"Observaciones\":\" hora entrada: " + horaEntrada + " hora salida: " + horaSalida + "\" ,   \r\n"
-										+ "\"DescuentoPorciento\":0,  \r\n"
-										+ "\"FechaInicio\":\"" + fechaInicio + "\", \r\n"
-										+ "\"FechaFin\":\"" + fechaInicio + "\",  \r\n"
-										+ "\"CobroProporcional\":0, \r\n"
-										+ "\"Token\":\"77D5BDD4-1FEE-4A47-86A0-1E7D19EE1C74\"  \r\n"
-										+ "}";
-								configuracion o2 = configuracionService.findByServiceName("RegistraOV").get();
-								try {
-									System.out.println(e.conectaApiClubPOST(body3, o2.getEndpointAlpha()));
+									correo = new Correo(usuarioCorreo, contrasenaCorreo, correoAmonestado, copiaOculta);
+									asunto = asunto + " por segunda ocasion";
+									cabecera = "segunda";
+									texto = "<li>La estancia en el estacionamiento es de 4 horas por ingreso.</li>\r\n"
+											+ "<li>En caso de una tercera incidencia deberá cubrir, en la caja general del club, una sanción administrativa de $65.00.</li>\r\n"
+											+ "<li>En caso de una cuarta incidencia se desactivará definitivamente el Chip</li>\r\n"
+											+ "<li>El chip permanecerá desactivado hasta cubrir la sanción administrativa.</li>";
+									if(parkingUsuario.getCliente().getClub().getIdClub()==3)
+										correo.enviar_correo2(asunto,idCliente,nombre,horaEntrada,horaSalida,texto,cabecera);
+									else if (parkingUsuario.getCliente().getClub().getIdClub()==2)
+										correo.enviar_correo6(asunto,idCliente,nombre,horaEntrada,horaSalida,texto,cabecera);
+									else
+										correo.enviar_correo4(asunto,idCliente,nombre,horaEntrada,horaSalida,texto,cabecera);
+									break;
+								case 3:
+									String body3 = "{\r\n"
+											+ "\"IDCliente\":" + idCliente + ",  \r\n"
+											+ "\"IDClub\":" + idClub + ",   \r\n"
+											+ "\"Cantidad\":1, \r\n"
+											+ "\"IDProductoServicio\":" + sancion3.getCodigo() + ",  \r\n"
+											+ "\"Observaciones\":\" hora entrada: " + horaEntrada + " hora salida: " + horaSalida + "\" ,   \r\n"
+											+ "\"DescuentoPorciento\":0,  \r\n"
+											+ "\"FechaInicio\":\"" + fechaInicio + "\", \r\n"
+											+ "\"FechaFin\":\"" + fechaInicio + "\",  \r\n"
+											+ "\"CobroProporcional\":0, \r\n"
+											+ "\"Token\":\"77D5BDD4-1FEE-4A47-86A0-1E7D19EE1C74\"  \r\n"
+											+ "}";
+									configuracion o2 = configuracionService.findByServiceName("RegistraOV").get();
+									try {
+										System.out.println(e.conectaApiClubPOST(body3, o2.getEndpointAlpha()));
 
-								} catch (Exception e) {
+									} catch (Exception e) {
 
-								}
-
-								correo = new Correo(usuarioCorreo, contrasenaCorreo, correoAmonestado, copiaOculta);
-								asunto = asunto + " por tercera ocasion";
-								cabecera = "tercera";
-								texto = "<li>La estancia en el estacionamiento es de 4 horas por ingreso.</li>\r\n"
-										+ "<li>En caso de una cuarta incidencia se desactivará definitivamente el Chip</li>\r\n"
-										+ "<li>El chip permanecerá desactivado hasta cubrir la sanción administrativa.</li>";
-						if(parkingUsuario.getCliente().getClub().getIdClub()==3)
-							correo.enviar_correo2(asunto,idCliente,nombre,horaEntrada,horaSalida,texto,cabecera);
-						else if (parkingUsuario.getCliente().getClub().getIdClub()==2)
-							correo.enviar_correo6(asunto,idCliente,nombre,horaEntrada,horaSalida,texto,cabecera);
-						else
-							correo.enviar_correo4(asunto,idCliente,nombre,horaEntrada,horaSalida,texto,cabecera);
-								break;
-							case 4:
-								RegistroTag registroTag = registroTagService.findByIdChip(amonestacionesPorChip.get(0).getIdChip());
-								registroTag.setActivo(false);
-								registroTagService.save(registroTag);
-								correo = new Correo(usuarioCorreo, contrasenaCorreo, correoAmonestado, copiaOculta);
-								asunto = asunto + " por cuarta ocasion";
-						if(parkingUsuario.getCliente().getClub().getIdClub()==3)
-							correo.enviar_correo3(asunto,idCliente,nombre,horaEntrada,horaSalida);
-						else if (parkingUsuario.getCliente().getClub().getIdClub()==2)
-							correo.enviar_correo7(asunto,idCliente,nombre,horaEntrada,horaSalida);
-						else
-							correo.enviar_correo5(asunto,idCliente,nombre,horaEntrada,horaSalida);
-
-								break;
-
-						}
-
-						amonestacionesService.save(amonestacionNueva);
+									}
+									correo = new Correo(usuarioCorreo, contrasenaCorreo, correoAmonestado, copiaOculta);
+									asunto = asunto + " por tercera ocasion";
+									cabecera = "tercera";
+									texto = "<li>La estancia en el estacionamiento es de 4 horas por ingreso.</li>\r\n"
+											+ "<li>En caso de una cuarta incidencia se desactivará definitivamente el Chip</li>\r\n"
+											+ "<li>El chip permanecerá desactivado hasta cubrir la sanción administrativa.</li>";
+									if(parkingUsuario.getCliente().getClub().getIdClub()==3)
+										correo.enviar_correo2(asunto,idCliente,nombre,horaEntrada,horaSalida,texto,cabecera);
+									else if (parkingUsuario.getCliente().getClub().getIdClub()==2)
+										correo.enviar_correo6(asunto,idCliente,nombre,horaEntrada,horaSalida,texto,cabecera);
+									else
+										correo.enviar_correo4(asunto,idCliente,nombre,horaEntrada,horaSalida,texto,cabecera);
+									break;
+								case 4:
+									RegistroTag registroTag = registroTagService.findByIdChip(amonestacionesPorChip.get(0).getIdChip());
+									registroTag.setActivo(false);
+									//hacemos calculos sobre el calendario
+									calendar.setTime(registroTag.getFechaFin());
+									//movemos el ccalendario
+									calendar.add(Calendar.YEAR, -1);
+									registroTag.setFechaFin(calendar.getTime());
+									registroTagService.save(registroTag);
+									correo = new Correo(usuarioCorreo, contrasenaCorreo, correoAmonestado, copiaOculta);
+									asunto = asunto + " por cuarta ocasion";
+									if(parkingUsuario.getCliente().getClub().getIdClub()==3)
+										correo.enviar_correo3(asunto,idCliente,nombre,horaEntrada,horaSalida);
+									else if (parkingUsuario.getCliente().getClub().getIdClub()==2)
+										correo.enviar_correo7(asunto,idCliente,nombre,horaEntrada,horaSalida);
+									else
+										correo.enviar_correo5(asunto,idCliente,nombre,horaEntrada,horaSalida);
+									break;
+							}
+							amonestacionesService.save(amonestacionNueva);
+						} // CHIPS ALPHAS
+					} catch (Exception e) {
+						System.out.println("Error al calcular incidencias del chip: " + chipHoras.get(i) + " at: " + LocalDateTime.now().withNano(0) + " => " + e.getMessage());
 					}
 			}
 			return new ResponseEntity<>(chipHoras, HttpStatus.OK);
