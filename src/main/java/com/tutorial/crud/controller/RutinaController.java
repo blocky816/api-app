@@ -91,9 +91,9 @@ import com.tutorial.crud.dto.VistaRutinaCliente;
  *
  */
 
+@CrossOrigin(origins = "*")
 @RestController
 @RequestMapping("/rutina")
-@CrossOrigin(origins = "*")
 public class RutinaController 
 {
 	endpoints e = new endpoints();
@@ -1026,7 +1026,6 @@ public class RutinaController
 	}
 
 	@RequestMapping(value="ultimoPesaje", method=RequestMethod.POST)
-	@CrossOrigin(origins = "*")
 	public ResponseEntity<?> ultimoPesaje(@RequestBody ClienteBascula body) {
 		
 		try {
@@ -1107,7 +1106,6 @@ public class RutinaController
 	}
 
 	@GetMapping("/ultimoPesaje/{idCliente}")
-	@CrossOrigin(origins = "*")
 	public ResponseEntity<?> ultimoPesaje(@PathVariable("idCliente") int idCliente)
 	{
 		try {
@@ -1149,9 +1147,8 @@ public class RutinaController
 			return new ResponseEntity<>(upv, HttpStatus.OK);
 			
 		}catch(Exception e) {
-			//e.printStackTrace();
-			System.out.println("Errror en  cliente bascula => " + e.getMessage() + " - " + e.getCause());
-
+			System.out.println("Errror en  cliente bascula: " + idCliente + " => " + e.getMessage() + " - " + e.getCause());
+			e.printStackTrace();
 			Cliente cliente=this.obtenerCliente(idCliente);
 			ClienteBasculaVista upv = new ClienteBasculaVista();
 			if (cliente != null){
