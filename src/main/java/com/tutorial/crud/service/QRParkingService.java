@@ -36,6 +36,8 @@ public class QRParkingService {
             qrParkingFound.setDebito(qrParkingDTO.getDebito() + qrParkingFound.getDebito());
             qrParkingFound.setPagado(qrParkingDTO.getPagado());
             qrParkingFound.setCambio(qrParkingDTO.getCambio());
+            qrParkingFound.setObservaciones("");
+            qrParkingFound.setObservaciones(qrParkingDTO.getObservaciones());
             //if (qrParkingDTO.getCambio() == qrParkingFound.getDebito() - qrParkingFound.getCosto()) qrParkingFound.setDevuelto(true);
             System.out.println("cambio => " + qrParkingDTO.getCambio());
             if (qrParkingDTO.getCambio() == 0) qrParkingFound.setDevuelto(true);
