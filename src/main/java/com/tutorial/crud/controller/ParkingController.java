@@ -1478,7 +1478,7 @@ public class ParkingController
 		return new ResponseEntity<>(json.toString(), HttpStatus.OK);
 	}
 	
-	 @GetMapping("/chipsActivos/{idCaseta}")
+	 /*@GetMapping("/chipsActivos/{idCaseta}")
 		@ResponseBody
 		@Transactional
 		public ResponseEntity<?> chipActivos(@PathVariable("idCaseta") int idCaseta){
@@ -1502,7 +1502,7 @@ public class ParkingController
 						+ "  or estado_cobranza='Baja' or current_date>fecha_fin or REGISTRO_TAG.activo is false THEN false else true end as activo, REGISTRO_TAG.club,fecha_fin,"
 						+ "id_chip,id_parking FROM REGISTRO_TAG join parking_usuario on id_venta_Detalle=id_parking WHERE ID_PARKING is not null"
 						+ " and (REGISTRO_TAG.club='Futbol City' or REGISTRO_TAG.club='CIMERA')", RegistroTag.class);*/
-					 timeBefore = LocalDateTime.now().withNano(0);
+					 /*timeBefore = LocalDateTime.now().withNano(0);
 				 }
 				 listaApartadosUsuario=currentSession.createNativeQuery("SELECT * FROM REGISTRO_TAG  WHERE ID_PARKING is not null"
 						 + " and (club='Futbol City' or club='CIMERA') and fecha_fin > (current_date - 720)", RegistroTag.class);
@@ -1518,7 +1518,7 @@ public class ParkingController
 						+ "  or estado_cobranza='Baja' or current_date>fecha_fin or REGISTRO_TAG.activo is false THEN false else true end as activo, REGISTRO_TAG.club,fecha_fin,"
 						+ "id_chip,id_parking FROM REGISTRO_TAG join parking_usuario on id_venta_Detalle=id_parking WHERE ID_PARKING is not null"
 						+ " and (REGISTRO_TAG.club='"+nombre+"' or REGISTRO_TAG.club='CIMERA')", RegistroTag.class);*/
-					 timeBefore = LocalDateTime.now().withNano(0);
+					/* timeBefore = LocalDateTime.now().withNano(0);
 				 }
 				 listaApartadosUsuario = currentSession.createNativeQuery("SELECT * FROM REGISTRO_TAG  WHERE ID_PARKING is not null"
 						 + " and (club='"+nombre+"' or club='CIMERA' or club = 'Sports Plaza') and fecha_fin > (current_date - 720)", RegistroTag.class);
@@ -1535,7 +1535,7 @@ public class ParkingController
 						+ "  or estado_cobranza='Baja' or current_date>fecha_fin or REGISTRO_TAG.activo is false THEN false else true end as activo, REGISTRO_TAG.club,fecha_fin,"
 						+ "id_chip,id_parking FROM REGISTRO_TAG join parking_usuario on id_venta_Detalle=id_parking WHERE ID_PARKING is not null"
 						+ " and (REGISTRO_TAG.club='"+nombre+"' or REGISTRO_TAG.club='CIMERA')", RegistroTag.class);*/
-					 timeBefore = LocalDateTime.now().withNano(0);
+				/*	 timeBefore = LocalDateTime.now().withNano(0);
 				 }
 				 listaApartadosUsuario = currentSession.createNativeQuery("SELECT * FROM REGISTRO_TAG  WHERE ID_PARKING is not null"
 						 + " and (club='"+nombre+"' or club='CIMERA') and fecha_fin > (current_date - 720)", RegistroTag.class);
@@ -1543,6 +1543,78 @@ public class ParkingController
 			 }
 			 return new ResponseEntity<>(results, HttpStatus.OK);
 		 //return new ResponseEntity<>("No se puede ejecutar la operacion no ha pasado media hora despues de: " + timeBefore, HttpStatus.CONFLICT);
+	}*/
+
+	/*@GetMapping("/chipsActivos/{idCaseta}")
+	@ResponseBody
+	@Transactional
+	public ResponseEntity<?> chipActivos(@PathVariable("idCaseta") int idCaseta){
+
+		timeNow = LocalDateTime.now().withNano(0);
+
+		Caseta caseta=casetaService.getOne(idCaseta).get();
+		String nombre=caseta.getClub().getNombre();
+		Session currentSession = entityManager.unwrap(Session.class);
+		Query<RegistroTag> listaApartadosUsuario;
+		List<RegistroTag> results;
+		//if(caseta.getId()==5) {
+		if(caseta.getId() >= 3 && caseta.getId() <= 5) {
+			if (timeNow.isAfter(timeBefore.plusSeconds(1800))) {
+				listaApartadosUsuario = currentSession.createNativeQuery("update registro_Tag set activo=false where (id_parking in "
+						+ "(select id_venta_Detalle from parking_usuario where estado_cobranza='Etapa 1' or estado_cobranza='Etapa 2' or estado_cobranza='Etapa 3'  or "
+						+ "estado_cobranza='Baja' AND id_venta_Detalle is not null ) or current_date>fecha_fin) and"
+						+ " (club='Futbol City' or club='CIMERA')", RegistroTag.class);
+				listaApartadosUsuario.executeUpdate();
+				/*currentSession.createNativeQuery("SELECT id,CASE WHEN estado_cobranza='Etapa 2' or estado_cobranza='Etapa 3'"
+						+ "  or estado_cobranza='Baja' or current_date>fecha_fin or REGISTRO_TAG.activo is false THEN false else true end as activo, REGISTRO_TAG.club,fecha_fin,"
+						+ "id_chip,id_parking FROM REGISTRO_TAG join parking_usuario on id_venta_Detalle=id_parking WHERE ID_PARKING is not null"
+						+ " and (REGISTRO_TAG.club='Futbol City' or REGISTRO_TAG.club='CIMERA')", RegistroTag.class);*/
+				/*timeBefore = LocalDateTime.now().withNano(0);
+			}
+			listaApartadosUsuario=currentSession.createNativeQuery("SELECT * FROM REGISTRO_TAG  WHERE ID_PARKING is not null"
+					+ " and (club='Futbol City' or club='CIMERA') and fecha_fin > (current_date - 720)", RegistroTag.class);
+			results = listaApartadosUsuario.getResultList();
+		} if(caseta.getId() >= 6 && caseta.getId() <= 7) {
+			if (timeNow.isAfter(timeBefore.plusSeconds(1800))) {
+				listaApartadosUsuario = currentSession.createNativeQuery("update registro_Tag set activo=false where (id_parking in "
+						+ "(select id_venta_Detalle from parking_usuario where estado_cobranza='Etapa 1' or estado_cobranza='Etapa 2' or estado_cobranza='Etapa 3'  or "
+						+ "estado_cobranza='Baja' AND id_venta_Detalle is not null ) or current_date>fecha_fin) and"
+						+ " (club='"+nombre+"' or club='CIMERA' or club = 'Sports Plaza')", RegistroTag.class);
+				listaApartadosUsuario.executeUpdate();
+				/*listaApartadosUsuario = currentSession.createNativeQuery("SELECT id,CASE WHEN estado_cobranza='Etapa 2' or estado_cobranza='Etapa 3'"
+						+ "  or estado_cobranza='Baja' or current_date>fecha_fin or REGISTRO_TAG.activo is false THEN false else true end as activo, REGISTRO_TAG.club,fecha_fin,"
+						+ "id_chip,id_parking FROM REGISTRO_TAG join parking_usuario on id_venta_Detalle=id_parking WHERE ID_PARKING is not null"
+						+ " and (REGISTRO_TAG.club='"+nombre+"' or REGISTRO_TAG.club='CIMERA')", RegistroTag.class);*/
+				/*timeBefore = LocalDateTime.now().withNano(0);
+			}
+			listaApartadosUsuario = currentSession.createNativeQuery("SELECT * FROM REGISTRO_TAG  WHERE ID_PARKING is not null"
+					+ " and (club='"+nombre+"' or club='CIMERA' or club = 'Sports Plaza') and fecha_fin > (current_date - 720)", RegistroTag.class);
+			results = listaApartadosUsuario.getResultList();
+		}
+		else {
+			if (timeNow.isAfter(timeBefore.plusSeconds(1800))) {
+				listaApartadosUsuario = currentSession.createNativeQuery("update registro_Tag set activo=false where (id_parking in "
+						+ "(select id_venta_Detalle from parking_usuario where estado_cobranza='Etapa 1' or estado_cobranza='Etapa 2' or estado_cobranza='Etapa 3'  or "
+						+ "estado_cobranza='Baja' AND id_venta_Detalle is not null ) or current_date>fecha_fin) and"
+						+ " (club='"+nombre+"' or club='CIMERA')", RegistroTag.class);
+				listaApartadosUsuario.executeUpdate();
+				/*listaApartadosUsuario = currentSession.createNativeQuery("SELECT id,CASE WHEN estado_cobranza='Etapa 2' or estado_cobranza='Etapa 3'"
+						+ "  or estado_cobranza='Baja' or current_date>fecha_fin or REGISTRO_TAG.activo is false THEN false else true end as activo, REGISTRO_TAG.club,fecha_fin,"
+						+ "id_chip,id_parking FROM REGISTRO_TAG join parking_usuario on id_venta_Detalle=id_parking WHERE ID_PARKING is not null"
+						+ " and (REGISTRO_TAG.club='"+nombre+"' or REGISTRO_TAG.club='CIMERA')", RegistroTag.class);*/
+				/*timeBefore = LocalDateTime.now().withNano(0);
+			}
+			listaApartadosUsuario = currentSession.createNativeQuery("SELECT * FROM REGISTRO_TAG  WHERE ID_PARKING is not null"
+					+ " and (club='"+nombre+"' or club='CIMERA') and fecha_fin > (current_date - 720)", RegistroTag.class);
+			results = listaApartadosUsuario.getResultList();
+		}
+		return new ResponseEntity<>(results, HttpStatus.OK);
+		//return new ResponseEntity<>("No se puede ejecutar la operacion no ha pasado media hora despues de: " + timeBefore, HttpStatus.CONFLICT);
+	}*/
+
+	@GetMapping("/chipsActivos/{idCaseta}")
+	public ResponseEntity<?> getChipsByClub(@PathVariable("idCaseta") int idCaseta){
+		return new ResponseEntity<>(registroTagService.getChipsByClub(idCaseta), HttpStatus.OK);
 	}
 	 
 	 @GetMapping("/listaChips")
