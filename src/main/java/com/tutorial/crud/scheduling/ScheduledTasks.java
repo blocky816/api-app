@@ -1,8 +1,10 @@
 package com.tutorial.crud.scheduling;
 
 import java.text.SimpleDateFormat;
+import java.time.LocalTime;
 import java.util.Date;
 
+import com.tutorial.crud.service.RegistroTagService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import com.tutorial.crud.service.ClienteServiceImpl;
@@ -14,6 +16,8 @@ import org.springframework.stereotype.Component;
 public class ScheduledTasks {
     @Autowired
     private ClienteServiceImpl clienteService;
+    @Autowired
+    private RegistroTagService registroTagService;
 
     @Scheduled(cron = "0 0 0 * * *") // Cron expression for running every minute
     public void updateCollectionAlpha2() {
@@ -37,5 +41,10 @@ public class ScheduledTasks {
     public void updateCollectionSPORTS() {
         clienteService.actualizarActivosxClub(9);
         clienteService.actualizarEtapasCanceladosxClub(9);
+    }
+
+    @Scheduled(cron = "0 */30 * * * *")
+    public void disableChips() {
+        registroTagService.disableChips();
     }
 }
