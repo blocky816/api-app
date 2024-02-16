@@ -998,8 +998,10 @@ public class RutinaController
 		JSONObject json =new JSONObject();
 		try {
 			body.fechaCaptura=new Date();
-			clienteBasculaService.save(body);
 			Cliente cliente=this.obtenerCliente(body.idUsuario);
+			if (cliente.getIdSexo() == 1) body.sexo = "0";
+			if (cliente.getIdSexo() == 2) body.sexo = "1";
+			clienteBasculaService.save(body);
 			Correo correo=new Correo(usuarioCorreo,contrasenaCorreo,cliente.getEmail(),copiaOculta);
 			String asunto="Analisis Corporal";
 			LocalDateTime fechaActual= LocalDateTime.now();
