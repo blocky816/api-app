@@ -19,4 +19,7 @@ public class ClienteBasculaDTO {
 	
 	@JsonProperty("Edad") 
     public int edad;
+
+    @JsonProperty("Edad")
+    public String sexo;
 }
