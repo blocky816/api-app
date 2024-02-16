@@ -1094,7 +1094,9 @@ public class RutinaController
 			Cliente cliente=this.obtenerCliente(body.idUsuario);
 			upv.idUsuario=body.idUsuario;
 			upv.idTerminal=body.idTerminal;
-			upv.sexo=cliente.getSexo();
+			//upv.sexo=cliente.getSexo();
+			if (cliente.getIdSexo() == 1) upv.sexo = "0";
+			if (cliente.getIdSexo() == 2) upv.sexo = "1";
 			long nacimiento=new Date().getTime()-cliente.getFechaNacimiento().getTime();
 			int yearsOld=(int) (nacimiento/(365*24 * 60 * 60 * 1000L));
 			upv.edadUsuario=yearsOld;
@@ -1176,10 +1178,17 @@ public class RutinaController
 			aux.nivelActividad=ultimoPesaje.nivelActividad;
 			aux.peso=ultimoPesaje.peso;
 			aux.edad=yearsOld;
+			aux.sexo = ultimoPesaje.sexo;
 			return new ResponseEntity<>(aux, HttpStatus.OK);
 			
 		}catch(Exception e) {			
 			ClienteBasculaDTO ultimoPesaje = new ClienteBasculaDTO();
+			Cliente cliente=clienteService.findById(idCliente);
+			long nacimiento=new Date().getTime()-cliente.getFechaNacimiento().getTime();
+			int yearsOld=(int) (nacimiento/(365*24 * 60 * 60 * 1000L));
+			ultimoPesaje.edad=yearsOld;
+			if (cliente.getIdSexo() == 1) ultimoPesaje.sexo = "0";
+			if (cliente.getIdSexo() == 2) ultimoPesaje.sexo = "1";
 			return new ResponseEntity<>(ultimoPesaje, HttpStatus.CONFLICT); 
 		}
 		
