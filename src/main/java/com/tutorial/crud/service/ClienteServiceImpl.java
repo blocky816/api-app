@@ -286,7 +286,10 @@ public class ClienteServiceImpl implements ClienteService {
 			else customerStatus = estatusClienteService.findById(1);
 			customer.setEstatusCobranza(paymentStatusActive);
 			customer.setEstatusCliente(customerStatus);
-			if (paymentStatusActive.getIdEstatusCobranza() == 1) customer.setEstatusAcceso("Acceso permitido");
+			if (paymentStatusActive.getIdEstatusCobranza() == 1) {
+				customer.setEstatusAcceso("Acceso permitido");
+				customer.setTieneAcceso(true);
+			}
 			else customer.setEstatusAcceso("Sin Acceso");
 			save(customer);
 
