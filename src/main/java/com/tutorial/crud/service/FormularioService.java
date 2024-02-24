@@ -314,7 +314,7 @@ public class FormularioService {
         return diferencia;
     }
 
-   /* public void assignDietForm(int customerID) {
+    /* public void assignDietForm(int customerID) {
         Cliente customer = clienteService.findById(customerID);
         List<FormularioRespuesta> formularioRespuestas = formularioRespuestaRepository.findLastAnswersFormByCustomer(customerID, 4);
         if (customer != null && customer.getFormulario() == null && formularioRespuestas.isEmpty()) {

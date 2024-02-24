@@ -2891,6 +2891,8 @@ public class Servicios
 				}
 
 				cliente.setEsTitular(json.getBoolean("is_parent"));
+				cliente.setTelefono(json.getString("Telefono"));
+				cliente.setIdOdoo(json.getInt("IdOdoo"));
 				if (json.getString("parent_id").isEmpty() || json.getString("parent_id") == null) cliente.setIdTitular(horarioId);
 				else cliente.setIdTitular(Integer.parseInt(json.getString("parent_id")));
 				clienteService.save(cliente);
@@ -3061,6 +3063,8 @@ public class Servicios
 				cliente.setURLFoto(foto);*/
 
 				cliente.setEsTitular(json.getBoolean("is_parent"));
+				cliente.setTelefono(json.getString("Telefono"));
+				cliente.setIdOdoo(json.getInt("IdOdoo"));
 				if (json.getString("parent_id").isEmpty() || json.getString("parent_id") == null) cliente.setIdTitular(horarioId);
 				else cliente.setIdTitular(Integer.parseInt(json.getString("parent_id")));
 				clienteService.save(cliente);

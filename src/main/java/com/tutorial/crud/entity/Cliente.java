@@ -89,7 +89,7 @@ public class Cliente implements Serializable
 	private String Nacionalidad;
 	
 	@Column(name="telefono")
-	private String Telefono;
+	private String telefono;
 
 	
 	@Column(name="idclientegrupo")
@@ -213,6 +213,9 @@ public class Cliente implements Serializable
 	@OneToMany(mappedBy = "customer")
 	@JsonManagedReference
 	List<AnswerChatGPT> answerChatGPTS;
+
+	@Column(name = "idodoo")
+	private int idOdoo;
 
 	//Se generaron todos los Getters y Setters.
 
@@ -402,14 +405,6 @@ public class Cliente implements Serializable
 
 	public void setNacionalidad(String nacionalidad) {
 		Nacionalidad = nacionalidad;
-	}
-
-	public String getTelefono() {
-		return Telefono;
-	}
-
-	public void setTelefono(String telefono) {
-		Telefono = telefono;
 	}
 
 	public int getIdClienteGrupo() {
@@ -653,6 +648,14 @@ public class Cliente implements Serializable
 
 	public void setAnswerChatGPTS(List<AnswerChatGPT> answerChatGPTS) { this.answerChatGPTS = answerChatGPTS; }
 
+	public int getIdOdoo() { return idOdoo; }
+
+	public void setIdOdoo(int idOdoo) { this.idOdoo = idOdoo; }
+
+	public String getTelefono() { return telefono; }
+
+	public void setTelefono(String telefono) { this.telefono = telefono; }
+
 	@Override
 	public String toString() {
 		return "Cliente [IdCliente=" + idCliente + ",\n NoMembresia=" + NoMembresia + ",\n Nombre=" + Nombre
@@ -661,7 +664,7 @@ public class Cliente implements Serializable
 				+ TipoAcceso + ",\n URLFoto=" + URLFoto + ",\n DomicilioPago=" + DomicilioPago + ",\n InicioActividades="
 				+ InicioActividades + ",\n Sexo=" + Sexo + ",\n FechaNacimiento=" + FechaNacimiento + ",\n MensualidadPagada="
 				+ MensualidadPagada + ",\n Email=" + Email + ",\n FechaFinAcceso=" + FechaFinAcceso + ",\n IdSexo=" + IdSexo
-				+ ",\n Nacionalidad=" + Nacionalidad + ",\n Telefono=" + Telefono + ",\n IdClienteGrupo=" + IdClienteGrupo
+				+ ",\n Nacionalidad=" + Nacionalidad + ",\n Telefono=" + telefono + ",\n IdClienteGrupo=" + IdClienteGrupo
 				+ ",\n IdClienteSector=" + IdClienteSector + ",\n IdCaptura=" + IdCaptura + ",\n IdCapturaFecha="
 				+ IdCapturaFecha + ",\n Activo=" + Activo + ",\n FechaCreacion=" + FechaCreacion + ",\n FechaModificacion="
 				+ FechaModificacion + ",\n tieneAcceso=" + tieneAcceso + ",\n club=" + club + ",\n TipoCliente=" + TipoCliente
