@@ -2222,7 +2222,10 @@ public class Servicios
 	@PostMapping("/facturarRecibo")
 	@ResponseBody
 	public ResponseEntity<?> facturarRecibo(@RequestBody Body body){
-		Factura factura;
+		JSONObject json=new JSONObject();
+		json.put("respuesta", "Este recibo no es valido");
+		return new ResponseEntity<>(json.toString(), HttpStatus.CONFLICT);
+		/*Factura factura;
 		Calendar ca=Calendar.getInstance();
 		Calendar fecha = Calendar.getInstance();
 		int mesActual = fecha.get(Calendar.MONTH)+1;
@@ -2258,22 +2261,11 @@ public class Servicios
 			return new ResponseEntity<>(json.toString(), HttpStatus.CONFLICT);
 		}
 		idCliente=body.getUsuario();
-				/*idClienteRecibo=reciboValido.get(0).getIdCliente();
-				if(idClienteRecibo!=idCliente && idClienteRecibo!=0) {
-					json.put("respuesta", "El id del cliente no coincide");
-					return new ResponseEntity<>(json.toString(), HttpStatus.CONFLICT);
-				}*/
 		try {
 			factura=facturaService.getByRecibo(body.getRecibo());
 			json.put("respuesta", "Este recibo ya esta facturado");
 			return new ResponseEntity<>(json.toString(), HttpStatus.UNAUTHORIZED);
 		}catch(NoSuchElementException e) {
-            		/*factura=new Factura();
-					factura.setFechaCreacion(new Date());
-					factura.setFechaModificacion(new Date());
-					factura.setRecibo(body.getRecibo());
-					factura.setUuid(body.getFactura());
-					facturaService.save(factura);*/
 			try {
 				factura=facturaService.getByCliente(idCliente).get(0);
 			}catch(IndexOutOfBoundsException ex) {
@@ -2288,7 +2280,7 @@ public class Servicios
 			datos.setRfc(factura.getRfc());
 			datos.setUsoCFDI(factura.getUsoCFDI());
 			return new ResponseEntity<>(datos, HttpStatus.OK);
-		}
+		}*/
 
 
 	}
@@ -7581,6 +7573,59 @@ public class Servicios
 	public ResponseEntity<?> actualizarEtapasCanceladosxClub(@PathVariable int clubID) {
 		clienteService.actualizarEtapasCanceladosxClub(clubID);
 		return new ResponseEntity<>(HttpStatus.OK);
+	}
+
+	@GetMapping("/actualizarActivosxClubInfo/{clubID}")
+	public ResponseEntity<?> actualizarActivosxClubInfo(@PathVariable int clubID) {
+		try {
+			System.out.println("Iniciando update de activos y al corrinete del club: " + clubID + " => " + LocalDateTime.now().withNano(0));
+			var activosBody= clienteService.getSinEtapa(clubID);
+			JSONArray activos = new JSONArray(activosBody);
+			for (int i = 0; i < activos.length(); i++) {
+				String idStr = activos. getJSONObject(i).getString("id_cliente");
+				try {
+					int idCliente = Integer.parseInt(idStr.replace("/", "").trim());
+					this.update(idCliente);
+				} catch (NumberFormatException e) {
+					//log.error("Error parseando id {} => {}", idStr, e.toString());
+					System.out.println("Error parseando id: " + idStr);
+				} catch (Exception e) {
+					//log.error("No se pudo activar al corriente el usuario: {} => {}", idStr, e.toString());
+					System.out.println("Error al actualizar info de id: " + idStr);
+				}
+			}
+			System.out.println("Activos de club " + clubID + " actualizados correctamente => " + LocalDateTime.now().withNano(0));
+			return new ResponseEntity<>("Activos de club " + clubID + " actualizados correctamente => " + LocalDateTime.now().withNano(0), HttpStatus.OK);
+		} catch (Exception e) {
+			System.out.println("Fallo al obtener activos y al corriente");
+			return new ResponseEntity<>("Falle al actualizar info de activos y al corriente del club " + clubID + " => " + LocalDateTime.now().withNano(0), HttpStatus.INTERNAL_SERVER_ERROR);
+		}
+	}
+	@GetMapping("/actualizarEtapasCanceladosxClubInfo/{clubID}")
+	public ResponseEntity<?> actualizarEtapasCanceladosxClubInfo(@PathVariable int clubID) {
+		try {
+			System.out.println("Iniciando update de etapas del club: " + clubID + " => " + LocalDateTime.now().withNano(0));
+			var activosBody= clienteService.getConEtapa(clubID);
+			JSONArray activos = new JSONArray(activosBody);
+			for (int i = 0; i < activos.length(); i++) {
+				String idStr = activos. getJSONObject(i).getString("id_cliente");
+				try {
+					int idCliente = Integer.parseInt(idStr.replace("/", "").trim());
+					this.update(idCliente);
+				} catch (NumberFormatException e) {
+					//log.error("Error parseando id {} => {}", idStr, e.toString());
+					System.out.println("Error parseando id: " + idStr);
+				} catch (Exception e) {
+					//log.error("No se pudo activar al corriente el usuario: {} => {}", idStr, e.toString());
+					System.out.println("Error al actualizar info de id: " + idStr);
+				}
+			}
+			System.out.println("Etapas de club " + clubID + " actualizados correctamente => " + LocalDateTime.now().withNano(0));
+			return new ResponseEntity<>("Etapas de club " + clubID + " actualizados correctamente => " + LocalDateTime.now().withNano(0), HttpStatus.OK);
+		} catch (Exception e) {
+			System.out.println("Fallo al obtener activos y al corriente");
+			return new ResponseEntity<>("Falle al actualizar info de etapas del club " + clubID + " => " + LocalDateTime.now().withNano(0), HttpStatus.INTERNAL_SERVER_ERROR);
+		}
 	}
 }//fin de la clase
 
