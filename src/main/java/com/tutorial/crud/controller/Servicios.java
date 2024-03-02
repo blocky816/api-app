@@ -96,7 +96,7 @@ import com.tutorial.crud.service.*;
 
 import jcifs.smb.NtlmPasswordAuthentication;
 import jcifs.smb.SmbFile;
-
+import org.w3c.dom.ls.LSOutput;
 
 
 /**
@@ -2222,10 +2222,7 @@ public class Servicios
 	@PostMapping("/facturarRecibo")
 	@ResponseBody
 	public ResponseEntity<?> facturarRecibo(@RequestBody Body body){
-		JSONObject json=new JSONObject();
-		json.put("respuesta", "Este recibo no es valido");
-		return new ResponseEntity<>(json.toString(), HttpStatus.CONFLICT);
-		/*Factura factura;
+		Factura factura;
 		Calendar ca=Calendar.getInstance();
 		Calendar fecha = Calendar.getInstance();
 		int mesActual = fecha.get(Calendar.MONTH)+1;
@@ -2254,9 +2251,10 @@ public class Servicios
 				System.out.println("Fallo al intentar facturar recibo: "+body.getRecibo());
 			}
 		}
+
 		mesRecibo = ca.get(Calendar.MONTH)+1;
-		System.out.println("El día actual es: "+diaActual);
-		if((mesRecibo!=mesActual)&&(diaActual>2)) {
+		//if((mesRecibo!=mesActual)&&(diaActual>2)) {
+		if(mesRecibo != mesActual-1 && ((mesRecibo != mesActual) || ca.get(Calendar.YEAR) != Calendar.getInstance().get(Calendar.YEAR))) {
 			json.put("respuesta", "El mes actual no coincide con el mes del recibo, fecha del recibo "+reciboValido.get(0).getFechaCaptura());
 			return new ResponseEntity<>(json.toString(), HttpStatus.CONFLICT);
 		}
@@ -2280,7 +2278,7 @@ public class Servicios
 			datos.setRfc(factura.getRfc());
 			datos.setUsoCFDI(factura.getUsoCFDI());
 			return new ResponseEntity<>(datos, HttpStatus.OK);
-		}*/
+		}
 
 
 	}
