@@ -2254,7 +2254,7 @@ public class Servicios
 
 		mesRecibo = ca.get(Calendar.MONTH)+1;
 		//if((mesRecibo!=mesActual)&&(diaActual>2)) {
-		if(mesRecibo != mesActual-1 && ((mesRecibo != mesActual) || ca.get(Calendar.YEAR) != Calendar.getInstance().get(Calendar.YEAR))) {
+		if(((mesRecibo != mesActual) || ca.get(Calendar.YEAR) != Calendar.getInstance().get(Calendar.YEAR))) {
 			json.put("respuesta", "El mes actual no coincide con el mes del recibo, fecha del recibo "+reciboValido.get(0).getFechaCaptura());
 			return new ResponseEntity<>(json.toString(), HttpStatus.CONFLICT);
 		}
