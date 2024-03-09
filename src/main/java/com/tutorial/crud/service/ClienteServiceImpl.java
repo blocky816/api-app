@@ -98,13 +98,19 @@ public class ClienteServiceImpl implements ClienteService {
 		List<CAApartados> lista = listaApartadosUsuario.getResultList();
 		SimpleDateFormat formato = new SimpleDateFormat("yyyy-MM-dd HH:mm");
 		List<CAApartados> lista2=new ArrayList<CAApartados>();
-
+		Long twenty = 60000L;
 		for(int i=0;i<lista.size();i++) {
 			String rango =lista.get(i).getHorario().getRango();
 			String[] hora=rango.split("-");
 			try {
 				Date fecha = formato.parse(lista.get(i).getDia()+" "+hora[0]);
 				Date fecha2 = formato.parse(lista.get(i).getDia()+" "+hora[1]);
+				Date sports = new Date(fecha.getTime() - twenty * 21);
+				if (lista.get(0).getHorario().getActividad().getPaga() == 500 && fechaActual.after(sports) && fecha.before(fecha2)) {
+					//System.out.println("SOY DE SPORTS ALBERCA !! time => " + fechaActual + " sports => " + sports + " fecha => " + fecha + " fecha2 => " + fecha2);
+					lista2.add(lista.get(i));
+					continue;
+				}
 				if(fechaActual.after(fecha) && fechaActual.before(fecha2)) {
 					lista2.add(lista.get(i));
 				}
@@ -203,6 +209,7 @@ public class ClienteServiceImpl implements ClienteService {
 			List<CAApartados> lista = listaApartadosUsuario.getResultList();
 			SimpleDateFormat formato = new SimpleDateFormat("yyyy-MM-dd HH:mm");
 			List<CAApartados> lista2=new ArrayList<CAApartados>();
+		Long twenty = 60000L;
 			for(int i=0;i<lista.size();i++) {
 				String rango =lista.get(i).getHorario().getRango();
 				String[] hora=rango.split("-");
@@ -210,7 +217,12 @@ public class ClienteServiceImpl implements ClienteService {
 					
 					Date fecha = formato.parse(lista.get(i).getDia()+" "+hora[0]);
 					Date fecha2 = formato.parse(lista.get(i).getDia()+" "+hora[1]);
-					
+					Date sports = new Date(fecha.getTime() - twenty * 21);
+					if (lista.get(0).getHorario().getActividad().getPaga() == 500 && fechaActual.after(sports) && fecha.before(fecha2)) {
+						//System.out.println("FIND APARTADOS DE SPORTS ALBERCA !! time => " + fechaActual + " sports => " + sports + " fecha => " + fecha + " fecha2 => " + fecha2);
+						lista2.add(lista.get(i));
+						continue;
+					}
 					if(fechaActual.after(fecha) && fechaActual.before(fecha2)) {
 						lista2.add(lista.get(i));
 					}

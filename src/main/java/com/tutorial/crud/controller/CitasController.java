@@ -32,6 +32,7 @@ import javax.persistence.EntityManager;
 import javax.persistence.NoResultException;
 import javax.persistence.StoredProcedureQuery;
 
+import com.tutorial.crud.repository.ApartadosRepository;
 import org.apache.log4j.Logger;
 import org.hibernate.Session;
 import org.hibernate.annotations.Type;
@@ -124,6 +125,8 @@ public class CitasController
 	private static Logger logJava = Logger.getLogger(CitasController.class);
 
     @Autowired
+	ApartadosRepository apartadosRepository;
+	@Autowired
     configuracionService configuracionService;
 	
 	@Autowired
@@ -3111,6 +3114,7 @@ public class CitasController
    	{
    		this.actualizarPasesRedimidos(); //Coloca la fecha en pases_consumidos(fecha_redencion)
 		JSONObject json=new JSONObject();
+
    		try {
    	   		if(body.isSuper()) {
    	   			Registro nuevoRegistroAcceso=new Registro(body.getUsuario(),body.getTerminal());
@@ -3119,6 +3123,32 @@ public class CitasController
    	   			return new ResponseEntity<String>(json.toString(), HttpStatus.OK); 
    	   		}
 			else {
+				if (body.getTerminal() == 8) {
+					//System.out.println("Quero entrar al tornieuete para alberca");
+					TerminalRedencion t = terminalRedencionService.getOne(body.getTerminal()).get();
+					//System.out.println("Terminal redencion => " + t);
+					if(clienteService.findCitas(new Date(), t.obtenerSala(), body.getUsuario())) {
+						//System.out.println("Tuve acceso sala: " + t.obtenerSala());
+						CAApartados apartado = clienteService.findApartados(new Date(), t.obtenerSala(), body.getUsuario());
+						System.out.println("Mi apartado del segundo if = > " + apartado);
+						if(registroGimnasioService.accedio(body.getUsuario(), apartado.getId())) {
+							json.put("Respuesta", "Este usuario ya había accedido a la clase");
+							return new ResponseEntity<String>(json.toString(), HttpStatus.CONFLICT);
+						}
+
+						RegistroGimnasio registroGimnasio=new RegistroGimnasio();
+						registroGimnasio.setIdCliente(clienteService.findById(body.getUsuario()));
+						registroGimnasio.setIdTerminal(terminalRedencionService.getOne(body.getTerminal()).get());
+						registroGimnasio.setRegistroAcceso(new Date());
+						registroGimnasio.setIdApartados(apartado);
+						registroGimnasioService.save(registroGimnasio);
+
+						json.put("Respuesta", "Acceso correcto");
+						return new ResponseEntity<String>(json.toString(), HttpStatus.OK);
+					}
+
+				}
+
    	   			TerminalRedencion terminal=terminalRedencionService.getOne(body.getTerminal()).get();
    	   			if((terminal.getId()==5 && body.getIdVentaDetalle()==-1) || (terminal.getId()==6  && body.getIdVentaDetalle()==-1)) {
    	   				this.getPaseAlberca(body.getUsuario());
@@ -3476,5 +3506,27 @@ public class CitasController
 		if (str.equals(""))
 			return -1;
 		return Integer.parseInt(str);
+	}
+
+	// SPORTS NATACION
+	@PostMapping("/apartarNatacionSports")
+	@ResponseBody
+	public ResponseEntity<?> apartarNatacionSports(@RequestBody Body body) {
+
+		   try {
+			   List<CAApartados> clases = apartadosRepository.apartadosMasivos(body.getId());
+			   System.out.println("Clase de paga ? " + clases.get(0).getHorario().getActividad().getPaga());
+			   for (int i = 0; i < clases.size(); i++) {
+				   CAHorario horario1 = horarioService.getOne(body.getId()).get();
+				   CAApartados apartado = apartadosService.getHorario(body.getId(), clases.get(i).getDia());
+				   CAApartadosUsuario apartadosUsuario = new CAApartadosUsuario();
+				   apartadosUsuario = apartadosUsuarioService.crearApartado(body, horario1, apartado, apartadosUsuario);
+			   }
+			   return new ResponseEntity<>("clases apartadas correctamente", HttpStatus.OK);
+		   } catch(Exception e) {
+			   System.out.println("Exception e => " + e.getMessage());
+			   e.printStackTrace();
+			   return new ResponseEntity<>(HttpStatus.CONFLICT);
+		   }
 	}
 }//fin de la clase
