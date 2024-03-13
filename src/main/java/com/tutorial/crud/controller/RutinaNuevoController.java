@@ -394,6 +394,7 @@ public class RutinaNuevoController {
                     Boolean correoEnviado = this.enviarCorreo(idCliente);
                     /*if (correoEnviado) System.out.println("El correo de rutina se envio correctamente");
                     else System.out.println("Fallo el envio de correo de rutina");*/
+                    clienteService.save(cliente);
                     json.put("respuesta", "Rutina cargada exitosamente al cliente "+ idCliente);
                     return new ResponseEntity<String>(json.toString(), HttpStatus.OK);
                 }else {
@@ -409,6 +410,7 @@ public class RutinaNuevoController {
                 Boolean correoEnviado = this.enviarCorreo(idCliente);
                /*if (correoEnviado) System.out.println("El correo de rutina se envio correctamente");
                 else System.out.println("Fallo el envio de correo de rutina");*/
+                clienteService.save(cliente);
                 json.put("respuesta", "Rutina cargada exitosamente al cliente "+idCliente);
                 return new ResponseEntity<String>(json.toString(), HttpStatus.OK);
 

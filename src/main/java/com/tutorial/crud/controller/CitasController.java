@@ -3123,7 +3123,7 @@ public class CitasController
    	   			return new ResponseEntity<String>(json.toString(), HttpStatus.OK); 
    	   		}
 			else {
-				if (body.getTerminal() == 8) {
+				if (body.getTerminal() == 8 || body.getTerminal() == 9) {
 					//System.out.println("Quero entrar al tornieuete para alberca");
 					TerminalRedencion t = terminalRedencionService.getOne(body.getTerminal()).get();
 					//System.out.println("Terminal redencion => " + t);
