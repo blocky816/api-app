@@ -203,7 +203,8 @@ public class ClienteServiceImpl implements ClienteService {
 	@Override
 	public CAApartados findApartados(Date fechaActual, CASala obtenerSala, int cliente) {
 			Session currentSession = entityManager.unwrap(Session.class);
-			Query<CAApartados> listaApartadosUsuario = currentSession.createQuery("select a.apartados FROM CAApartadosUsuario a where a.cliente.idCliente=:o and a.apartados.horario.sala.id=:u",CAApartados.class);
+			//Query<CAApartados> listaApartadosUsuario = currentSession.createQuery("select a.apartados FROM CAApartadosUsuario a where a.cliente.idCliente=:o and a.apartados.horario.sala.id=:u",CAApartados.class);
+		Query<CAApartados> listaApartadosUsuario = currentSession.createQuery("select a.apartados FROM CAApartadosUsuario a where a.cliente.idCliente=:o and a.apartados.horario.sala.id=:u and current_date = to_date(a.apartados.dia, 'YYYY-MM-DD')",CAApartados.class);
 			listaApartadosUsuario.setParameter("o",cliente);
 			listaApartadosUsuario.setParameter("u",obtenerSala.getId());
 			List<CAApartados> lista = listaApartadosUsuario.getResultList();
@@ -222,8 +223,7 @@ public class ClienteServiceImpl implements ClienteService {
 						//System.out.println("FIND APARTADOS DE SPORTS ALBERCA !! time => " + fechaActual + " sports => " + sports + " fecha => " + fecha + " fecha2 => " + fecha2);
 						lista2.add(lista.get(i));
 						continue;
-					}
-					if(fechaActual.after(fecha) && fechaActual.before(fecha2)) {
+					} else if(fechaActual.after(fecha) && fechaActual.before(fecha2)) {
 						lista2.add(lista.get(i));
 					}
 				} catch (ParseException e) {

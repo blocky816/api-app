@@ -40,7 +40,7 @@ public class ConversacionAsesor {
     @Column(name = "bascula")
     private Boolean bascula;
 
-    @Column(name = "visto")
+    @Column(name = "visto", insertable = false)
     private Boolean visto;
 
     @Column(name = "folio")

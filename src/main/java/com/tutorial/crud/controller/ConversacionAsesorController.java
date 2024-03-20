@@ -117,6 +117,31 @@ ConversacionAsesorController {
         }
         else {
             List<ConversacionAsesor> conversacionAsesorList = conversacionAsesorService.findAllByFolioAndActivoOrderByFechaAsc(cliente.getIdCliente(), true);
+            /*for(ConversacionAsesor conversacionAsesor: conversacionAsesorList) {
+                conversacionAsesor.setVisto(true);
+                conversacionAsesorService.save(conversacionAsesor);
+            }*/
+            conversacionAsesorList = conversacionAsesorService.findAllByFolioAndActivoOrderByFechaAsc(cliente.getIdCliente(), true);
+            return new ResponseEntity<>(conversacionAsesorList, HttpStatus.OK);
+        }
+    }
+
+    @GetMapping("/obtenerByIdClienteDash")
+    @ResponseBody
+    public ResponseEntity<?> obtenerRegistroConversacionesDash(@RequestParam int idCliente) {
+
+        JSONObject response = new JSONObject();
+        if (idCliente == 0) {
+            response.put("respuesta", "Campo CLIENTE no válido");
+            return new ResponseEntity<>(response.toMap(), HttpStatus.CONFLICT);
+        }
+        Cliente cliente = clienteService.findById(idCliente);
+        if (cliente == null) {
+            response.put("respuesta", "El cliente no existe");
+            return new ResponseEntity<>(response.toMap(), HttpStatus.NOT_FOUND);
+        }
+        else {
+            List<ConversacionAsesor> conversacionAsesorList = conversacionAsesorService.findAllByFolioAndActivoOrderByFechaAsc(cliente.getIdCliente(), true);
             for(ConversacionAsesor conversacionAsesor: conversacionAsesorList) {
                 conversacionAsesor.setVisto(true);
                 conversacionAsesorService.save(conversacionAsesor);

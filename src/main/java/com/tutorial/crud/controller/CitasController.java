@@ -3129,22 +3129,27 @@ public class CitasController
 					//System.out.println("Terminal redencion => " + t);
 					if(clienteService.findCitas(new Date(), t.obtenerSala(), body.getUsuario())) {
 						//System.out.println("Tuve acceso sala: " + t.obtenerSala());
-						CAApartados apartado = clienteService.findApartados(new Date(), t.obtenerSala(), body.getUsuario());
-						System.out.println("Mi apartado del segundo if = > " + apartado);
-						if(registroGimnasioService.accedio(body.getUsuario(), apartado.getId())) {
-							json.put("Respuesta", "Este usuario ya había accedido a la clase");
+						CAApartados apartado = null;
+						try {
+							apartado = clienteService.findApartados(new Date(), t.obtenerSala(), body.getUsuario());
+							if(registroGimnasioService.accedio(body.getUsuario(), apartado.getId())) {
+								json.put("Respuesta", "Este usuario ya había accedido a la clase de ntacion");
+								return new ResponseEntity<String>(json.toString(), HttpStatus.CONFLICT);
+							}
+
+							RegistroGimnasio registroGimnasio=new RegistroGimnasio();
+							registroGimnasio.setIdCliente(clienteService.findById(body.getUsuario()));
+							registroGimnasio.setIdTerminal(terminalRedencionService.getOne(body.getTerminal()).get());
+							registroGimnasio.setRegistroAcceso(new Date());
+							registroGimnasio.setIdApartados(apartado);
+							registroGimnasioService.save(registroGimnasio);
+
+							json.put("Respuesta", "Acceso correcto");
+							return new ResponseEntity<String>(json.toString(), HttpStatus.OK);
+						} catch (Exception ex) {
+							json.put("Respuesta", "No tiene permitido acceder a alberca alphacuatic");
 							return new ResponseEntity<String>(json.toString(), HttpStatus.CONFLICT);
 						}
-
-						RegistroGimnasio registroGimnasio=new RegistroGimnasio();
-						registroGimnasio.setIdCliente(clienteService.findById(body.getUsuario()));
-						registroGimnasio.setIdTerminal(terminalRedencionService.getOne(body.getTerminal()).get());
-						registroGimnasio.setRegistroAcceso(new Date());
-						registroGimnasio.setIdApartados(apartado);
-						registroGimnasioService.save(registroGimnasio);
-
-						json.put("Respuesta", "Acceso correcto");
-						return new ResponseEntity<String>(json.toString(), HttpStatus.OK);
 					}
 
 				}
