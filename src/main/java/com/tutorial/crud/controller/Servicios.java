@@ -2886,11 +2886,26 @@ public class Servicios
 				if (json.getString("parent_id").isEmpty() || json.getString("parent_id") == null) cliente.setIdTitular(horarioId);
 				else cliente.setIdTitular(Integer.parseInt(json.getString("parent_id")));
 				clienteService.save(cliente);
-				List<ParkingUsuario> pu=parkingUsuarioService.findByIdCliente(cliente);
+				List<ParkingUsuario> pu = parkingUsuarioService.findByIdCliente(cliente);
+				if (Objects.nonNull(pu))
+					for (int i = 0; i < pu.size(); i++)
+						try {
+							pu.get(i).setEstadoCobranza(cliente.getEstatusCobranza().getNombre());
+							Date date = pu.get(i).obtenerRegistroTag().getFechaFin();
+							LocalDateTime endDateTag = date.toInstant().atZone(ZoneId.systemDefault()).toLocalDateTime();
+							if (cliente.getEstatusCobranza().getIdEstatusCobranza() != 1 && endDateTag.isAfter(LocalDateTime.now()))
+								pu.get(i).obtenerRegistroTag().setActivo(false);
+							else if (cliente.getEstatusCobranza().getIdEstatusCobranza() == 1 && endDateTag.isAfter(LocalDateTime.now()))
+								pu.get(i).obtenerRegistroTag().setActivo(true);
+							parkingUsuarioService.save(pu.get(i));
+						} catch (Exception e) {
+							System.out.println("Error al desactivar/activar chips del user: " + horarioId + " => " + e.toString());
+						}
+				/*List<ParkingUsuario> pu=parkingUsuarioService.findByIdCliente(cliente);
 				for(int i=0;i<pu.size();i++) {
 					pu.get(i).setEstadoCobranza(cliente.getEstatusCobranza().getNombre());
 					parkingUsuarioService.save(pu.get(i));
-				}
+				}*/
 			}else {
 				cliente=new Cliente();
 				cliente.setApellidoMaterno(json.getString("ApellidoMaterno"));
@@ -3058,11 +3073,26 @@ public class Servicios
 				if (json.getString("parent_id").isEmpty() || json.getString("parent_id") == null) cliente.setIdTitular(horarioId);
 				else cliente.setIdTitular(Integer.parseInt(json.getString("parent_id")));
 				clienteService.save(cliente);
-				List<ParkingUsuario> pu=parkingUsuarioService.findByIdCliente(cliente);
+				/*List<ParkingUsuario> pu=parkingUsuarioService.findByIdCliente(cliente);
 				for(int i=0;i<pu.size();i++) {
 					pu.get(i).setEstadoCobranza(cliente.getEstatusCobranza().getNombre());
 					parkingUsuarioService.save(pu.get(i));
-				}
+				}*/
+				List<ParkingUsuario> pu = parkingUsuarioService.findByIdCliente(cliente);
+				if (Objects.nonNull(pu))
+					for (int i = 0; i < pu.size(); i++)
+						try {
+							pu.get(i).setEstadoCobranza(cliente.getEstatusCobranza().getNombre());
+							Date date = pu.get(i).obtenerRegistroTag().getFechaFin();
+							LocalDateTime endDateTag = date.toInstant().atZone(ZoneId.systemDefault()).toLocalDateTime();
+							if (cliente.getEstatusCobranza().getIdEstatusCobranza() != 1 && endDateTag.isAfter(LocalDateTime.now()))
+								pu.get(i).obtenerRegistroTag().setActivo(false);
+							else if (cliente.getEstatusCobranza().getIdEstatusCobranza() == 1 && endDateTag.isAfter(LocalDateTime.now()))
+								pu.get(i).obtenerRegistroTag().setActivo(true);
+							parkingUsuarioService.save(pu.get(i));
+						} catch (Exception e) {
+							System.out.println("Error al desactivar/activar chips del user: " + horarioId + " => " + e.toString());
+						}
 			}
 
 

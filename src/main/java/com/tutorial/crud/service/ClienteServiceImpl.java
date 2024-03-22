@@ -291,7 +291,7 @@ public class ClienteServiceImpl implements ClienteService {
 	@Override
 	public void activateCustomer(int customerID, int statusCobranza) {
 		Cliente customer = findById(customerID);
-		if (customer != null){
+		if (customer != null && Objects.nonNull(customer.getURLFoto())){
 			EstatusCobranza paymentStatusActive = estatusCobranzaService.findById(statusCobranza);
 			EstatusCliente customerStatus;
 			if (paymentStatusActive.getIdEstatusCobranza() == 6) customerStatus = estatusClienteService.findById(2);
@@ -302,7 +302,10 @@ public class ClienteServiceImpl implements ClienteService {
 				customer.setEstatusAcceso("Acceso permitido");
 				customer.setTieneAcceso(true);
 			}
-			else customer.setEstatusAcceso("Sin Acceso");
+			else {
+				customer.setTieneAcceso(false);
+				customer.setEstatusAcceso("Sin Acceso");
+			}
 			save(customer);
 
 
