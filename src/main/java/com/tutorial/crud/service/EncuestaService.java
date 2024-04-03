@@ -23,7 +23,7 @@ public class EncuestaService {
         var client = HttpClient.newHttpClient();
         // create a request
         var request = HttpRequest.newBuilder(
-                        URI.create("http://192.168.20.104:8000/ServiciosClubAlpha/api/Survey/Survey"))
+                        URI.create("http://192.168.20.107:8000/ServiciosClubAlpha/api/Survey/Survey"))
                 .header("accept", "application/json")
                 //.headers("Content-Type", "text/plain;charset=UTF-8")
                 .POST(HttpRequest.BodyPublishers.ofString("{\"IdCliente\": \"" + idCliente + "\"," + "\"branch_id\" : " + getClub(idClub) + "}"))
@@ -60,7 +60,7 @@ public class EncuestaService {
         var client = HttpClient.newHttpClient();
         // create a request
         var request = HttpRequest.newBuilder(
-                        URI.create("http://192.168.20.104:8000/ServiciosClubAlpha/api/Survey/Asnwer"))
+                        URI.create("http://192.168.20.107:8000/ServiciosClubAlpha/api/Survey/Asnwer"))
                 .header("accept", "application/json")
                 //.headers("Content-Type", "text/plain;charset=UTF-8")
                 .POST(HttpRequest.BodyPublishers.ofString("{\"IdSurvey\" : " + idSurvey + "}"))
@@ -98,7 +98,7 @@ public class EncuestaService {
             var client = HttpClient.newHttpClient();
             // create a request
             var requestOdoo = HttpRequest.newBuilder(
-                            URI.create("http://192.168.20.104:8000/ServiciosClubAlpha/api/Survey/Respuestas"))
+                            URI.create("http://192.168.20.107:8000/ServiciosClubAlpha/api/Survey/Respuestas"))
                     .header("accept", "application/json")
                     //.headers("Content-Type", "text/plain;charset=UTF-8")
                     .POST(HttpRequest.BodyPublishers.ofString(request))
