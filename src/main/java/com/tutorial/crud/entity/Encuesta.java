@@ -9,8 +9,8 @@ public class Encuesta {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Long idEncuesta;
-    @Column(name = "id_cliente")
-    private int idCliente;
+    @Column(name = "id_cliente_odoo")
+    private int idClienteOdoo;
     @Column(name = "id_club")
     private int idClub;
     @Column(name = "id_survey", columnDefinition = "integer default 0")
@@ -38,12 +38,12 @@ public class Encuesta {
         this.idEncuesta = idEncuesta;
     }
 
-    public int getIdCliente() {
-        return idCliente;
+    public int getIdClienteOdoo() {
+        return idClienteOdoo;
     }
 
-    public void setIdCliente(int idCliente) {
-        this.idCliente = idCliente;
+    public void setIdClienteOdoo(int idClienteOdoo) {
+        this.idClienteOdoo = idClienteOdoo;
     }
 
     public int getIdClub() {
@@ -122,7 +122,7 @@ public class Encuesta {
     public String toString() {
         return "Encuesta{" +
                 "idEncuesta=" + idEncuesta +
-                ", idCliente=" + idCliente +
+                ", idClienteOdoo=" + idClienteOdoo +
                 ", idClub=" + idClub +
                 ", idSurvey=" + idSurvey +
                 ", encuestas='" + encuestas + '\'' +
