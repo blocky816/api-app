@@ -1665,7 +1665,7 @@ public class ParkingController
 			ArrayList<ChipHora> chipHoras=new ArrayList<ChipHora>();
 			for(int i=0;i+1<listaDTO.size();i++) {
 				if(listaDTO.get(i).getIdChip()==listaDTO.get(i+1).getIdChip()) {
-					if(listaDTO.get(i).isSentido() && !listaDTO.get(i+1).isSentido()) {
+					if(listaDTO.get(i).isSentido() && !listaDTO.get(i+1).isSentido() && listaDTO.get(i).getIdCaseta().getId() != 5 && listaDTO.get(i+1).getIdCaseta().getId() != 5) {
 						ChipHora chipHora=new ChipHora();
 						long between = (listaDTO.get(i+1).getHoraEntrada().getTime() -listaDTO.get(i).getHoraEntrada().getTime()) / 1000; 
 						int hour1=(int) (between%(24*3600)/3600);
@@ -1740,8 +1740,8 @@ public class ParkingController
 									asunto = asunto + " por primera ocasion";
 									cabecera = "primera";
 									texto = "<li>La estancia en el estacionamiento es de 4 horas por ingreso.</li>\r\n"
-											+ "<li>En caso de una segunda incidencia deberá cubrir, en la caja general del club, una sanción administrativa de $35.00.</li>\r\n"
-											+ "<li>En caso de una tercera incidencia deberá cubrir, en la caja general del club, una sanción administrativa de $65.00.</li>\r\n"
+											+ "<li>En caso de una segunda incidencia deberá cubrir, en la caja general del club, una sanción administrativa de $40.00.</li>\r\n"
+											+ "<li>En caso de una tercera incidencia deberá cubrir, en la caja general del club, una sanción administrativa de $70.00.</li>\r\n"
 											+ "<li>En caso de una cuarta incidencia se desactivará definitivamente el Chip</li>\r\n"
 											+ "<li>El chip permanecerá desactivado hasta cubrir la sanción administrativa.</li>\r\n";
 									correo.enviar_correo4(asunto,idCliente,nombre,horaEntrada,horaSalida,texto,cabecera);
@@ -1770,7 +1770,7 @@ public class ParkingController
 									asunto = asunto + " por segunda ocasion";
 									cabecera = "segunda";
 									texto = "<li>La estancia en el estacionamiento es de 4 horas por ingreso.</li>\r\n"
-											+ "<li>En caso de una tercera incidencia deberá cubrir, en la caja general del club, una sanción administrativa de $65.00.</li>\r\n"
+											+ "<li>En caso de una tercera incidencia deberá cubrir, en la caja general del club, una sanción administrativa de $70.00.</li>\r\n"
 											+ "<li>En caso de una cuarta incidencia se desactivará definitivamente el Chip</li>\r\n"
 											+ "<li>El chip permanecerá desactivado hasta cubrir la sanción administrativa.</li>";
 									correo.enviar_correo4(asunto,idCliente,nombre,horaEntrada,horaSalida,texto,cabecera);
@@ -1861,8 +1861,8 @@ public class ParkingController
 									asunto = asunto + " por primera ocasion";
 									cabecera = "primera";
 									texto = "<li>La estancia en el estacionamiento es de 4 horas por ingreso.</li>\r\n"
-											+ "<li>En caso de una segunda incidencia deberá cubrir, en la caja general del club, una sanción administrativa de $35.00.</li>\r\n"
-											+ "<li>En caso de una tercera incidencia deberá cubrir, en la caja general del club, una sanción administrativa de $65.00.</li>\r\n"
+											+ "<li>En caso de una segunda incidencia deberá cubrir, en la caja general del club, una sanción administrativa de $40.00.</li>\r\n"
+											+ "<li>En caso de una tercera incidencia deberá cubrir, en la caja general del club, una sanción administrativa de $70.00.</li>\r\n"
 											+ "<li>En caso de una cuarta incidencia se desactivará definitivamente el Chip</li>\r\n"
 											+ "<li>El chip permanecerá desactivado hasta cubrir la sanción administrativa.</li>\r\n";
 									if(parkingUsuario.getCliente().getClub().getIdClub()==3)
@@ -1896,7 +1896,7 @@ public class ParkingController
 									asunto = asunto + " por segunda ocasion";
 									cabecera = "segunda";
 									texto = "<li>La estancia en el estacionamiento es de 4 horas por ingreso.</li>\r\n"
-											+ "<li>En caso de una tercera incidencia deberá cubrir, en la caja general del club, una sanción administrativa de $65.00.</li>\r\n"
+											+ "<li>En caso de una tercera incidencia deberá cubrir, en la caja general del club, una sanción administrativa de $70.00.</li>\r\n"
 											+ "<li>En caso de una cuarta incidencia se desactivará definitivamente el Chip</li>\r\n"
 											+ "<li>El chip permanecerá desactivado hasta cubrir la sanción administrativa.</li>";
 									if(parkingUsuario.getCliente().getClub().getIdClub()==3)
@@ -2178,7 +2178,7 @@ public class ParkingController
 					amonestacion.setHoraEntrada(listResults.get(i).getHoraEntrada());
 					amonestacion.setHoraSalida(listResults.get(i).getHoraSalida());
 					amonestacion.setIdChip(listResults.get(i).getIdChip());
-					amonestacion.setTexto("Se envía correo de notificacion por segunda incidencia y se le carga O.V en la cuenta por $35.00");
+					amonestacion.setTexto("Se envía correo de notificacion por segunda incidencia y se le carga O.V en la cuenta por $40.00");
 					
 				}
 				if(listResults.get(i).getCantidadAmonestaciones()==3) {
@@ -2186,7 +2186,7 @@ public class ParkingController
 					amonestacion.setHoraEntrada(listResults.get(i).getHoraEntrada());
 					amonestacion.setHoraSalida(listResults.get(i).getHoraSalida());
 					amonestacion.setIdChip(listResults.get(i).getIdChip());
-					amonestacion.setTexto("Se envía correo de notificacion por tercera incidencia y se le carga O.V en la cuenta por $65.00");
+					amonestacion.setTexto("Se envía correo de notificacion por tercera incidencia y se le carga O.V en la cuenta por $70.00");
 					
 				}
 				if(listResults.get(i).getCantidadAmonestaciones()==4) {
@@ -2420,14 +2420,14 @@ public class ParkingController
 					amonestacion.setIncidencia("Segunda Incidencia");
 					amonestacion.setHoraEntrada(listResults.get(i).getHoraEntrada());
 					amonestacion.setHoraSalida(listResults.get(i).getHoraSalida());
-					amonestacion.setTexto("Se envía correo de notificacion por segunda incidencia y se le carga O.V en la cuenta por $35.00");
+					amonestacion.setTexto("Se envía correo de notificacion por segunda incidencia y se le carga O.V en la cuenta por $40.00");
 					
 				}
 				if(listResults.get(i).getCantidadAmonestaciones()==3) {
 					amonestacion.setIncidencia("Tercera Incidencia");
 					amonestacion.setHoraEntrada(listResults.get(i).getHoraEntrada());
 					amonestacion.setHoraSalida(listResults.get(i).getHoraSalida());
-					amonestacion.setTexto("Se envía correo de notificacion por tercera incidencia y se le carga O.V en la cuenta por $65.00");
+					amonestacion.setTexto("Se envía correo de notificacion por tercera incidencia y se le carga O.V en la cuenta por $70.00");
 					
 				}
 				if(listResults.get(i).getCantidadAmonestaciones()==4) {
