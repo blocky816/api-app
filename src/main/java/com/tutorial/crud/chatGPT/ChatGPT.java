@@ -1,16 +1,25 @@
 package com.tutorial.crud.chatGPT;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.networknt.schema.JsonSchema;
+import com.networknt.schema.JsonSchemaFactory;
+import com.networknt.schema.SpecVersion;
+import com.networknt.schema.ValidationMessage;
+import com.tutorial.crud.CrudApplication;
 import com.tutorial.crud.entity.AnswerChatGPT;
 import com.tutorial.crud.entity.Cliente;
 import com.tutorial.crud.repository.AnswerChatGPTRepository;
 import com.tutorial.crud.service.AnswerChatGPTService;
+import com.tutorial.crud.service.ClienteServiceImpl;
 import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.io.DataOutputStream;
+import java.io.*;
 import java.net.HttpURLConnection;
 import java.net.URI;
 import java.net.URL;
@@ -22,6 +31,7 @@ import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.util.Date;
 import java.util.List;
+import java.util.Set;
 
 public class ChatGPT {
     private final String URL_OPENAI = "https://api.openai.com/v1/chat/completions";
@@ -66,7 +76,9 @@ public class ChatGPT {
         //List<AnswerChatGPT> answerChatGPTList = <answerChatGPTService.getDietInCurrentMonth(customer.getIdCliente(), startDate, endDate);
         List<AnswerChatGPT> answerChatGPTList = answerChatGPTRepository.findByCustomerAndCreatedAtBetweenOrderByCreatedAtDesc(customer, startDate, endDate);
 
-        String question = "{\n \"model\": \"gpt-4\",\n \"messages\": [\n {\n \"role\": \"system\",\n \"content\": \"Eres una maquina que sólo genera documentos json sin abreviar para dietas con porciones en gramos de una semana completa con los datos que se te dan, las dietas incluyen bebidas y están pensadas para gente que vive en el estado de Puebla en el país México. Todos los campos del json deben estar llenos y sin abreviar. El formato es:\\n{\\n  \\\"lunes\\\": {\\n    \\\"desayuno\\\": \\\"\\\",\\n    \\\"colación1\\\": \\\"\\\",\\n    \\\"comida\\\": \\\"\\\",\\n    \\\"colación2\\\": \\\"\\\",\\n    \\\"cena\\\": \\\"\\\"\\n  }\\n}\\n\"\n },\n {\n \"role\": \"user\",\n \"content\": \"" + customerPrompt + "\" }\n ],\n \"temperature\": 1.78,\n \"max_tokens\": 4095,\n \"top_p\": 0.86,\n \"frequency_penalty\": 0.2,\n \"presence_penalty\": 1.01\n }";
+        //String question = "{\n \"model\": \"gpt-4\",\n \"messages\": [\n {\n \"role\": \"system\",\n \"content\": \"Eres una maquina que sólo genera documentos json sin abreviar para dietas de una semana completa con los datos que se te dan, las dietas incluyen bebidas y están pensadas para gente que vive en el estado de Puebla en el país México. Todos los campos del json deben estar llenos y sin abreviar. El formato es:\\n{\\n  \\\"lunes\\\": {\\n    \\\"desayuno\\\": \\\"\\\",\\n    \\\"colación1\\\": \\\"\\\",\\n    \\\"comida\\\": \\\"\\\",\\n    \\\"colación2\\\": \\\"\\\",\\n    \\\"cena\\\": \\\"\\\"\\n  }\\n}\\n\"\n },\n {\n \"role\": \"user\",\n \"content\": \"" + customerPrompt + "\" }\n ],\n \"temperature\": 1.45,\n \"max_tokens\": 3600,\n \"top_p\": 0.86,\n \"frequency_penalty\": 0.13,\n \"presence_penalty\": 1.59\n }";
+        //String question = "{\n \"model\": \"gpt-4\",\n \"messages\": [\n {\n \"role\": \"system\",\n \"content\": \"Eres una maquina que sólo genera documentos json sin abreviar para dietas con porciones en gramos de una semana completa con los datos que se te dan, las dietas incluyen bebidas y están pensadas para gente que vive en el estado de Puebla en el país México. Todos los campos del json deben estar llenos y sin abreviar. El formato es:\\n{\\n  \\\"lunes\\\": {\\n    \\\"desayuno\\\": \\\"\\\",\\n    \\\"colación1\\\": \\\"\\\",\\n    \\\"comida\\\": \\\"\\\",\\n    \\\"colación2\\\": \\\"\\\",\\n    \\\"cena\\\": \\\"\\\"\\n  }\\n}\\n\"\n },\n {\n \"role\": \"user\",\n \"content\": \"" + customerPrompt + "\" }\n ],\n \"temperature\": 1.78,\n \"max_tokens\": 4095,\n \"top_p\": 0.86,\n \"frequency_penalty\": 0.2,\n \"presence_penalty\": 1.01\n }";
+        String question = "{\n \"model\": \"gpt-4\",\n \"messages\": [\n {\n \"role\": \"system\",\n \"content\": \"Eres una maquina que sólo genera documentos json sin abreviar para dietas con porciones en gramos de una semana completa con los datos que se te dan, las dietas incluyen bebidas y están pensadas para gente que vive en el estado de Puebla en el país México. Todos los campos del json deben estar llenos incluidas y sin abreviar. NUNCA te saltes comidas ni días. El formato es:\\n{\\n  \\\"lunes\\\": {\\n    \\\"desayuno\\\": \\\"\\\",\\n    \\\"colación1\\\": \\\"\\\",\\n    \\\"comida\\\": \\\"\\\",\\n    \\\"colación2\\\": \\\"\\\",\\n    \\\"cena\\\": \\\"\\\"\\n  }\\n}\\n\"\n },\n {\n \"role\": \"user\",\n \"content\": \"" + customerPrompt + "\" }\n ],\n \"temperature\": 1.78,\n \"max_tokens\": 4095,\n \"top_p\": 0.86,\n \"frequency_penalty\": 0.2,\n \"presence_penalty\": 1.01\n }";
 
         //System.out.println("Body a enviar => " + question);
         HttpClient client = HttpClient.newHttpClient();
@@ -86,14 +98,14 @@ public class ChatGPT {
             //return response.body();
             //System.out.println("REspuesta de CHATGTP.java => " + response.body());
             String content = new JSONObject(response.body()).getJSONArray("choices").getJSONObject(0).getJSONObject("message").getString("content").toString();
-            String breakfast = new JSONObject(content).getJSONObject("lunes").getString("desayuno");
-            //System.out.println("breakfast de ChatGTP.java: " + breakfast);
+            //String breakfast = new JSONObject(content).getJSONObject("lunes").getString("desayuno");
             answerChatGPT.setCustomer(customer);
             answerChatGPT.setQuestion(question);
             answerChatGPT.setAnswer(response.body());
             answerChatGPT.setValidQuestion(true);
 
-            if (breakfast.equals("")) {
+            //if (breakfast.equals("")) {
+            if (!isValidDietJSON(content, customer)) {
                 throw new RuntimeException("Respuesta Chat Vacia");
             }
             float cost = 0;
@@ -155,6 +167,42 @@ public class ChatGPT {
             System.out.println("Error al cargar dieta en odoo cliente: " + holder + " => "+ e.getMessage());
         }
         return statusCode;
+    }
+
+    public boolean isValidDietJSON(String content, Cliente customer) {
+        System.out.println("\nContent que recibo de chat gpt para empezar a validar => " + content);
+
+        try {
+            String dietasConAcento = content
+                .replace("miercoles", "miércoles")
+                .replace("sabado", "sábado")
+                .replace("colacion1", "colación1")
+                .replace("colacion2", "colación2");
+
+            try (InputStream schemaAsStream = new FileInputStream(new File("/home/spapp/model/schema.json"))) {
+                JsonSchema schema = JsonSchemaFactory.getInstance(SpecVersion.VersionFlag.V4).getSchema(schemaAsStream);
+                ObjectMapper om = new ObjectMapper();
+                JsonNode jsonNode = om.readTree(dietasConAcento);
+                Set<ValidationMessage> errors = schema.validate(jsonNode);
+                if (errors.isEmpty()) {
+                    System.out.println("Dieta valida para usuario: " + customer.getIdCliente() + " => " + LocalDateTime.now().withNano(0));
+                } else {
+                    System.out.println("Errores de validación en dieta del usuario " + customer.getIdCliente() + " => " + LocalDateTime.now().withNano(0) + ":");
+                    for (ValidationMessage error : errors) {
+                        System.out.println(error.getMessage());
+                    }
+
+                }
+                return errors.isEmpty();
+            } catch (IOException e) {
+                System.out.println("Errorr al cargar model/schema.json");
+                //e.printStackTrace();
+            }
+        } catch (Exception e) {
+            System.out.println("Exception de Json Proccesing => " +  e.getMessage());
+            //e.printStackTrace();
+        }
+        return false;
     }
 }
 
