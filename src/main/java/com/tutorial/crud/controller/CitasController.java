@@ -522,7 +522,7 @@ public class CitasController
    		Query<?> inicioSemana=currentSession.createNativeQuery("select FECHA from dias_semana where nombre='LUNES'");
    		String lunes=(String)inicioSemana.getSingleResult();
    		Query<CAClase> listaClases = currentSession.createNativeQuery("select clases.id,nombre,clases.tecnico,tipo_actividad,color,lugar,"
-   				+ "clases.duracion,nivel,clases.hora, cupo_actual,cupo_maximo,clases.rango,clases.disponible, dia, paga,clases.id_apartados"
+   				+ "clases.duracion,nivel,clases.hora, cupo_actual,cupo_maximo,clases.rango,clases.disponible, dia, paga,clases.id_apartados, clases.club"
    				+ " from  ca_apartados_usuario  join clases on ca_apartados_usuario.id_apartados=clases.id_apartados where idcliente="+usuario+" "
    				+ "and ca_apartados_usuario.activo=true and "
    				+ "TO_TIMESTAMP(clases.dia||split_part(clases.rango, '-', 2),'YYYY-MM-DDHH24:MI')>='"+lunes+"'  order by "
