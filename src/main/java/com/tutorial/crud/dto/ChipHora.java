@@ -21,7 +21,7 @@ import com.tutorial.crud.entity.RegistroTag;
 public class ChipHora {
 	private RegistroTag idChip;
 	
-	private int horas;
+	private float horas;
 	
 	private Date horaEntrada;
 	
@@ -35,11 +35,11 @@ public class ChipHora {
 		this.idChip = idChip;
 	}
 
-	public int getHoras() {
+	public float getHoras() {
 		return horas;
 	}
 
-	public void setHoras(int horas) {
+	public void setHoras(float horas) {
 		this.horas = horas;
 	}
 	

@@ -17,7 +17,9 @@ import java.sql.SQLException;
 import java.sql.Timestamp;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.time.Duration;
 import java.time.LocalDateTime;
+import java.time.ZoneId;
 import java.util.*;
 import java.util.concurrent.TimeUnit;
 
@@ -486,7 +488,7 @@ public class ParkingController
 			}else {
 				Long idChip = 0L;
 				try {
-					idChip = Long.parseLong(usuario.getObservaciones());
+					idChip = Long.parseLong(usuario.getObservaciones().trim());
 				} catch(NumberFormatException e) {
 					json.put("respuesta", "error en el id del chip");
 					return new ResponseEntity<>(json.toString(), HttpStatus.BAD_REQUEST);
@@ -1073,8 +1075,20 @@ public class ParkingController
 		 else
 			 estacionamiento.setLugarVenta(lugarVenta);
 		estacionamientoExternoService.save(estacionamiento);
-		
-		
+
+		if (lugarVenta.equals("ceforma_botonera")) {
+			QRParkingDTO qrParking = new QRParkingDTO();
+			qrParking.setClub(horarioId);
+			qrParking.setCosto(qrEstacionamientoCostoRepository.findById(11).get().getCost());
+			qrParking.setDebito(qrEstacionamientoCostoRepository.findById(11).get().getCost());
+			qrParking.setIdUsuario(11);
+			qrParking.setPagado(true);
+			qrParking.setCambio(0);
+			qrParking.setDevuelto(true);
+			qrParking.setObservaciones("Qr botonera ceforma");
+			qrParking.setIdRegistro(id);
+			qrParkingService.save(qrParking);
+		}
 		
 		
 		return new ResponseEntity<>(estacionamiento, HttpStatus.OK);
@@ -1668,7 +1682,8 @@ public class ParkingController
 					if(listaDTO.get(i).isSentido() && !listaDTO.get(i+1).isSentido() && listaDTO.get(i).getIdCaseta().getId() != 5 && listaDTO.get(i+1).getIdCaseta().getId() != 5) {
 						ChipHora chipHora=new ChipHora();
 						long between = (listaDTO.get(i+1).getHoraEntrada().getTime() -listaDTO.get(i).getHoraEntrada().getTime()) / 1000; 
-						int hour1=(int) (between%(24*3600)/3600);
+						//int hour1=(int) (between%(24*3600)/3600);
+						float hour1 = (between % (24f * 3600f) / 3600f); //tiene que ser asi porque si no no toma los decimales
 						chipHora.setHoras(hour1);
 						chipHora.setIdChip(listaDTO.get(i).getIdChip());
 						chipHora.setHoraEntrada(listaDTO.get(i).getHoraEntrada());
@@ -1684,7 +1699,7 @@ public class ParkingController
 						int idVentaDetalle = chipHoras.get(i).getIdChip().getParking();
 						ParkingUsuario park = parkingUsuarioService.getOne(idVentaDetalle).get();
 
-						int horas = chipHoras.get(i).getHoras();
+						float horas = chipHoras.get(i).getHoras();
 						String club = chipHoras.get(i).getIdChip().getClub();
 						String tipoCliente = "";
 						if (park.getRhEmpleado() == null)
@@ -1701,7 +1716,7 @@ public class ParkingController
 						ConfiguracionSancion sancion2 = configuracionSancionService.findByConcepto("Parking segunda ocasion");
 						ConfiguracionSancion sancion3 = configuracionSancionService.findByConcepto("Parking tercera ocasion");
 						Calendar calendar = new GregorianCalendar();
-						if (horas >= 4 && club.equals("CIMERA") && idVentaDetalle > 0 && excepciones) {
+						if (horas >= 4.35f && club.equals("CIMERA") && idVentaDetalle > 0 && excepciones) {
 							List<Amonestaciones> amonestacionesPorChip = new ArrayList<Amonestaciones>();
 							Amonestaciones amonestacionNueva = new Amonestaciones();
 							try {
@@ -1739,7 +1754,7 @@ public class ParkingController
 									correo = new Correo(usuarioCorreo, contrasenaCorreo, correoAmonestado, copiaOculta);
 									asunto = asunto + " por primera ocasion";
 									cabecera = "primera";
-									texto = "<li>La estancia en el estacionamiento es de 4 horas por ingreso.</li>\r\n"
+									texto = "<li>La estancia en el estacionamiento es de 4 horas 20 minutos por ingreso.</li>\r\n"
 											+ "<li>En caso de una segunda incidencia deberá cubrir, en la caja general del club, una sanción administrativa de $40.00.</li>\r\n"
 											+ "<li>En caso de una tercera incidencia deberá cubrir, en la caja general del club, una sanción administrativa de $70.00.</li>\r\n"
 											+ "<li>En caso de una cuarta incidencia se desactivará definitivamente el Chip</li>\r\n"
@@ -1769,7 +1784,7 @@ public class ParkingController
 									correo = new Correo(usuarioCorreo, contrasenaCorreo, correoAmonestado, copiaOculta);
 									asunto = asunto + " por segunda ocasion";
 									cabecera = "segunda";
-									texto = "<li>La estancia en el estacionamiento es de 4 horas por ingreso.</li>\r\n"
+									texto = "<li>La estancia en el estacionamiento es de 4 horas 20 minutos por ingreso.</li>\r\n"
 											+ "<li>En caso de una tercera incidencia deberá cubrir, en la caja general del club, una sanción administrativa de $70.00.</li>\r\n"
 											+ "<li>En caso de una cuarta incidencia se desactivará definitivamente el Chip</li>\r\n"
 											+ "<li>El chip permanecerá desactivado hasta cubrir la sanción administrativa.</li>";
@@ -1799,7 +1814,7 @@ public class ParkingController
 									correo = new Correo(usuarioCorreo, contrasenaCorreo, correoAmonestado, copiaOculta);
 									asunto = asunto + " por tercera ocasion";
 									cabecera = "tercera";
-									texto = "<li>La estancia en el estacionamiento es de 4 horas por ingreso.</li>\r\n"
+									texto = "<li>La estancia en el estacionamiento es de 4 horas 20 minutos por ingreso.</li>\r\n"
 											+ "<li>En caso de una cuarta incidencia se desactivará definitivamente el Chip</li>\r\n"
 											+ "<li>El chip permanecerá desactivado hasta cubrir la sanción administrativa.</li>";
 									correo.enviar_correo4(asunto,idCliente,nombre,horaEntrada,horaSalida,texto,cabecera);
@@ -1821,7 +1836,7 @@ public class ParkingController
 
 							amonestacionesService.save(amonestacionNueva);
 						} // CHIPS CIMERAS
-						else if (horas >= 4 && idVentaDetalle > 0 && excepciones && !club.equals("CIMERA")) {
+						else if (horas >= 4.35f && idVentaDetalle > 0 && excepciones && !club.equals("CIMERA")) {
 							List<Amonestaciones> amonestacionesPorChip = new ArrayList<Amonestaciones>();
 							Amonestaciones amonestacionNueva = new Amonestaciones();
 							try {
@@ -1860,7 +1875,7 @@ public class ParkingController
 									correo = new Correo(usuarioCorreo, contrasenaCorreo, correoAmonestado, copiaOculta);
 									asunto = asunto + " por primera ocasion";
 									cabecera = "primera";
-									texto = "<li>La estancia en el estacionamiento es de 4 horas por ingreso.</li>\r\n"
+									texto = "<li>La estancia en el estacionamiento es de 4 horas 20 minutos por ingreso.</li>\r\n"
 											+ "<li>En caso de una segunda incidencia deberá cubrir, en la caja general del club, una sanción administrativa de $40.00.</li>\r\n"
 											+ "<li>En caso de una tercera incidencia deberá cubrir, en la caja general del club, una sanción administrativa de $70.00.</li>\r\n"
 											+ "<li>En caso de una cuarta incidencia se desactivará definitivamente el Chip</li>\r\n"
@@ -1895,7 +1910,7 @@ public class ParkingController
 									correo = new Correo(usuarioCorreo, contrasenaCorreo, correoAmonestado, copiaOculta);
 									asunto = asunto + " por segunda ocasion";
 									cabecera = "segunda";
-									texto = "<li>La estancia en el estacionamiento es de 4 horas por ingreso.</li>\r\n"
+									texto = "<li>La estancia en el estacionamiento es de 4 horas 20 minutos por ingreso.</li>\r\n"
 											+ "<li>En caso de una tercera incidencia deberá cubrir, en la caja general del club, una sanción administrativa de $70.00.</li>\r\n"
 											+ "<li>En caso de una cuarta incidencia se desactivará definitivamente el Chip</li>\r\n"
 											+ "<li>El chip permanecerá desactivado hasta cubrir la sanción administrativa.</li>";
@@ -1929,7 +1944,7 @@ public class ParkingController
 									correo = new Correo(usuarioCorreo, contrasenaCorreo, correoAmonestado, copiaOculta);
 									asunto = asunto + " por tercera ocasion";
 									cabecera = "tercera";
-									texto = "<li>La estancia en el estacionamiento es de 4 horas por ingreso.</li>\r\n"
+									texto = "<li>La estancia en el estacionamiento es de 4 horas 20 minutos por ingreso.</li>\r\n"
 											+ "<li>En caso de una cuarta incidencia se desactivará definitivamente el Chip</li>\r\n"
 											+ "<li>El chip permanecerá desactivado hasta cubrir la sanción administrativa.</li>";
 									if(parkingUsuario.getCliente().getClub().getIdClub()==3)
@@ -2020,7 +2035,7 @@ public class ParkingController
 			for (int i=0;i<chipHoras.size();i++) {
 				int idVentaDetalle=chipHoras.get(i).getIdChip().getParking();
 				ParkingUsuario park=parkingUsuarioService.getOne(idVentaDetalle).get();
-				int horas=chipHoras.get(i).getHoras();
+				float horas=chipHoras.get(i).getHoras();
 				String club=chipHoras.get(i).getIdChip().getClub();
 				String tipoCliente="";
 				if(park.getRhEmpleado()==null)
@@ -2965,17 +2980,43 @@ public class ParkingController
 			registroParking.setIdChip(BigInteger.valueOf(0));
 			registroParking.setSentido("SIN REGISTRO DE ENTRADA");
 			registroParking.setTipoAcceso("SIN REGISTRO DE ENTRADA");
+			// Formatear la fecha en el formato "dd-MM-yyyy"
+			SimpleDateFormat formato = new SimpleDateFormat("yyyy-MM-dd");
+			Date horaEvento = (Date) listResults.get(0)[0];
+			// Obtener la representacion formateada de las fechas
+			String fechaFormateada1 = formato.format(horaEvento);
+			String fechaFormateada2 = formato.format(new Date());
+			try {
+				Date horaEvento2 = formato.parse(fechaFormateada1);
+				Date hoy2 = formato.parse(fechaFormateada2);
+				if (horaEvento2.before(hoy2))  return new ResponseEntity<>(registroParking, HttpStatus.OK);
+			} catch(Exception e) {
+				System.out.println("No se pudo parsear fecha en /parking/tiempoLimite/" + idCliente);
+			}
 			if(sentido.equals("ENTRADA")) {
 				registroParking.setHoraEvento((Date) listResults.get(0)[0]);
 				registroParking.setIdChip((BigInteger) listResults.get(0)[2]);
 				registroParking.setSentido((String) listResults.get(0)[1]);
-				long tiempo=new Date().getTime()-((Date)listResults.get(0)[0]).getTime();
-				long horas=3-TimeUnit.MILLISECONDS.toHours(tiempo);
-				long minutos=59-TimeUnit.MILLISECONDS.toMinutes(tiempo%3600000);
-				if(minutos<10)
-					registroParking.setTipoAcceso(horas+":0"+minutos);
+
+				// Calculo de las 4:20 horas
+				LocalDateTime localDateTime = horaEvento.toInstant()
+						.atZone(ZoneId.systemDefault())
+						.toLocalDateTime();
+
+				// Sumar las 4 horas 20 minutos
+				LocalDateTime limiteEstacionamiento = localDateTime.plusMinutes(260);
+
+				// Calcular el tiempo restante
+				LocalDateTime hoy = LocalDateTime.now().minusHours(1);
+				Duration duracion = Duration.between(limiteEstacionamiento, hoy);
+				long hours = duracion.toHours();
+				long minutes = duracion.toMinutes() % 60;
+				String s = "";
+				if (hours < 0 || minutes < 0)
+					s += String.format("%d:%02d", Math.abs(hours), Math.abs(minutes));
 				else
-					registroParking.setTipoAcceso(horas+":"+minutos);
+					s += String.format("-%d:%02d", Math.abs(hours), Math.abs(minutes));
+				registroParking.setTipoAcceso(s);
 			}
 			
 			
@@ -3506,5 +3547,74 @@ public class ParkingController
 	       
 			
 		}
+
+
+	@GetMapping("/calcularAmonestaciones2")
+	@ResponseBody
+	public ResponseEntity<?> calcularAmonestaciones2() {
+		Session currentSession = entityManager.unwrap(Session.class);
+		Query listaClases;
+		 	/*listaClases = currentSession.createNativeQuery("SELECT *,(select sentido from caseta_antena where "
+		 			+ "caseta_antena.antena_id=registro_parking.id_antena and caseta_antena.caseta_id=registro_parking.id_caseta ) from "
+		 			+ "registro_parking where hora_entrada between current_timestamp - '30 hr'::INTERVAL and current_timestamp -'6 hr'::INTERVAL "
+		 			+ "AND ACCESO IS TRUE and id_chip is not null order by id_chip,hora_entrada;");*/
+		listaClases = currentSession.createNativeQuery("SELECT id,hora_Evento,id_antena,id_Caseta,id_chip,mensaje,raw,acceso,"
+				+ "hora_Entrada,tipo_acceso,(select sentido from caseta_antena where caseta_antena.antena_id=registro_parking.id_antena and"
+				+ " caseta_antena.caseta_id=registro_parking.id_caseta ) from registro_parking WHERE ACCESO IS TRUE and raw = '176e4f' and hora_entrada between " +
+				"'2024-03-01 00:00:00' and '2024-03-01 23:59:59'  order by hora_entrada;");
+
+		List<Object[]> listResults = listaClases.getResultList();
+		//currentSession.close();
+		List<RegistroParkingDTO> listaDTO = new ArrayList<RegistroParkingDTO>();
+		for (Object[] record : listResults) {
+			RegistroParkingDTO registroParking = new RegistroParkingDTO();
+			for (int i = 0; i < record.length; i++) {
+				registroParking.setAcceso((boolean) record[7]);
+				registroParking.setHoraEntrada(((Date) record[8]).getTime());
+				registroParking.setHoraEvento((Date) record[1]);
+				registroParking.setIdAntena(antenaService.getOne((int) record[2]).get());
+				registroParking.setIdCaseta(casetaService.getOne((int) record[3]).get());
+				registroParking.setIdChip(registroTagService.getOne((int) record[4]).get());
+				registroParking.setMensaje((String) record[5]);
+				registroParking.setRaw((String) record[6]);
+				registroParking.setSentido((boolean) record[10]);
+				registroParking.setTipoAcceso(tipoAccesoService.getOne((int) record[9]).get());
+			}
+			listaDTO.add(registroParking);
+		}
+		ArrayList<ChipHora> chipHoras = new ArrayList<ChipHora>();
+		for (int i = 0; i + 1 < listaDTO.size(); i++) {
+			if (listaDTO.get(i).getIdChip() == listaDTO.get(i + 1).getIdChip()) {
+				if (listaDTO.get(i).isSentido() && !listaDTO.get(i + 1).isSentido()) {
+					ChipHora chipHora = new ChipHora();
+					long between = (listaDTO.get(i + 1).getHoraEntrada().getTime() - listaDTO.get(i).getHoraEntrada().getTime()) / 1000;
+					int hour1 = (int) (between % (24 * 3600) / 3600);
+					float horas = (between % (24f * 3600f) / 3600f); //tiene que ser asi porque si no no toma los decimales
+					System.out.println("el between " + between);
+					System.out.println("primt horas int => " + hour1);
+					System.out.println("primt horas float => " + horas);
+					//tolerancia 260 minutos = 4:20 horas
+					//float horas = 4.31667f; //259 minutos valido
+					//float horas = 4.33333f; //260 minutos valido
+					//float horas = 4.35f; // 261 minutos excedio
+
+					if(horas >= 4.35f) {
+						System.out.println("Excediste el tiempo en el estacionamiento: " + horas);
+					}else {
+						System.out.println("Tiempo valido de estacionamiento: " + horas);
+					}
+					chipHora.setHoras(horas);
+					chipHora.setIdChip(listaDTO.get(i).getIdChip());
+					chipHora.setHoraEntrada(listaDTO.get(i).getHoraEntrada());
+					chipHora.setHoraSalida(listaDTO.get(i + 1).getHoraEntrada());
+					chipHoras.add(chipHora);
+				}
+			}
+
+
+		}
+
+		return new ResponseEntity<>(chipHoras, HttpStatus.OK);
+	}
 }//fin de la clase
 
