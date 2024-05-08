@@ -2,6 +2,7 @@ package com.tutorial.crud.security.dto;
 
 import org.springframework.security.core.GrantedAuthority;
 
+import java.time.LocalDateTime;
 import java.util.Collection;
 
 public class JwtDto {
@@ -11,13 +12,15 @@ public class JwtDto {
     private Collection<? extends GrantedAuthority> authorities;
     private int club;
     private boolean activo;
+    private LocalDateTime inicioSesion;
 
-    public JwtDto(String token, String nombreUsuario, Collection<? extends GrantedAuthority> authorities,int club,boolean activo) {
+    public JwtDto(String token, String nombreUsuario, Collection<? extends GrantedAuthority> authorities,int club,boolean activo, LocalDateTime inicioSesion) {
         this.token = token;
         this.nombreUsuario = nombreUsuario;
         this.authorities = authorities;
         this.club=club;
         this.activo=activo;
+        this.inicioSesion=inicioSesion;
     }
     public JwtDto(String token, String nombreUsuario, Collection<? extends GrantedAuthority> authorities) {
         this.token = token;
@@ -74,5 +77,13 @@ public class JwtDto {
 
     public void setAuthorities(Collection<? extends GrantedAuthority> authorities) {
         this.authorities = authorities;
+    }
+
+    public LocalDateTime getInicioSesion() {
+        return inicioSesion;
+    }
+
+    public void setInicioSesion(LocalDateTime inicioSesion) {
+        this.inicioSesion = inicioSesion;
     }
 }

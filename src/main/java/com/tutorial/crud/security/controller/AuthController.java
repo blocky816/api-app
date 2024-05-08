@@ -21,6 +21,7 @@ import com.tutorial.crud.service.ClienteServiceImpl;
 import com.tutorial.crud.service.ClubServiceImpl;
 
 import org.apache.log4j.BasicConfigurator;
+import org.apache.tomcat.jni.Local;
 import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -41,6 +42,7 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.security.NoSuchAlgorithmException;
 import java.security.SecureRandom;
+import java.time.LocalDateTime;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.HashSet;
@@ -156,9 +158,11 @@ public class AuthController{
                 activo=true;
             } else
                 return new ResponseEntity<>("Error en el login - datos no validos", HttpStatus.BAD_REQUEST);
-            JwtDto jwtDto = new JwtDto(jwt, userDetails.getUsername(), userDetails.getAuthorities(),idClub,activo);
+            LocalDateTime inicioSesion = LocalDateTime.now().withNano(0);
+            JwtDto jwtDto = new JwtDto(jwt, userDetails.getUsername(), userDetails.getAuthorities(),idClub,activo,inicioSesion);
             fh.close();
-
+            cliente.setInicioSesion(inicioSesion);
+            usuarioService.save(cliente);
             return new ResponseEntity<>(jwtDto, HttpStatus.OK);
     	}catch(AuthenticationException e) {
     		//logJava.warning(loginUsuario.getNombreUsuario() + ", log incorrecto ");
@@ -212,9 +216,8 @@ public class AuthController{
             if(!estatusCobranza.equals("Baja")) {
             	activo=true;
             }
-            JwtDto jwtDto = new JwtDto(jwt, userDetails.getUsername(), userDetails.getAuthorities(),idClub,activo);
+            JwtDto jwtDto = new JwtDto(jwt, userDetails.getUsername(), userDetails.getAuthorities(),idClub,activo,LocalDateTime.now().withNano(0));
             fh.close();
-          
             return new ResponseEntity<>(jwtDto, HttpStatus.OK);
     	}catch(AuthenticationException e) {
     		//logJava.warning(loginUsuario.getNombreUsuario() + ", log incorrecto ");
