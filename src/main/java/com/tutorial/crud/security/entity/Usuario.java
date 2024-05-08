@@ -2,6 +2,7 @@ package com.tutorial.crud.security.entity;
 
 import javax.persistence.*;
 import javax.validation.constraints.NotNull;
+import java.time.LocalDateTime;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -34,6 +35,7 @@ public class Usuario {
     private String EstatusCobranza;
     @NotNull
     private String nivel;
+    private LocalDateTime inicioSesion;
     
     public Usuario() {
     }
@@ -141,11 +143,25 @@ public class Usuario {
 		this.nivel = nivel;
 	}
 
-	@Override
-	public String toString() {
-		return "Usuario [id=" + id + ", nombre=" + nombre + ", nombreUsuario=" + nombreUsuario + ", email=" + email
-				+ ", password=" + password + ", roles=" + roles + ", Estatus=" + Estatus + ", cliente=" + cliente
-				+ ", ClienteTipo=" + ClienteTipo + ", EstatusCobranza=" + EstatusCobranza + ", nivel=" + nivel + "]";
-	}
-    
+    public LocalDateTime getInicioSesion() { return inicioSesion; }
+
+    public void setInicioSesion(LocalDateTime inicioSesion) { this.inicioSesion = inicioSesion; }
+
+    @Override
+    public String toString() {
+        return "Usuario{" +
+                "id=" + id +
+                ", nombre='" + nombre + '\'' +
+                ", nombreUsuario='" + nombreUsuario + '\'' +
+                ", email='" + email + '\'' +
+                ", password='" + password + '\'' +
+                ", roles=" + roles +
+                ", Estatus='" + Estatus + '\'' +
+                ", cliente='" + cliente + '\'' +
+                ", ClienteTipo='" + ClienteTipo + '\'' +
+                ", EstatusCobranza='" + EstatusCobranza + '\'' +
+                ", nivel='" + nivel + '\'' +
+                ", inicioSesion=" + inicioSesion +
+                '}';
+    }
 }
