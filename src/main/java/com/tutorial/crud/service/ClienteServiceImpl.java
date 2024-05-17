@@ -20,6 +20,9 @@ import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.time.ZoneId;
 import java.util.*;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
 
 import javax.persistence.EntityManager;
 
@@ -290,6 +293,7 @@ public class ClienteServiceImpl implements ClienteService {
 
 	@Override
 	public void activateCustomer(int customerID, int statusCobranza) {
+		servicios.update(customerID);
 		Cliente customer = findById(customerID);
 		if (customer != null && Objects.nonNull(customer.getURLFoto())){
 			EstatusCobranza paymentStatusActive = estatusCobranzaService.findById(statusCobranza);
@@ -300,10 +304,10 @@ public class ClienteServiceImpl implements ClienteService {
 			customer.setEstatusCliente(customerStatus);
 			if (paymentStatusActive.getIdEstatusCobranza() == 1) {
 				customer.setEstatusAcceso("Acceso permitido");
-				customer.setTieneAcceso(true);
+				//customer.setTieneAcceso(true);
 			}
 			else {
-				customer.setTieneAcceso(false);
+				//customer.setTieneAcceso(false);
 				customer.setEstatusAcceso("Sin Acceso");
 			}
 			save(customer);
@@ -324,9 +328,9 @@ public class ClienteServiceImpl implements ClienteService {
 					} catch (Exception e) {
 						log.error("Error al desactivar/activar chips del user: {} => {}", customerID , e.toString());
 					}
-		} else {
+		} /*else {
 			servicios.update(customerID);
-		}
+		}*/
 	}
 
 	public String getPasswordHash(String customerID) {
@@ -377,8 +381,13 @@ public class ClienteServiceImpl implements ClienteService {
 		try {
 			log.info("Iniciando la actualizacion de activos y al corriente {} del club {} ...", dateFormat.format(new Date()), club);
 			JSONArray activos = new JSONArray(getSinEtapa(club));
+			int numNucleos = Runtime.getRuntime().availableProcessors();
+			//System.out.println("num de nucleos activos => " + numNucleos);
+			ExecutorService threadPool = Executors.newFixedThreadPool(numNucleos);
 			for (int i = 0; i < activos.length(); i++) {
-				String idStr = activos.getJSONObject(i).getString("id_cliente");
+				final int finalI = i;
+				threadPool.execute(() -> {
+				String idStr = activos.getJSONObject(finalI).getString("id_cliente");
 				try {
 					int idCliente = Integer.parseInt(idStr.replace("/", "").trim());
 					activateCustomer(idCliente, 1);
@@ -387,7 +396,11 @@ public class ClienteServiceImpl implements ClienteService {
 				} catch (Exception e) {
 					log.error("No se pudo activar al corriente el usuario: {} => {}", idStr, e.toString());
 				}
+				});
 			}
+			// Espera a que todos los hilos terminen
+			threadPool.shutdown();
+			//System.out.println(threadPool.awaitTermination(Long.MAX_VALUE, TimeUnit.NANOSECONDS));
 			log.info("Clientes Alpha {} activos y al corriente actualizados a las {}", club, LocalTime.now().withNano(0));
 		} catch (Exception e) {
 			log.error("Error al actualizar activos y al corriente {} del club {} => {}", dateFormat.format(new Date()), club, e.toString());
@@ -400,11 +413,16 @@ public class ClienteServiceImpl implements ClienteService {
 		try {
 			JSONArray etapas = new JSONArray(getConEtapa(club));
 			log.info("Iniciando la actualizacion de etapas {} del club {} ...", dateFormat.format(new Date()), club);
+			int numNucleos = Runtime.getRuntime().availableProcessors();
+			//System.out.println("num de nucleos etapas => " + numNucleos);
+			ExecutorService threadPool = Executors.newFixedThreadPool(numNucleos);
 			for (int i = 0; i < etapas.length(); i++) {
-				String idStr = etapas.getJSONObject(i).getString("id_cliente");
+				final int finalI = i;
+				threadPool.execute(() -> {
+				String idStr = etapas.getJSONObject(finalI).getString("id_cliente");
 				try {
 					int idCliente = Integer.parseInt(idStr.replace("/", "").trim());
-					switch (etapas.getJSONObject(i).getString("stage")) {
+					switch (etapas.getJSONObject(finalI).getString("stage")) {
 						case "E1":
 							activateCustomer(idCliente, 2);
 							break;
@@ -423,7 +441,11 @@ public class ClienteServiceImpl implements ClienteService {
 				} catch (Exception e) {
 					log.error("No se pudo actualizar el estatus de cobranza del usuario: {} => {}", idStr, e.toString());
 				}
+				});
 			}
+			// Espera a que todos los hilos terminen
+			threadPool.shutdown();
+			//System.out.println(threadPool.awaitTermination(Long.MAX_VALUE, TimeUnit.NANOSECONDS));
 			log.info("Clientes Alpha {} bajas y etapas actualizados a las {}", club, LocalTime.now().withNano(0));
 		} catch (Exception e) {
 			log.error("Error al actualizar etapas y bajas {} del club {} => {}", dateFormat.format(new Date()) , club, e.toString());
