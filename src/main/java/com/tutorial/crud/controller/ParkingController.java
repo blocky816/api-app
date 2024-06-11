@@ -15,6 +15,7 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Timestamp;
+import java.text.Normalizer;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.time.Duration;
@@ -1714,7 +1715,13 @@ public class ParkingController
 								 && !tipoCliente.equals("EMPLEADOS ADMINISTRATIVOS Y OPERATIVOS")  && !tipoCliente.equals("EMPLEADOS CIM")
 								 && !tipoCliente.equals("EMPLEADOS DIRECTIVOS") && !tipoCliente.equals("EMPLEADOS FAMILIARES DIRECTOS")
 								 && !tipoCliente.equals("EMPLEADOS PLATINUM") && !club.equals("Futbol City") ;*/
-						boolean excepciones = !tipoCliente.contains("Empleados");
+						//boolean excepciones = !tipoCliente.contains("Empleados");
+						// Quitar acentos de tipo de cliente
+						String tipoClienteSinAcentos = Normalizer.normalize(tipoCliente, Normalizer.Form.NFD);
+						tipoClienteSinAcentos = tipoClienteSinAcentos.replaceAll("[\\p{InCombiningDiacriticalMarks}]", "");
+						System.out.println("TipoCliente Sin Acentos: " + tipoClienteSinAcentos);
+
+						boolean excepciones = !tipoClienteSinAcentos.contains("Empleados") && !tipoClienteSinAcentos.contains("Usuario / Cimera / Cortesias");
 						ConfiguracionSancion sancion2 = configuracionSancionService.findByConcepto("Parking segunda ocasion");
 						ConfiguracionSancion sancion3 = configuracionSancionService.findByConcepto("Parking tercera ocasion");
 						Calendar calendar = new GregorianCalendar();
