@@ -1709,6 +1709,7 @@ public class ParkingController
 						if (park.getRhEmpleado() == null) {
 							tipoCliente = park.getCliente().getTipoCliente().getNombre();
 							conceptoTag = park.getConcepto().toLowerCase();
+							System.out.println("conceptoTag: " + conceptoTag);
 						}
 						/*System.out.println(horas>=4 && idVentaDetalle>0 && (!tipoCliente.equals("EQUIPO PUEBLA") && !tipoCliente.equals("PRACTICANTES")
 								 && !tipoCliente.equals("EMPLEADOS ADMINISTRATIVOS Y OPERATIVOS")  && !tipoCliente.equals("EMPLEADOS CIM")
@@ -1722,7 +1723,6 @@ public class ParkingController
 						// Quitar acentos de tipo de cliente
 						String tipoClienteSinAcentos = Normalizer.normalize(tipoCliente, Normalizer.Form.NFD);
 						tipoClienteSinAcentos = tipoClienteSinAcentos.replaceAll("[\\p{InCombiningDiacriticalMarks}]", "");
-						System.out.println("conceptoTag: " + conceptoTag);
 
 						boolean excepciones = !tipoClienteSinAcentos.contains("Empleados") && !tipoClienteSinAcentos.contains("Usuario / Cimera / Cortesias") && !conceptoTag.contains("empleado");
 						ConfiguracionSancion sancion2 = configuracionSancionService.findByConcepto("Parking segunda ocasion");
