@@ -1705,8 +1705,11 @@ public class ParkingController
 						float horas = chipHoras.get(i).getHoras();
 						String club = chipHoras.get(i).getIdChip().getClub();
 						String tipoCliente = "";
-						if (park.getRhEmpleado() == null)
+						String conceptoTag = "";
+						if (park.getRhEmpleado() == null) {
 							tipoCliente = park.getCliente().getTipoCliente().getNombre();
+							conceptoTag = park.getConcepto().toLowerCase();
+						}
 						/*System.out.println(horas>=4 && idVentaDetalle>0 && (!tipoCliente.equals("EQUIPO PUEBLA") && !tipoCliente.equals("PRACTICANTES")
 								 && !tipoCliente.equals("EMPLEADOS ADMINISTRATIVOS Y OPERATIVOS")  && !tipoCliente.equals("EMPLEADOS CIM")
 								 && !tipoCliente.equals("EMPLEADOS DIRECTIVOS") && !tipoCliente.equals("EMPLEADOS FAMILIARES DIRECTOS")
@@ -1719,9 +1722,9 @@ public class ParkingController
 						// Quitar acentos de tipo de cliente
 						String tipoClienteSinAcentos = Normalizer.normalize(tipoCliente, Normalizer.Form.NFD);
 						tipoClienteSinAcentos = tipoClienteSinAcentos.replaceAll("[\\p{InCombiningDiacriticalMarks}]", "");
-						System.out.println("TipoCliente Sin Acentos: " + tipoClienteSinAcentos);
+						System.out.println("conceptoTag: " + conceptoTaggit );
 
-						boolean excepciones = !tipoClienteSinAcentos.contains("Empleados") && !tipoClienteSinAcentos.contains("Usuario / Cimera / Cortesias");
+						boolean excepciones = !tipoClienteSinAcentos.contains("Empleados") && !tipoClienteSinAcentos.contains("Usuario / Cimera / Cortesias") && !conceptoTag.contains("empleado");
 						ConfiguracionSancion sancion2 = configuracionSancionService.findByConcepto("Parking segunda ocasion");
 						ConfiguracionSancion sancion3 = configuracionSancionService.findByConcepto("Parking tercera ocasion");
 						Calendar calendar = new GregorianCalendar();
