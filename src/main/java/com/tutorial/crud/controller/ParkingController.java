@@ -390,35 +390,9 @@ public class ParkingController
 	@GetMapping("/nuevo/{horarioId}")
 	@ResponseBody
 	public ResponseEntity<?> nuevo(@PathVariable("horarioId") int horarioId){
-		Connection conn = null;
 		ArrayList<ParkingUsuario> lista = new ArrayList<ParkingUsuario>();
 
 		try {
-			// Carga el driver de oracle
-			/*DriverManager.registerDriver(new com.microsoft.sqlserver.jdbc.SQLServerDriver());
-
-			conn = DriverManager.getConnection(dbURL, userData, passData);
-			PreparedStatement ps=conn.prepareStatement("EXEC DataFlowAlpha.dbo.sp_Consulta_Pago_Parking ?");
-			ps.setInt(1, horarioId);
-			ResultSet rs =ps.executeQuery();
-			while(rs.next()){
-				ParkingUsuario to=new ParkingUsuario();
-				to.setIdProd(rs.getInt(1));
-				to.setFechaCaptura(new Date(rs.getLong(2)));
-				to.setConcepto(rs.getString(3));
-				to.setIdVentaDetalle(rs.getInt(4));
-				to.setFechaCaptura(rs.getDate(5));
-				to.setObservaciones(rs.getString(6));
-				to.setEstadoCobranza(rs.getString(11));
-				to.setCorreo(rs.getString(12));
-				to.setClub(rs.getString(13));
-				to.setCantidad(rs.getInt(14));
-				this.update(horarioId);
-				to.setCliente(clienteService.findById(horarioId));
-				to.setPk(true);
-				lista.add(to);
-			}*/
-
 			HttpClient client = HttpClient.newHttpClient();
 			HttpRequest request = HttpRequest.newBuilder()
 					.uri(URI.create("http://192.168.20.107:8000/parking/nuevo/" + horarioId))
@@ -426,8 +400,6 @@ public class ParkingController
 					.build();
 
 			HttpResponse<String> respuesta = client.send(request, HttpResponse.BodyHandlers.ofString());
-
-			//System.out.println(respuesta.body());
 
 			JSONArray jarray = new JSONArray(respuesta.body());
 
@@ -755,8 +727,22 @@ public class ParkingController
 	   		lista.get(0).setCapturado(true);
 
 			Cliente customer = clienteService.findById(carrodto.getIdCliente());
-			if (customer.getTipoCliente().getNombre().toLowerCase().contains("empleado"))
-				lista.get(0).obtenerRegistroTag().setFechaFin(new Date(carrodto.getVigencia().getTime() + 126227808000L));
+			if (customer.getTipoCliente().getNombre().toLowerCase().contains("empleado")) {
+				//lista.get(0).obtenerRegistroTag().setFechaFin(new Date(carrodto.getVigencia().getTime() + 126227808000L));
+				// Vigencia al ultimo dia del año en chips de empleados
+				Calendar calendar = Calendar.getInstance();
+				int year = calendar.get(Calendar.YEAR);
+				calendar.set(Calendar.YEAR, year);
+				calendar.set(Calendar.MONTH, Calendar.DECEMBER); // Diciembre es el mes 11 (0-indexado)
+				calendar.set(Calendar.DAY_OF_MONTH, 31);
+
+				calendar.set(Calendar.HOUR_OF_DAY, 23);
+				calendar.set(Calendar.MINUTE, 59);
+				calendar.set(Calendar.SECOND, 59);
+
+				Date lastDayOfYear = calendar.getTime();
+				lista.get(0).obtenerRegistroTag().setFechaFin(lastDayOfYear);
+			}
 			else
 			   lista.get(0).obtenerRegistroTag().setFechaFin(carrodto.getVigencia());
 	   		lista.get(0).obtenerRegistroTag().setActivo(true);

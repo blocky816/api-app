@@ -62,7 +62,7 @@ public class RegistroTagService {
             case 1:
             case 2:
                 nombre = "Club Alpha 3";
-                registroTagList = registroTagRepository.getChipsByClub(nombre);
+                registroTagList = registroTagRepository.getChipsByClub3(nombre);
                 break;
             case 3:
             case 4:
