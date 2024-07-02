@@ -14,6 +14,7 @@ import java.util.Date;
 import java.util.List;
 import java.util.UUID;
 
+import com.tutorial.crud.dto.PlatinumUsers;
 import com.tutorial.crud.entity.*;
 import org.hibernate.query.Query;
 
@@ -61,4 +62,6 @@ public interface ClienteService {
 	public void actualizarEtapasCanceladosxClub(int club);
 
 	public Cliente findByIdCliente(int customerID);
+
+	public List<PlatinumUsers> getPlatinumUsersByClub(int club);
 }

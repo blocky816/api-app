@@ -110,6 +110,7 @@ public class MainSecurity extends WebSecurityConfigurerAdapter {
                 .antMatchers("/encuesta/getByCliente/{idCliente}/{idClub}").permitAll()
                 .antMatchers("/encuesta/getQuestionsByCliente/{idCliente}/{idSurvey}").permitAll()
                 .antMatchers("/encuesta/sendRespuestas").permitAll()
+                .antMatchers("/alpha/platinumUsersByClub/{clubID}").permitAll()
                 .anyRequest().authenticated()
                 .and()
                 .exceptionHandling().authenticationEntryPoint(jwtEntryPoint)

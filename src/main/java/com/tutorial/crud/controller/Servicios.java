@@ -26,6 +26,8 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import com.fasterxml.jackson.databind.node.ObjectNode;
+import com.tutorial.crud.dto.*;
+import com.tutorial.crud.dto.body2;
 import com.tutorial.crud.repository.ClienteIntentosFiservRepository;
 import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.codec.digest.HmacUtils;
@@ -68,23 +70,6 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.tutorial.crud.aopDao.endpoints;
 import com.tutorial.crud.correo.Correo;
-import com.tutorial.crud.dto.ClienteDTOO;
-import com.tutorial.crud.dto.ClienteReferenciado;
-import com.tutorial.crud.dto.ClienteRutina;
-import com.tutorial.crud.dto.DatosFiscalesDTO;
-import com.tutorial.crud.dto.DomiciliacionDTO;
-import com.tutorial.crud.dto.DomiciliacionDatos;
-import com.tutorial.crud.dto.FacturaOnline;
-import com.tutorial.crud.dto.GlobalInformation;
-import com.tutorial.crud.dto.Item;
-import com.tutorial.crud.dto.ItemFallido;
-import com.tutorial.crud.dto.MensajeError;
-import com.tutorial.crud.dto.MovimientoDTO;
-import com.tutorial.crud.dto.PagoApi;
-import com.tutorial.crud.dto.Receiver;
-import com.tutorial.crud.dto.ReciboSAT;
-import com.tutorial.crud.dto.Tax;
-import com.tutorial.crud.dto.body2;
 import com.tutorial.crud.entity.*;
 import com.tutorial.crud.security.dto.NuevoUsuario;
 import com.tutorial.crud.security.entity.Rol;
@@ -2893,7 +2878,7 @@ public class Servicios
 							pu.get(i).setEstadoCobranza(cliente.getEstatusCobranza().getNombre());
 							Date date = pu.get(i).obtenerRegistroTag().getFechaFin();
 							LocalDateTime endDateTag = date.toInstant().atZone(ZoneId.systemDefault()).toLocalDateTime();
-							if (cliente.getEstatusCobranza().getIdEstatusCobranza() != 1 && endDateTag.isAfter(LocalDateTime.now()))
+							if (cliente.getEstatusCobranza().getIdEstatusCobranza() != 1 && endDateTag.isAfter(LocalDateTime.now()) && !pu.get(i).getCliente().getTipoCliente().getNombre().toLowerCase().contains("empleado"))
 								pu.get(i).obtenerRegistroTag().setActivo(false);
 							else if (cliente.getEstatusCobranza().getIdEstatusCobranza() == 1 && endDateTag.isAfter(LocalDateTime.now()))
 								pu.get(i).obtenerRegistroTag().setActivo(true);
@@ -3085,7 +3070,7 @@ public class Servicios
 							pu.get(i).setEstadoCobranza(cliente.getEstatusCobranza().getNombre());
 							Date date = pu.get(i).obtenerRegistroTag().getFechaFin();
 							LocalDateTime endDateTag = date.toInstant().atZone(ZoneId.systemDefault()).toLocalDateTime();
-							if (cliente.getEstatusCobranza().getIdEstatusCobranza() != 1 && endDateTag.isAfter(LocalDateTime.now()))
+							if (cliente.getEstatusCobranza().getIdEstatusCobranza() != 1 && endDateTag.isAfter(LocalDateTime.now()) && !pu.get(i).getCliente().getTipoCliente().getNombre().toLowerCase().contains("empleado"))
 								pu.get(i).obtenerRegistroTag().setActivo(false);
 							else if (cliente.getEstatusCobranza().getIdEstatusCobranza() == 1 && endDateTag.isAfter(LocalDateTime.now()))
 								pu.get(i).obtenerRegistroTag().setActivo(true);
@@ -7654,6 +7639,11 @@ public class Servicios
 			System.out.println("Fallo al obtener activos y al corriente");
 			return new ResponseEntity<>("Falle al actualizar info de etapas del club " + clubID + " => " + LocalDateTime.now().withNano(0), HttpStatus.INTERNAL_SERVER_ERROR);
 		}
+	}
+
+	@GetMapping("/platinumUsersByClub/{clubID}")
+	List<PlatinumUsers> allByCLub(@PathVariable int clubID) {
+		return clienteService.getPlatinumUsersByClub(clubID);
 	}
 }//fin de la clase
 
