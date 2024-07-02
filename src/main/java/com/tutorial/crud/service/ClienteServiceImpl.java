@@ -28,6 +28,7 @@ import javax.persistence.EntityManager;
 
 import com.google.gson.annotations.JsonAdapter;
 import com.tutorial.crud.controller.Servicios;
+import com.tutorial.crud.dto.PlatinumUsers;
 import com.tutorial.crud.entity.*;
 import com.tutorial.crud.repository.ClienteRepository;
 import com.tutorial.crud.scheduling.ScheduledTasks;
@@ -68,6 +69,10 @@ public class ClienteServiceImpl implements ClienteService {
 	ParkingUsuarioService parkingUsuarioService;
 	@Autowired
 	Servicios servicios;
+	@Autowired
+	ClubService clubService;
+	@Autowired
+	TipoMembresiaService tipoMembresiaService;
 	@Override 
 	public List<Cliente> findAll() {
 		List<Cliente> listCliente= clienteDAO.findAll();
@@ -320,7 +325,7 @@ public class ClienteServiceImpl implements ClienteService {
 						pu.get(i).setEstadoCobranza(customer.getEstatusCobranza().getNombre());
 						Date date = pu.get(i).obtenerRegistroTag().getFechaFin();
 						LocalDateTime endDateTag = date.toInstant().atZone(ZoneId.systemDefault()).toLocalDateTime();
-						if (customer.getEstatusCobranza().getIdEstatusCobranza() != 1 && endDateTag.isAfter(LocalDateTime.now()))
+						if (customer.getEstatusCobranza().getIdEstatusCobranza() != 1 && endDateTag.isAfter(LocalDateTime.now()) && !customer.getTipoCliente().getNombre().toLowerCase().contains("empleado"))
 							pu.get(i).obtenerRegistroTag().setActivo(false);
 						else if (customer.getEstatusCobranza().getIdEstatusCobranza() == 1 && endDateTag.isAfter(LocalDateTime.now()))
 							pu.get(i).obtenerRegistroTag().setActivo(true);
@@ -456,6 +461,27 @@ public class ClienteServiceImpl implements ClienteService {
 	@Override
 	public Cliente findByIdCliente(int customerID) {
 		return clienteRepository.findByIdCliente(customerID);
+	}
+
+	@Override
+	public List<PlatinumUsers> getPlatinumUsersByClub(int club) {
+		Club clubUsers = clubService.findById(club);
+		TipoMembresia tipoMembresia = tipoMembresiaService.findById(21); // Platinum
+		EstatusCobranza estatusCobranza = estatusCobranzaService.findById(1); // Activos al corriente
+
+		List<PlatinumUsers> platinumUsers = new ArrayList<>();
+		List<Cliente> clientes = clienteRepository.findAllByClubAndTipoMembresiaAndEstatusCobranza(clubUsers, tipoMembresia, estatusCobranza);
+
+		for (Cliente cliente: clientes) {
+			PlatinumUsers platinumUser = new PlatinumUsers();
+			platinumUser.setId(cliente.getIdCliente());
+			platinumUser.setNombre(cliente.getNombreCompleto());
+			platinumUser.setTipo_membresia(cliente.getCategoria().getNombre());
+			platinumUser.setCupones_aplicados(new ArrayList<>());
+			platinumUsers.add(platinumUser);
+		}
+
+		return platinumUsers;
 	}
 
 
