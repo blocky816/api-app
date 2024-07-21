@@ -25,15 +25,15 @@ public interface RegistroTagRepository extends JpaRepository<RegistroTag, Intege
 	int disableChips();
 
 	@Query(value = "SELECT * FROM registro_tag  WHERE id_parking is not null " +
-			"and (club = ?1 or club='CIMERA') and fecha_fin > (current_date - 720)", nativeQuery = true)
+			"and (club = ?1 or club='CIMERA') and fecha_fin > (current_date - 365)", nativeQuery = true)
 	List<RegistroTag> getChipsByClub(String clubName);
 
 	@Query(value = "SELECT * FROM registro_tag  WHERE id_parking is not null " +
-			"and (club = ?1 or club='CIMERA' or club = 'Sports Plaza' or club = 'Club Alpha 3') and fecha_fin > (current_date - 720)", nativeQuery = true)
+			"and (club = ?1 or club='CIMERA' or club = 'Sports Plaza' or club = 'Club Alpha 3') and fecha_fin > (current_date - 365)", nativeQuery = true)
 	List<RegistroTag> getChipsByClub2(String clubName);
 
 	@Query(value = "SELECT * FROM registro_tag  WHERE id_parking is not null " +
-			"and (club = ?1 or club='CIMERA' or club = 'Club Alpha 2') and fecha_fin > (current_date - 720)", nativeQuery = true)
+			"and (club = ?1 or club='CIMERA' or club = 'Club Alpha 2') and fecha_fin > (current_date - 365)", nativeQuery = true)
 	List<RegistroTag> getChipsByClub3(String clubName);
 }
 
