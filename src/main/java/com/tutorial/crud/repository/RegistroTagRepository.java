@@ -1,5 +1,6 @@
 package com.tutorial.crud.repository;
 
+import com.tutorial.crud.dto.RegistroTagDTO;
 import com.tutorial.crud.entity.ParkingUsuario;
 import com.tutorial.crud.entity.RegistroTag;
 
@@ -9,7 +10,6 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
-
 
 @Repository
 public interface RegistroTagRepository extends JpaRepository<RegistroTag, Integer> {
@@ -24,16 +24,22 @@ public interface RegistroTagRepository extends JpaRepository<RegistroTag, Intege
 			+ " (club='Futbol City' or club='CIMERA' or club='Club Alpha 2' or club='Club Alpha 3' or club = 'Sports Plaza')", nativeQuery = true)
 	int disableChips();
 
-	@Query(value = "SELECT * FROM registro_tag  WHERE id_parking is not null " +
-			"and (club = ?1 or club='CIMERA') and fecha_fin > (current_date - 365)", nativeQuery = true)
-	List<RegistroTag> getChipsByClub(String clubName);
+	@Query(value = "SELECT new com.tutorial.crud.dto.RegistroTagDTO(r.id, r.idChip, r.parking.idVentaDetalle, r.activo, r.fechaFin, r.club) " +
+			"FROM RegistroTag r " +
+			"WHERE r.parking.idVentaDetalle IS NOT NULL " +
+			"AND (r.club = :clubName OR r.club = 'CIMERA') AND r.fechaFin > (CURRENT_DATE - 365)")
+	List<RegistroTagDTO> getChipsByClub(String clubName);
 
-	@Query(value = "SELECT * FROM registro_tag  WHERE id_parking is not null " +
-			"and (club = ?1 or club='CIMERA' or club = 'Sports Plaza' or club = 'Club Alpha 3') and fecha_fin > (current_date - 365)", nativeQuery = true)
-	List<RegistroTag> getChipsByClub2(String clubName);
+	@Query(value = "SELECT new com.tutorial.crud.dto.RegistroTagDTO(r.id, r.idChip, r.parking.idVentaDetalle, r.activo, r.fechaFin, r.club) " +
+			"FROM RegistroTag r " +
+			"WHERE r.parking.idVentaDetalle IS NOT NULL " +
+			"and (club = :clubName or club='CIMERA' or club = 'Sports Plaza' or club = 'Club Alpha 3') and fecha_fin > (current_date - 365)")
+	List<RegistroTagDTO> getChipsByClub2(String clubName);
 
-	@Query(value = "SELECT * FROM registro_tag  WHERE id_parking is not null " +
-			"and (club = ?1 or club='CIMERA' or club = 'Club Alpha 2') and fecha_fin > (current_date - 365)", nativeQuery = true)
-	List<RegistroTag> getChipsByClub3(String clubName);
+	@Query(value = "SELECT new com.tutorial.crud.dto.RegistroTagDTO(r.id, r.idChip, r.parking.idVentaDetalle, r.activo, r.fechaFin, r.club) " +
+			"FROM RegistroTag r " +
+			"WHERE r.parking.idVentaDetalle IS NOT NULL " +
+			"AND (r.club = :clubName OR r.club = 'CIMERA' OR r.club = 'Club Alpha 2') AND r.fechaFin > (CURRENT_DATE - 365)")
+	List<RegistroTagDTO> getChipsByClub3(String clubName);
 }
 

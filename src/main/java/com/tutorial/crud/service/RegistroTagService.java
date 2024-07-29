@@ -1,5 +1,6 @@
 package com.tutorial.crud.service;
 
+import com.tutorial.crud.dto.RegistroTagDTO;
 import com.tutorial.crud.entity.Caseta;
 import com.tutorial.crud.entity.ParkingUsuario;
 import com.tutorial.crud.entity.RegistroTag;
@@ -12,6 +13,7 @@ import org.hibernate.query.Query;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -19,6 +21,8 @@ import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+
+
 @Service
 @Transactional
 public class RegistroTagService {
@@ -53,20 +57,21 @@ public class RegistroTagService {
         logger.info("Chips disabled: " + size);
     }
 
-    public List<RegistroTag> getChipsByClub(int casetaID) {
+    public List<RegistroTagDTO> getChipsByClub(int casetaID) {
         Caseta caseta = casetaRepository.getOne(casetaID);
         String nombre = caseta.getClub().getNombre();
         logger.info("Consultando chips de caseta: " + casetaID + " => " + nombre + " ...");
-        List<RegistroTag> registroTagList = new ArrayList<>();
+        List<RegistroTagDTO> registroTagList = new ArrayList<>();
         switch (casetaID) {
             case 1:
             case 2:
                 nombre = "Club Alpha 3";
                 registroTagList = registroTagRepository.getChipsByClub3(nombre);
                 break;
-            case 3:
-            case 4:
-            case 5:
+            case 3: // CIMERA
+            case 4: // CIMERA
+            case 5: // Futbol City
+            case 9: // Futbol City
                 nombre = "Futbol City";
                 registroTagList = registroTagRepository.getChipsByClub(nombre);
                 break;
