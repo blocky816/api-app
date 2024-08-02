@@ -406,6 +406,12 @@ public class ClienteServiceImpl implements ClienteService {
 			// Espera a que todos los hilos terminen
 			threadPool.shutdown();
 			//System.out.println(threadPool.awaitTermination(Long.MAX_VALUE, TimeUnit.NANOSECONDS));
+			try {
+				threadPool.awaitTermination(Long.MAX_VALUE, TimeUnit.NANOSECONDS);
+			} catch (InterruptedException e) {
+				Thread.currentThread().interrupt(); // Restaura el estado de interrupción
+				log.error("La espera de finalización del thread pool fue interrumpida.");
+			}
 			log.info("Clientes Alpha {} activos y al corriente actualizados a las {}", club, LocalTime.now().withNano(0));
 		} catch (Exception e) {
 			log.error("Error al actualizar activos y al corriente {} del club {} => {}", dateFormat.format(new Date()), club, e.toString());
@@ -451,6 +457,12 @@ public class ClienteServiceImpl implements ClienteService {
 			// Espera a que todos los hilos terminen
 			threadPool.shutdown();
 			//System.out.println(threadPool.awaitTermination(Long.MAX_VALUE, TimeUnit.NANOSECONDS));
+			try {
+				threadPool.awaitTermination(Long.MAX_VALUE, TimeUnit.NANOSECONDS);
+			} catch (InterruptedException e) {
+				Thread.currentThread().interrupt(); // Restaura el estado de interrupción
+				log.error("La espera de finalización del thread pool fue interrumpida.");
+			}
 			log.info("Clientes Alpha {} bajas y etapas actualizados a las {}", club, LocalTime.now().withNano(0));
 		} catch (Exception e) {
 			log.error("Error al actualizar etapas y bajas {} del club {} => {}", dateFormat.format(new Date()) , club, e.toString());
