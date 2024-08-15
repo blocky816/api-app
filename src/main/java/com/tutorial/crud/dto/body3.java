@@ -1,6 +1,9 @@
 package com.tutorial.crud.dto;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
+
 public class body3 {
+	@JsonProperty("IDCliente")
 	private int IDCliente;
 
 	private float monto;
