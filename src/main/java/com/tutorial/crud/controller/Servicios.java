@@ -2872,7 +2872,7 @@ public class Servicios
 				else cliente.setIdTitular(Integer.parseInt(json.getString("parent_id")));
 				clienteService.save(cliente);
 				List<ParkingUsuario> pu = parkingUsuarioService.findByIdCliente(cliente);
-				if (Objects.nonNull(pu))
+				if (Objects.nonNull(pu) && !cliente.getTipoCliente().getNombre().toLowerCase().contains("temporal"))
 					for (int i = 0; i < pu.size(); i++)
 						try {
 							pu.get(i).setEstadoCobranza(cliente.getEstatusCobranza().getNombre());
@@ -2886,11 +2886,6 @@ public class Servicios
 						} catch (Exception e) {
 							System.out.println("Error al desactivar/activar chips del user: " + horarioId + " => " + e.toString());
 						}
-				/*List<ParkingUsuario> pu=parkingUsuarioService.findByIdCliente(cliente);
-				for(int i=0;i<pu.size();i++) {
-					pu.get(i).setEstadoCobranza(cliente.getEstatusCobranza().getNombre());
-					parkingUsuarioService.save(pu.get(i));
-				}*/
 			}else {
 				cliente=new Cliente();
 				cliente.setApellidoMaterno(json.getString("ApellidoMaterno"));
@@ -3058,13 +3053,8 @@ public class Servicios
 				if (json.getString("parent_id").isEmpty() || json.getString("parent_id") == null) cliente.setIdTitular(horarioId);
 				else cliente.setIdTitular(Integer.parseInt(json.getString("parent_id")));
 				clienteService.save(cliente);
-				/*List<ParkingUsuario> pu=parkingUsuarioService.findByIdCliente(cliente);
-				for(int i=0;i<pu.size();i++) {
-					pu.get(i).setEstadoCobranza(cliente.getEstatusCobranza().getNombre());
-					parkingUsuarioService.save(pu.get(i));
-				}*/
 				List<ParkingUsuario> pu = parkingUsuarioService.findByIdCliente(cliente);
-				if (Objects.nonNull(pu))
+				if (Objects.nonNull(pu) && !cliente.getTipoCliente().getNombre().toLowerCase().contains("temporal"))
 					for (int i = 0; i < pu.size(); i++)
 						try {
 							pu.get(i).setEstadoCobranza(cliente.getEstatusCobranza().getNombre());
