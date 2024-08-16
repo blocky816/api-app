@@ -18,9 +18,7 @@ import java.sql.Timestamp;
 import java.text.Normalizer;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.time.Duration;
-import java.time.LocalDateTime;
-import java.time.ZoneId;
+import java.time.*;
 import java.util.*;
 import java.util.concurrent.TimeUnit;
 
@@ -728,7 +726,6 @@ public class ParkingController
 
 			Cliente customer = clienteService.findById(carrodto.getIdCliente());
 			if (customer.getTipoCliente().getNombre().toLowerCase().contains("empleado")) {
-				//lista.get(0).obtenerRegistroTag().setFechaFin(new Date(carrodto.getVigencia().getTime() + 126227808000L));
 				// Vigencia al ultimo dia del año en chips de empleados
 				Calendar calendar = Calendar.getInstance();
 				int year = calendar.get(Calendar.YEAR);
@@ -742,8 +739,13 @@ public class ParkingController
 
 				Date lastDayOfYear = calendar.getTime();
 				lista.get(0).obtenerRegistroTag().setFechaFin(lastDayOfYear);
-			}
-			else
+			} if (customer.getTipoCliente().getNombre().toLowerCase().contains("temporal")) {
+			   // Convertir Date a LocalDateTime y sumar 6 meses en una sola linea
+			   LocalDateTime expirationDate = LocalDateTime.ofInstant(lista.get(0).getFechaCaptura().toInstant(), ZoneId.systemDefault()).plusMonths(6).with(LocalTime.MAX.withNano(0));
+			   // Convertir LocalDateTime a Instant usando la zona horaria del sistema
+			   Instant instant = expirationDate.atZone(ZoneId.systemDefault()).toInstant();
+			   lista.get(0).obtenerRegistroTag().setFechaFin(Date.from(instant));
+		   } else
 			   lista.get(0).obtenerRegistroTag().setFechaFin(carrodto.getVigencia());
 	   		lista.get(0).obtenerRegistroTag().setActivo(true);
 	   		parkingUsuarioService.save(lista.get(0));

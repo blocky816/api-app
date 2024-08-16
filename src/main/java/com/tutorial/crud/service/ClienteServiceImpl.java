@@ -319,7 +319,7 @@ public class ClienteServiceImpl implements ClienteService {
 
 
 			List<ParkingUsuario> pu = parkingUsuarioService.findByIdCliente(customer);
-			if (Objects.nonNull(pu))
+			if (Objects.nonNull(pu) && !customer.getTipoCliente().getNombre().toLowerCase().contains("temporal"))
 				for (int i = 0; i < pu.size(); i++)
 					try {
 						pu.get(i).setEstadoCobranza(customer.getEstatusCobranza().getNombre());
