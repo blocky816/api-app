@@ -1,5 +1,6 @@
 package com.tutorial.crud.service;
 
+import com.tutorial.crud.dto.LicensePlateDTO;
 import com.tutorial.crud.dto.RegistroTagDTO;
 import com.tutorial.crud.entity.Caseta;
 import com.tutorial.crud.entity.ParkingUsuario;
@@ -19,6 +20,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalTime;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 
@@ -87,6 +89,32 @@ public class RegistroTagService {
         }
 
         logger.info("Chips consultados => " + registroTagList.size());
+        return registroTagList;
+    }
+
+    public List<LicensePlateDTO> getLicensePlatesByClub(int clubID) {
+        List<LicensePlateDTO> registroTagList = new ArrayList<>();
+        String nombre = "";
+        switch (clubID) {
+            case 6: // Club Alpha 2
+                nombre = "Club Alpha 2";
+                registroTagList = registroTagRepository.getLicensePlatesByClub2(nombre);
+                break;
+            case 8:
+                nombre = "Futbol City";
+                registroTagList = registroTagRepository.getLicensePlatesByClub(nombre);
+                break;
+            case 7:
+                nombre = "Club Alpha 3";
+                registroTagList = registroTagRepository.getLicensePlatesByClub3(nombre);
+                break;
+            case 9:
+                nombre = "Sports Plaza";
+                registroTagList = registroTagRepository.getLicensePlatesByClub(nombre);
+                break;
+        }
+        logger.info("Consultando placas de club: " + clubID + " => " + nombre + " ...");
+        logger.info("Placas consultadas => " + registroTagList.size());
         return registroTagList;
     }
 }

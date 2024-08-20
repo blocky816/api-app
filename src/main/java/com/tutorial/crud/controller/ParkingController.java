@@ -3616,5 +3616,10 @@ public class ParkingController
 
 		return new ResponseEntity<>(chipHoras, HttpStatus.OK);
 	}
+
+	@GetMapping("/licensePlatesByClub/{clubID}")
+	public ResponseEntity<?> getLicensePlatesByClub(@PathVariable("clubID") int clubID){
+		return new ResponseEntity<>(registroTagService.getLicensePlatesByClub(clubID), HttpStatus.OK);
+	}
 }//fin de la clase
 

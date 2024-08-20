@@ -118,6 +118,7 @@ public class MainSecurity extends WebSecurityConfigurerAdapter {
                 //.antMatchers("/passes/getByCustomer/{customerID}").permitAll()
                 .antMatchers("/passes/getPassesByMembershipType/{membershipType}").permitAll()
                 .antMatchers("/passes/getMonthlyPasses").permitAll()
+                .antMatchers("/parking/licensePlatesByClub/{clubID}").permitAll()
                 .anyRequest().authenticated()
                 .and()
                 .exceptionHandling().authenticationEntryPoint(jwtEntryPoint)

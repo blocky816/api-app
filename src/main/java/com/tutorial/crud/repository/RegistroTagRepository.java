@@ -1,5 +1,6 @@
 package com.tutorial.crud.repository;
 
+import com.tutorial.crud.dto.LicensePlateDTO;
 import com.tutorial.crud.dto.RegistroTagDTO;
 import com.tutorial.crud.entity.ParkingUsuario;
 import com.tutorial.crud.entity.RegistroTag;
@@ -41,5 +42,41 @@ public interface RegistroTagRepository extends JpaRepository<RegistroTag, Intege
 			"WHERE r.parking.idVentaDetalle IS NOT NULL " +
 			"AND (r.club = :clubName OR r.club = 'CIMERA' OR r.club = 'Club Alpha 2') AND r.fechaFin > (CURRENT_DATE - 365)")
 	List<RegistroTagDTO> getChipsByClub3(String clubName);
+
+	@Query(value = "SELECT new com.tutorial.crud.dto.LicensePlateDTO(r.id, r.idChip, p.idVentaDetalle, r.activo, r.fechaFin, r.club, c.idCliente, ca.placa) " +
+			"FROM RegistroTag r " +
+			"JOIN r.parking p " +
+			"JOIN p.cliente c " +
+			"JOIN p.carro ca " +
+			"WHERE p.idVentaDetalle IS NOT NULL " +
+			"AND (r.club = :clubName OR r.club = 'CIMERA') AND r.fechaFin > (CURRENT_DATE - 365)")
+	List<LicensePlateDTO> getLicensePlatesByClub(String clubName);
+
+	@Query(value = "SELECT new com.tutorial.crud.dto.LicensePlateDTO(r.id, r.idChip, p.idVentaDetalle, r.activo, r.fechaFin, r.club, c.idCliente, ca.placa) " +
+			"FROM RegistroTag r " +
+			"JOIN r.parking p " +
+			"JOIN p.cliente c " +
+			"JOIN p.carro ca " +
+			"WHERE p.idVentaDetalle IS NOT NULL " +
+			"and (r.club = :clubName or r.club='CIMERA' or r.club = 'Sports Plaza' or r.club = 'Club Alpha 3') and fecha_fin > (current_date - 365)")
+	List<LicensePlateDTO> getLicensePlatesByClub2(String clubName);
+
+	@Query(value = "SELECT new com.tutorial.crud.dto.LicensePlateDTO(r.id, r.idChip, p.idVentaDetalle, r.activo, r.fechaFin, r.club, c.idCliente, ca.placa) " +
+			"FROM RegistroTag r " +
+			"JOIN r.parking p " +
+			"JOIN p.cliente c " +
+			"JOIN p.carro ca " +
+			"WHERE p.idVentaDetalle IS NOT NULL " +
+			"AND (r.club = :clubName OR r.club = 'CIMERA' OR r.club = 'Club Alpha 2') AND r.fechaFin > (CURRENT_DATE - 365)")
+	List<LicensePlateDTO> getLicensePlatesByClub3(String clubName);
+
+	@Query("SELECT r.parking.cliente.idCliente FROM RegistroTag r WHERE r.parking.idVentaDetalle IS NOT NULL and r.club = 'Sports Plaza'")
+	List<Integer> getClientIds();
+
+	@Query("SELECT r.id, r.idChip, r.parking.idVentaDetalle, r.activo, r.fechaFin, r.club, r.parking.cliente.idCliente " +
+			"FROM RegistroTag r " +
+			"WHERE r.parking.idVentaDetalle IS NOT NULL " +
+			"AND r.club = :clubName")
+	List<Object[]> getLicensePlateData(String clubName);
 }
 
