@@ -9,7 +9,8 @@ import java.time.LocalDateTime;
 @Table(name = "direct_debit_history")
 public class DirectDebitHistory {
     @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
+    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "direct_debit_history_seq")
+    @SequenceGenerator(name = "direct_debit_history_seq", sequenceName = "direct_debit_history_seq", allocationSize = 1)
     private Long id;
 
     @ManyToOne
