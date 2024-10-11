@@ -6,6 +6,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.Set;
+
 @Service
 @Transactional
 public class ConfiguracionSancionService {
@@ -15,5 +17,9 @@ public class ConfiguracionSancionService {
 
     public ConfiguracionSancion findByConcepto(String concepto) {
         return configuracionSancionRepository.findByConcepto(concepto);
+    }
+
+    public Set<Integer> getCodigoByConcepto(String concepto) {
+        return configuracionSancionRepository.getCodigoByConcepto(concepto);
     }
 }

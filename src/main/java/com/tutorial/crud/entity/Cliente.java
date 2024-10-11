@@ -217,6 +217,9 @@ public class Cliente implements Serializable
 	@Column(name = "idodoo")
 	private int idOdoo;
 
+	@Column(name = "ultimo_uso", columnDefinition = "TIMESTAMP(0)")
+	private LocalDateTime ultimoUso;
+
 	//Se generaron todos los Getters y Setters.
 
 	public int getIdCliente() {
@@ -655,6 +658,14 @@ public class Cliente implements Serializable
 	public String getTelefono() { return telefono; }
 
 	public void setTelefono(String telefono) { this.telefono = telefono; }
+
+	public LocalDateTime getUltimoUso() {
+		return ultimoUso;
+	}
+
+	public void setUltimoUso(LocalDateTime ultimoUso) {
+		this.ultimoUso = ultimoUso;
+	}
 
 	@Override
 	public String toString() {

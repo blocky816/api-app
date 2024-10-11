@@ -471,8 +471,8 @@ public class ClienteServiceImpl implements ClienteService {
 	}
 
 	@Override
-	public Cliente findByIdCliente(int customerID) {
-		return clienteRepository.findByIdCliente(customerID);
+	public Cliente findByIdOdoo(int OdooId) {
+		return clienteRepository.findByIdOdoo(OdooId);
 	}
 
 	@Override

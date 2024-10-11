@@ -32,6 +32,7 @@ import javax.persistence.EntityManager;
 import javax.persistence.NoResultException;
 import javax.persistence.StoredProcedureQuery;
 
+import com.tutorial.crud.exception.ResourceNotFoundException;
 import com.tutorial.crud.repository.ApartadosRepository;
 import org.apache.log4j.Logger;
 import org.hibernate.Session;
@@ -2834,128 +2835,6 @@ public class CitasController
 		@ResponseBody
 		public List<PaseUsuario> getPase(@PathVariable("idCliente") int idCliente)
 		{
-    	    /*Connection conn = null;
-         	ArrayList<PaseUsuario> listaReporte = new ArrayList<PaseUsuario>();
-	        try {
-	            // Carga el driver de oracle
-	        	DriverManager.registerDriver(new com.microsoft.sqlserver.jdbc.SQLServerDriver());
-	            
-
-	        	
-	            conn = DriverManager.getConnection(dbURL, userData, passData);
-	            
-	            PreparedStatement ps=conn.prepareStatement("EXEC DataFlowAlpha.dbo.sp_Consulta_Pases_Sports_Plaza ?");
-	            ps.setInt(1, idCliente);
-             	ResultSet rs =ps.executeQuery();
-               while (rs.next()) {
-               	
-                   PaseUsuario to=new PaseUsuario();
-                   to.setActivo(true);
-                   to.setIdProd(rs.getInt(1));
-                   to.setF_compra(new Date(rs.getLong(2)));
-                   to.setConcepto(rs.getString(3));
-                   to.setIdVentaDetalle(rs.getInt(4));
-                   to.setCliente(clienteService.findById(idCliente));
-                   to.setCantidad(rs.getInt(11));
-                   to.setConsumido(0);
-                   to.setCreated(new Date());
-                   if(to.getConcepto().equals("SP Mensualidad Gym") || to.getConcepto().equals("SP Mensualidad Gym Estudiante")) {
-                       to.setDisponibles(0);
-                       to.setCantidad(0);
-                       to.setIdProd(1746);
-                   }else {
-                       to.setDisponibles(rs.getInt(11));
-                       to.setCantidad(rs.getInt(11));
-                   }
-                   if(to.getIdProd()==1896 || to.getIdProd()==1897 ||to.getIdProd()==1898 ) {
-                	   to.setIdProd(1895);
-                   }
-                   to.setUpdated(new Date());
-                   Object principal = SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-	       			String username;
-	       			if (principal instanceof UserDetails) {
-	       				username = ((UserDetails)principal).getUsername();
-	       			} else {
-	       			  	username = principal.toString();
-	       			}
-	       			to.setUpdatedBy(username);
-	       			to.setCreatedBy(username);
-                   listaReporte.add(to);
-               }
-                ps=conn.prepareStatement("EXEC DataFlowAlpha.dbo.sp_Consulta_Paquetes_Sports_Plaza ?");
-	            ps.setInt(1, idCliente);
-            	rs =ps.executeQuery();
-              while (rs.next()) {
-              	
-                  PaseUsuario to=new PaseUsuario();
-                  to.setActivo(true);
-                  to.setIdProd(rs.getInt(1));
-                  to.setF_compra(new Date(rs.getDate(2).getTime()));
-                  to.setConcepto(rs.getString(3));
-                  to.setIdVentaDetalle(rs.getInt(4));
-                  to.setCliente(clienteService.findById(idCliente));
-                  to.setConsumido(0);
-                  to.setCreated(new Date());
-                  if(to.getConcepto().equals("SP Mensualidad Gym") || to.getConcepto().equals("SP Mensualidad Gym Estudiante")) {
-                      to.setDisponibles(0);
-                      to.setCantidad(0);
-                      to.setIdProd(1746);
-                  }else {
-                      to.setDisponibles(rs.getInt(11));
-                      to.setCantidad(rs.getInt(11));
-                  }
-                  to.setUpdated(new Date());
-                  Object principal = SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-	       			String username;
-	       			if (principal instanceof UserDetails) {
-	       				username = ((UserDetails)principal).getUsername();
-	       			} else {
-	       			  	username = principal.toString();
-	       			}
-	       			to.setUpdatedBy(username);
-	       			to.setCreatedBy(username);
-                  listaReporte.add(to);
-              }
-             
-           	conn.close();
-	        } catch (SQLException ex) {
-	            System.out.println("Error: " + ex.getMessage());
-	            ex.printStackTrace();
-	        } finally {
-	            try {
-	            	conn.close();
-	            } catch (SQLException ex) {
-	                System.out.println("Error: " + ex.getMessage());
-	            }
-	        }
-	    	for(int i=0;i<listaReporte.size();i++) {
-		    	int idVenta=listaReporte.get(i).getIdVentaDetalle();
-		    	Optional<PaseUsuario> pase=paseUsuarioService.getOne(idVenta);
-		    	
-		    	if(pase.isEmpty()) {
-			    	PaseUsuario paseUsuario=new PaseUsuario();
-		    		paseUsuario.setIdVentaDetalle(idVenta);		    	
-			    	paseUsuario.setCliente(clienteService.findById(idCliente));	
-			    	paseUsuario.setDisponibles(listaReporte.get(i).getCantidad());
-			    	paseUsuario.setCantidad(listaReporte.get(i).getCantidad());
-			    	paseUsuario.setConcepto(listaReporte.get(i).getConcepto());
-			    	paseUsuario.setConsumido(0);
-			    	paseUsuario.setF_compra(new Date(listaReporte.get(i).getF_compra()));
-			    	paseUsuario.setIdProd(listaReporte.get(i).getIdProd());
-			    	Object principal = SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-					String username;
-					if (principal instanceof UserDetails) {
-						username = ((UserDetails)principal).getUsername();
-					} else {
-					  	username = principal.toString();
-					}
-					paseUsuario.setCreatedBy(username);
-					paseUsuario.setUpdatedBy(username);
-			    	paseUsuarioService.save(paseUsuario);
-		    	}
-	    	}
-	    	
-	    	return paseUsuarioService.getByIdCliente(idCliente);*/
 			Cliente cliente;
 			int idTitular;
 			int cantidad = 0;
@@ -3533,5 +3412,15 @@ public class CitasController
 			   e.printStackTrace();
 			   return new ResponseEntity<>(HttpStatus.CONFLICT);
 		   }
+	}
+
+	@GetMapping("/clases/aquadome/{idCliente}/{dia}")
+	public ResponseEntity<List<CAClase>> getClasesByDia(@PathVariable int idCliente, @PathVariable String dia) {
+		   List<CAClase> clasesAquadome = paseUsuarioService.getAquadomeClasses(idCliente, dia);
+			if (!clasesAquadome.isEmpty()) {
+				return new ResponseEntity<>(clasesAquadome, HttpStatus.OK);
+			} else {
+				return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+			}
 	}
 }//fin de la clase

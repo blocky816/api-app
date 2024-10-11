@@ -61,7 +61,7 @@ public interface ClienteService {
 
 	public void actualizarEtapasCanceladosxClub(int club);
 
-	public Cliente findByIdCliente(int customerID);
+	public Cliente findByIdOdoo(int OdooId);
 
 	public List<PlatinumUsers> getPlatinumUsersByClub(int club);
 }

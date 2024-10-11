@@ -1,5 +1,6 @@
 package com.tutorial.crud.entity;
 
+import java.time.LocalDateTime;
 import java.util.Date;
 import java.util.UUID;
 
@@ -68,7 +69,16 @@ public class PaseUsuario {
 
 	@Column(name = "subgrupo")
 	private String subgrupo;
-	
+
+	@Column(name = "pagado")
+	private Boolean pagado;
+
+	@Column(name = "fecha_pago", columnDefinition = "TIMESTAMP(0)")
+	private LocalDateTime fechaPago;
+
+	@Column(name = "ultimo_uso", columnDefinition = "TIMESTAMP(0)")
+	private LocalDateTime ultimoUso;
+
 	public String obtenerCreatedBy() {
 		return createdBy;
 	}
@@ -190,11 +200,50 @@ public class PaseUsuario {
 		return activo;
 	}
 
+	public Boolean isPagado() {
+		return pagado;
+	}
+
+	public void setPagado(Boolean pagado) {
+		this.pagado = pagado;
+	}
+
+	public LocalDateTime getFechaPago() {
+		return fechaPago;
+	}
+
+	public void setFechaPago(LocalDateTime fechaPago) {
+		this.fechaPago = fechaPago;
+	}
+
+	public LocalDateTime getUltimoUso() {
+		return ultimoUso;
+	}
+
+	public void setUltimoUso(LocalDateTime ultimoUso) {
+		this.ultimoUso = ultimoUso;
+	}
+
 	@Override
 	public String toString() {
-		return "PaseUsuario [idVentaDetalle=" + idVentaDetalle + ", cliente=" + cliente.getIdCliente() + ", idProd=" + idProd
-				+ ", cantidad=" + cantidad + ", disponibles=" + disponibles + ", f_compra=" + f_compra + ", createdBy="
-				+ createdBy + ", created=" + created + ", updatedBy=" + updatedBy + ", updated=" + updated + ", activo="
-				+ activo + ", subgrupo=" + subgrupo +"]";
-	}	
+		return "PaseUsuario{" +
+				"idVentaDetalle=" + idVentaDetalle +
+				", cliente=" + cliente +
+				", concepto='" + concepto + '\'' +
+				", idProd=" + idProd +
+				", cantidad=" + cantidad +
+				", disponibles=" + disponibles +
+				", consumido=" + consumido +
+				", f_compra=" + f_compra +
+				", createdBy='" + createdBy + '\'' +
+				", created=" + created +
+				", updatedBy='" + updatedBy + '\'' +
+				", updated=" + updated +
+				", activo=" + activo +
+				", subgrupo='" + subgrupo + '\'' +
+				", pagado=" + pagado +
+				", fechaPago=" + fechaPago +
+				", ultimoUso=" + ultimoUso +
+				'}';
+	}
 }

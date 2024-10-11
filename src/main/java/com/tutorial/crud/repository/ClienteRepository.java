@@ -11,7 +11,7 @@ import java.util.List;
 
 @Repository
 public interface ClienteRepository extends JpaRepository<Cliente, Integer> {
-    Cliente findByIdCliente(int customerID);
+    Cliente findByIdOdoo(int OddoId);
 
     List<Cliente> findAllByClubAndTipoMembresiaAndEstatusCobranza(Club club, TipoMembresia membership, EstatusCobranza collection);
 }

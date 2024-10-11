@@ -3629,6 +3629,7 @@ public class Servicios
 		JSONArray json=new JSONArray(e.conectaApiClubPOST(body2,o.getEndpointAlpha()));
 		ArrayList<MovimientoDTO> json2=this.convertirMovimiento(json);
 		//Collections.sort(json2);
+		paseUsuarioService.activatePasses(idCliente, json2);
 		return new ResponseEntity<>(json2, HttpStatus.OK);
 	}//fin del metodo
 
