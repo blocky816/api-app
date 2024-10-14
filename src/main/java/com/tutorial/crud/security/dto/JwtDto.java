@@ -1,5 +1,7 @@
 package com.tutorial.crud.security.dto;
 
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import com.tutorial.crud.util.CustomLocalDateTimeSerializer;
 import org.springframework.security.core.GrantedAuthority;
 
 import java.time.LocalDateTime;
@@ -12,6 +14,7 @@ public class JwtDto {
     private Collection<? extends GrantedAuthority> authorities;
     private int club;
     private boolean activo;
+    @JsonSerialize(using = CustomLocalDateTimeSerializer.class)
     private LocalDateTime inicioSesion;
 
     public JwtDto(String token, String nombreUsuario, Collection<? extends GrantedAuthority> authorities,int club,boolean activo, LocalDateTime inicioSesion) {
