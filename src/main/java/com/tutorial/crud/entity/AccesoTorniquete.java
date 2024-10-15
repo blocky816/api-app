@@ -84,7 +84,7 @@ public class AccesoTorniquete {
 
     @PrePersist
     public void prePersist() {
-        this.fechaAcceso = LocalDateTime.now();
+        this.fechaAcceso = LocalDateTime.now().minusHours(1);
     }
 
     @Override
