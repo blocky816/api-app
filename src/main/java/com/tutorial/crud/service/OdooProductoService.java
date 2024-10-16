@@ -14,6 +14,7 @@ import java.net.URI;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
@@ -85,7 +86,11 @@ public class OdooProductoService {
         try {
             Cliente cliente = clienteService.findByIdOdoo(idClienteOdoo);
             String tipoCliente = cliente.getTipoCliente().getNombre().trim().toLowerCase();
+            String categoria = cliente.getCategoria().getNombre().trim().toLowerCase();
 
+            if (categoria.contains("especial")){
+                return new ArrayList<>();
+            }
             List<ProductoDTO> productosFiltrados = productos.stream()
                     .filter(producto -> {
                         // Siempre incluir "Plus Alpha to Aquadome"
