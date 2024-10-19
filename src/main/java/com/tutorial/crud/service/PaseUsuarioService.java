@@ -28,6 +28,7 @@ import java.util.*;
 import java.util.logging.Logger;
 
 import javax.persistence.EntityManager;
+import javax.persistence.TypedQuery;
 
 @Service
 @Transactional
@@ -301,14 +302,13 @@ public class PaseUsuarioService {
 		}
 		logger.info("Cliente encontrado: " + idCliente);
 
-		Set<Integer> productoAquadome = configuracionSancionService.getCodigoByConcepto("Plus Alpha to Aquadome");
+		Set<Integer> productoAquadome = configuracionSancionService.getCodigoByConcepto("aquadome");
 		if (productoAquadome.isEmpty()) {
 			return Collections.emptyList();
 		}
-		Integer idProducto = productoAquadome.iterator().next(); // Evita el uso de Optional
-		logger.info("Producto Aquadome encontrado: " + idProducto);
+		productoAquadome.forEach(codigo -> System.out.println("Producto Aquadome: " + codigo));
 
-		List<PaseUsuario> pases = paseUsuarioRepository.findByClienteAndUltimoUsoIsNotNullAndFechaPagoMesActual(cliente, idProducto);
+		List<PaseUsuario> pases = paseUsuarioRepository.findByClienteAndUltimoUsoIsNotNullAndFechaPagoMesActual(cliente, productoAquadome);
 		logger.info("Pases encontrados aquadome: " + pases.size());
 
 		// Parsear la fecha del día recibido
@@ -316,16 +316,70 @@ public class PaseUsuarioService {
 		logger.info("Dia parseado a date: " + dia);
 
 		// Verificar si hay pases disponibles y si el último uso es del mismo día
+		boolean activo = pases.stream().anyMatch(pase -> pase.getActivo());
 		boolean tienePasesDisponibles = pases.stream().anyMatch(pase -> pase.getDisponibles() >= 0);
 		boolean ultimoUsoEsDelDia = pases.stream()
 				.filter(pase -> pase.getUltimoUso() != null)
 				.anyMatch(pase -> pase.getUltimoUso().toLocalDate().isEqual(fechaConsulta));
 
-		if (tienePasesDisponibles && ultimoUsoEsDelDia) {
+		if (ultimoUsoEsDelDia || activo) {
 			logger.info("Pase correcto devolviendo clases aquadome para: " + idCliente);
 			return caClaseRepository.getAquadomeClasses(dia);
 		}
 
 		return Collections.emptyList();
 	}
+
+	public boolean getCimeraPlus(int idCliente) {
+		Cliente cliente = clienteService.findById(idCliente);
+		if (cliente == null) {
+			return false;
+		}
+
+		Set<Integer> productoCimeraPlus = getCodigosByConceptos("plus", "cimera");
+		if (productoCimeraPlus.isEmpty()) {
+			return false;
+		}
+		productoCimeraPlus.forEach(codigo -> System.out.println("Producto Cimera Plus: " + codigo));
+
+		List<PaseUsuario> pases = paseUsuarioRepository.findByClienteAndUltimoUsoIsNotNullAndFechaPagoMesActual(cliente, productoCimeraPlus);
+		logger.info("Pases encontrados cimera: " + pases.size());
+
+		// Parsear la fecha del día recibido
+		LocalDate fechaConsulta = LocalDate.now();
+		logger.info("Fecha consulta: " + fechaConsulta);
+
+		boolean activo = pases.stream().anyMatch(pase -> pase.getActivo());
+		boolean ultimoUsoEsDelDia = pases.stream()
+				.filter(pase -> pase.getUltimoUso() != null)
+				.anyMatch(pase -> pase.getUltimoUso().toLocalDate().isEqual(fechaConsulta));
+
+		return ultimoUsoEsDelDia || activo;
+	}
+
+	public Set<Integer> getCodigosByConceptos(String... conceptos) {
+		// Comenzar a construir la consulta base
+		StringBuilder queryBuilder = new StringBuilder("SELECT c.codigo FROM ConfiguracionSancion c WHERE ");
+
+		// Agregar condiciones para cada concepto
+		for (int i = 0; i < conceptos.length; i++) {
+			queryBuilder.append("LOWER(c.concepto) LIKE LOWER(:concepto").append(i).append(")");
+			if (i < conceptos.length - 1) {
+				queryBuilder.append(" AND ");
+			}
+		}
+
+		// Crear la consulta
+		TypedQuery<Integer> query = entityManager.createQuery(queryBuilder.toString(), Integer.class);
+
+		// Establecer los parámetros
+		for (int i = 0; i < conceptos.length; i++) {
+			query.setParameter("concepto" + i, "%" + conceptos[i].toLowerCase() + "%");
+		}
+
+		return new HashSet<>(query.getResultList());
+	}
+
+
+
 }

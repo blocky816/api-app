@@ -15,7 +15,7 @@ public interface CAClaseRepository extends JpaRepository<CAClase, UUID> {
             "cupo_actual, cupo_maximo, rango, disponible, dia, paga, cast(id_apartados as text), club " +
             "FROM clases " +
             "WHERE dia = :dia " +
-            "AND (club = 'Sports Plaza' and nombre LIKE '%GIMNASIO%') " +
+            "AND (club = 'Sports Plaza' and lower(nombre) LIKE '%aquadome%') " +
             "AND disponible = true " +
             //"AND TO_TIMESTAMP(dia || ' ' || split_part(rango, '-', 2), 'YYYY-MM-DD HH24:MI') > CURRENT_TIMESTAMP " +
             "ORDER BY TO_TIMESTAMP(split_part(rango, '-', 1), 'HH24:MI')", nativeQuery = true)

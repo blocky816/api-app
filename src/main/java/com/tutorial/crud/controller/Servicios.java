@@ -2549,6 +2549,7 @@ public class Servicios
 				//e.printStackTrace();
 			}
 		}
+		cimerapasses(horarioId);
 		return cliente;
 	}//Fin del metodo
 
@@ -7654,6 +7655,25 @@ public class Servicios
 	@GetMapping("/platinumUsersByClub/{clubID}")
 	List<PlatinumUsers> allByCLub(@PathVariable int clubID) {
 		return clienteService.getPlatinumUsersByClub(clubID);
+	}
+
+	public void cimerapasses(int idCliente) {
+		try {
+			Cliente cliente = clienteService.findById(idCliente);
+			boolean cimeraPasses = paseUsuarioService.getCimeraPlus(idCliente);
+			logger.info("Usuario: " + idCliente + " tiene pases plus cimera? " + cimeraPasses);
+
+			if (cimeraPasses){
+				cliente.setUltimoUso(LocalDateTime.now());
+				clienteService.save(cliente);
+				logger.info("Cliente: " + idCliente + " ultimo uso: " + cliente.getUltimoUso());
+			} else {
+				cliente.setUltimoUso(null);
+				clienteService.save(cliente);
+			}
+		} catch (Exception e) {
+			logger.error("No se pudo definir pases de cimera para : " + idCliente);
+		}
 	}
 }//fin de la clase
 

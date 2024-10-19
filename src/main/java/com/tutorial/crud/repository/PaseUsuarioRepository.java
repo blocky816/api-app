@@ -12,6 +12,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 import java.util.UUID;
 
 @Repository
@@ -27,9 +28,9 @@ public interface PaseUsuarioRepository extends JpaRepository<PaseUsuario, Intege
 
 	List<PaseUsuario> findByClienteAndActivoTrueAndPagadoIsNotNullAndFechaPagoIsNotNull(Cliente cliente);
 
-	@Query("SELECT p FROM PaseUsuario p WHERE p.cliente = :cliente AND p.idProd = :idProducto AND p.ultimoUso IS NOT NULL AND "
+	@Query("SELECT p FROM PaseUsuario p WHERE p.cliente = :cliente AND p.idProd in (:idProductos) AND "
 			+ "FUNCTION('MONTH', p.fechaPago) = FUNCTION('MONTH', CURRENT_TIMESTAMP) AND "
 			+ "FUNCTION('YEAR', p.fechaPago) = FUNCTION('YEAR', CURRENT_TIMESTAMP) "
 			+ "ORDER BY p.fechaPago")
-	List<PaseUsuario> findByClienteAndUltimoUsoIsNotNullAndFechaPagoMesActual(@Param("cliente") Cliente cliente, @Param("idProducto") int idProducto);
+	List<PaseUsuario> findByClienteAndUltimoUsoIsNotNullAndFechaPagoMesActual(@Param("cliente") Cliente cliente, @Param("idProductos") Set<Integer> idProductos);
 }
