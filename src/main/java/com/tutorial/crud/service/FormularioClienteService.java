@@ -23,4 +23,8 @@ public class FormularioClienteService {
     public List<FormularioCliente> findByFolioAndActivo(int folio, Boolean activo) {
         return formularioClienteRepository.findByFolioAndActivo(folio, activo);
     }
+
+    public List<FormularioCliente> findByFolioAndActivoAndCliente(int folio, Boolean activo, Cliente cliente) {
+        return formularioClienteRepository.findByFolioAndActivoAndCliente(folio, activo, cliente);
+    }
 }

@@ -12,4 +12,5 @@ public interface FormularioClienteRepository extends JpaRepository<FormularioCli
     Boolean existsByFolioAndClienteAndActivo(int folio, Cliente cliente, Boolean activo);
 
     List<FormularioCliente> findByFolioAndActivo(int folio, Boolean activo);
+    List<FormularioCliente> findByFolioAndActivoAndCliente(int folio, Boolean activo, Cliente cliente);
 }

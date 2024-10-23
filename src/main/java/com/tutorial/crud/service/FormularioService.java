@@ -229,7 +229,7 @@ public class FormularioService {
             formularioRespuestaRepository.save(newFormulario);
         }
 
-        List<FormularioCliente> formulariosCliente = formularioClienteService.findByFolioAndActivo(formulario.get(0).getFolio(), true);
+        List<FormularioCliente> formulariosCliente = formularioClienteService.findByFolioAndActivoAndCliente(formulario.get(0).getFolio(), true, cliente);
         for (FormularioCliente formularioCliente: formulariosCliente){
             if (formularioCliente.getFolio() == formulario.get(0).getFolio() &&
                     formularioCliente.getCliente() == cliente){

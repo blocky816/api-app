@@ -5,6 +5,9 @@ public class Pregunta {
     private String pregunta;
     private String respuesta;
 
+    public Pregunta(){
+        
+    }
     public Pregunta(String pregunta, String respuesta) {
         super();
         this.pregunta  = pregunta;
