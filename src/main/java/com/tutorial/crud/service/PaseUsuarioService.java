@@ -245,6 +245,7 @@ public class PaseUsuarioService {
 				pase.setActivo(true);
 				pase.setPagado(true);
 				pase.setFechaPago(ordenesDeVenta.get((long) pase.getIdVentaDetalle()));
+				pase.calcularVigenciaSiAplica();
 				save(pase);
 			}
 		}

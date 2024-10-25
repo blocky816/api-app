@@ -1,6 +1,7 @@
 package com.tutorial.crud.entity;
 
 import java.time.LocalDateTime;
+import java.time.ZoneId;
 import java.util.Date;
 import java.util.UUID;
 
@@ -78,6 +79,9 @@ public class PaseUsuario {
 
 	@Column(name = "ultimo_uso", columnDefinition = "TIMESTAMP(0)")
 	private LocalDateTime ultimoUso;
+
+	@Column(name = "fecha_vigencia", columnDefinition = "TIMESTAMP(0)")
+	private LocalDateTime fechaVigencia;
 
 	public String obtenerCreatedBy() {
 		return createdBy;
@@ -224,6 +228,33 @@ public class PaseUsuario {
 		this.ultimoUso = ultimoUso;
 	}
 
+	public LocalDateTime getFechaVigencia() {
+		return fechaVigencia;
+	}
+
+	public void setFechaVigencia(LocalDateTime fechaVigencia) {
+		this.fechaVigencia = fechaVigencia;
+	}
+
+	public void calcularVigenciaSiAplica() {
+		if (concepto != null && concepto.toLowerCase().contains("plus") && fechaPago != null) {
+			// Si el concepto incluye "plus", la vigencia es de 30 días a partir de la fecha de pago
+			fechaVigencia = fechaPago.plusDays(30);
+		} else if (f_compra != null) {
+			// Para otros pases, establecer la vigencia a partir de la fecha de compra
+			fechaVigencia = convertDateToLocalDateTime(f_compra); // O puedes agregar lógica para definir la vigencia
+		} else {
+			fechaVigencia = null; // o alguna lógica alternativa
+		}
+	}
+
+	public LocalDateTime convertDateToLocalDateTime(Date date) {
+		return date.toInstant()
+				.atZone(ZoneId.systemDefault())
+				.toLocalDateTime();
+	}
+
+
 	@Override
 	public String toString() {
 		return "PaseUsuario{" +
@@ -244,6 +275,7 @@ public class PaseUsuario {
 				", pagado=" + pagado +
 				", fechaPago=" + fechaPago +
 				", ultimoUso=" + ultimoUso +
+				", fechaVigencia=" + fechaVigencia +
 				'}';
 	}
 }
