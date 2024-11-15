@@ -25,6 +25,13 @@ public class GlobalExceptionHandler {
         return new ResponseEntity<>(errorDetails, HttpStatus.NOT_FOUND);
     }
 
+    @ExceptionHandler(PaymentReferenceException.class)
+    public ResponseEntity<?> paymentReferenceException(Exception ex, WebRequest request) {
+        ErrorResponse errorDetails =
+                new ErrorResponse(LocalDateTime.now(), HttpStatus.INTERNAL_SERVER_ERROR.toString() ,ex.getMessage(), request.getDescription(false));
+        return new ResponseEntity<>(errorDetails, HttpStatus.INTERNAL_SERVER_ERROR);
+    }
+
     /**
      * Globle excpetion handler response entity.
      *

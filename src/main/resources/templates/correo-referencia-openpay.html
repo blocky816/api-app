@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tu Referencia de Pago Openpay</title>
+    <style>
+        /* RESET GLOBAL */
+        * {
+          margin: 0;
+          padding: 0;
+          box-sizing: border-box;
+        }
+
+        body {
+          font-family: 'Arial', sans-serif;
+          background-color: #f7f7f7;
+          color: #333;
+          line-height: 1.6;
+          padding: 0;
+          margin: 0;
+        }
+
+        .email-container {
+          width: 100%;
+          max-width: 700px;
+          margin: 0 auto;
+          background-color: #ffffff;
+          border-radius: 10px;
+          overflow: hidden;
+          box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        /* ENCABEZADO */
+        .email-header {
+          background-color: #004481; /* Naranja Openpay */
+          color: white;
+          padding: 50px 20px;
+          text-align: center;
+          border-radius: 10px 10px 0 0;
+        }
+
+        .email-header div {
+          background-color: white;
+          display: inline-block;
+          padding: 10px;
+          border-radius: 5px;
+        }
+
+        .email-header img {
+          display: block;
+        }
+
+        .email-header h1 {
+          font-size: 34px;
+          font-weight: 700;
+          letter-spacing: 1px;
+        }
+
+        /* CUERPO DEL MENSAJE */
+        .email-body {
+          padding: 40px 30px;
+          background-color: #ffffff;
+          color: #333;
+          text-align: left;
+          font-size: 18px;
+        }
+
+        .email-body p {
+          margin-bottom: 20px;
+        }
+
+        .centered-link {
+          text-align: center;
+        }
+
+        .cta-button {
+          display: inline-block;
+          background-color: #14c8be;
+          color: white !important;
+          padding: 16px 40px;
+          font-size: 18px;
+          font-weight: 600;
+          text-decoration: none;
+          border-radius: 8px;
+          text-align: center;
+          box-shadow: 0 8px 15px rgba(0, 0, 0, 0.2);
+          transition: background-color 0.3s ease, transform 0.3s ease;
+          margin-top: 25px;
+        }
+
+        .cta-button:hover {
+          background-color: #004481;
+          transform: translateY(-3px);
+          color: white;
+        }
+
+        .cta-button:active {
+          transform: translateY(1px);
+        }
+
+        .cta-button:focus {
+          outline: none;
+        }
+
+        /* PIE DE PÁGINA */
+        .email-footer {
+          background-color: #f5f5f5;
+          padding: 30px 20px;
+          text-align: center;
+          font-size: 14px;
+          color: #777;
+          border-top: 2px solid #eee;
+          border-radius: 0 0 10px 10px;
+        }
+
+        .email-footer a {
+          color: #004481;
+          text-decoration: none;
+          font-weight: bold;
+        }
+
+        .email-footer a:hover {
+          text-decoration: underline;
+        }
+
+        /* RESPONSIVIDAD */
+        @media (max-width: 600px) {
+          .email-container {
+            width: 100% !important;
+            margin: 0;
+            padding: 0;
+          }
+
+          .email-header {
+            padding: 40px 15px;
+          }
+
+          .email-body {
+            padding: 25px 15px;
+          }
+
+          .cta-button {
+            width: 100%;
+            padding: 14px;
+            font-size: 16px;
+          }
+
+          .email-header h1 {
+            font-size: 30px;
+          }
+        }
+    </style>
+    <title th:remove="all">Template for HTML email with inline image</title>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+</head>
+<body>
+<div class="email-container">
+    <div class="email-header">
+        <div class=""><img src="images/open-pay-logo.png" data-th-src="|cid:open-pay-logo|" alt="Openpay Logo" style="width: 138; height: 34;" /></div>
+
+        <h1>Tu Referencia de Pago Openpay</h1>
+    </div>
+
+    <div class="email-body">
+        <p>Hola <strong th:text="${nombreCliente}">[Nombre del Cliente]</strong>,</p>
+        <p>¡Gracias por elegir nuestros servicios! Nos complace informarte que tu referencia de pago ya está lista. Puedes descargarla y realizar tu pago de manera rápida y segura.</p>
+        <p>Para continuar, por favor haz clic en el siguiente enlace:</p>
+
+        <p class="centered-link"><a th:href="${urlReferencia}" target="_blank" class="cta-button">Descargar Referencia de Pago</a></p>
+
+        <p>Este documento es necesario para completar el proceso de pago. Si tienes alguna pregunta o necesitas ayuda adicional, no dudes en ponerte en contacto con nosotros.</p>
+
+        <p>Gracias por confiar en nosotros. ¡Estamos aquí para ayudarte!</p>
+    </div>
+
+    <div class="email-footer">
+        <p>Atentamente, Fundación Club Alpha de Puebla</p>
+        <p><a href="mailto:[contacto@clubalpha.com.mx]">Contáctanos por correo</a> | <a href="tel:[1 817-783-0138]">Llámanos</a></p>
+    </div>
+</div>
+</body>
+</html>
