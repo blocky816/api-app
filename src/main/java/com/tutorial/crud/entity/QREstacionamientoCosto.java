@@ -38,6 +38,8 @@ public class QREstacionamientoCosto {
     private LocalDateTime updatedAt;
     @Column(name = "updated_by")
     private int updatedBy;
+    @Column(name = "estacionamiento")
+    private String estacionamiento;
 
     public int getUserID() { return userID; }
 
@@ -71,6 +73,14 @@ public class QREstacionamientoCosto {
 
     public void setClub(String club) { this.club = club; }
 
+    public String getEstacionamiento() {
+        return estacionamiento;
+    }
+
+    public void setEstacionamiento(String estacionamiento) {
+        this.estacionamiento = estacionamiento;
+    }
+
     @Override
     public String toString() {
         return "QREstacionamientoCosto{" +
@@ -82,6 +92,7 @@ public class QREstacionamientoCosto {
                 ", createdBy=" + createdBy +
                 ", updatedAt=" + updatedAt +
                 ", updatedBy=" + updatedBy +
+                ", estacionamiento='" + estacionamiento + '\'' +
                 '}';
     }
 }

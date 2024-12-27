@@ -1067,7 +1067,7 @@ public class ParkingController
 		estacionamientoExternoService.save(estacionamiento);
 
 		if (lugarVenta != null && lugarVenta.equals("ceforma_botonera")) {
-			QRParkingDTO qrParking = new QRParkingDTO();
+			/*QRParkingDTO qrParking = new QRParkingDTO();
 			qrParking.setClub(horarioId);
 			qrParking.setCosto(qrEstacionamientoCostoRepository.findById(11).get().getCost());
 			qrParking.setDebito(qrEstacionamientoCostoRepository.findById(11).get().getCost());
@@ -1078,7 +1078,7 @@ public class ParkingController
 			qrParking.setObservaciones("Qr botonera ceforma");
 			qrParking.setIdRegistro(id);
 			qrParkingService.save(qrParking);
-			estacionamiento.setActivo(true);
+			estacionamiento.setActivo(true);*/
 			estacionamientoExternoService.save(estacionamiento);
 		}
 		
