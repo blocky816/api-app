@@ -358,7 +358,9 @@ public class CitasController
    			club="Club Alpha 3";
    		}else if(club.equals("Club_Alpha_2")) {
    			club="Club Alpha 2";
-   		}
+   		} else if ("Cenit".equals(club.trim().toLowerCase())){
+			   club = "Cenit";
+		}
    		String[] dd=dia.split("-");
    		if(dd[2].length()==1) {
    			dd[2]="0"+dd[2];
