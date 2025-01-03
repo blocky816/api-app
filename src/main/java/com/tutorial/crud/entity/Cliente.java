@@ -14,8 +14,8 @@ import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.time.ZoneOffset;
 import java.time.format.DateTimeFormatter;
-import java.time.temporal.ChronoField;
 import java.util.Date;
+import java.util.Calendar;
 import java.util.List;
 
 import javax.persistence.*;
@@ -219,6 +219,10 @@ public class Cliente implements Serializable
 
 	@Column(name = "ultimo_uso", columnDefinition = "TIMESTAMP(0)")
 	private LocalDateTime ultimoUso;
+
+	@Column(name = "profesionalizacion") private Boolean profesionalizacion;
+
+	@Column(name = "consentimiento") private Boolean consentimiento;
 
 	//Se generaron todos los Getters y Setters.
 
@@ -667,6 +671,22 @@ public class Cliente implements Serializable
 		this.ultimoUso = ultimoUso;
 	}
 
+	public Boolean getProfesionalizacion() {
+		return profesionalizacion;
+	}
+
+	public void setProfesionalizacion(Boolean profesionalizacion) {
+		this.profesionalizacion = profesionalizacion;
+	}
+
+	public Boolean getConsentimiento() {
+		return consentimiento;
+	}
+
+	public void setConsentimiento(Boolean consentimiento) {
+		this.consentimiento = consentimiento;
+	}
+
 	@Override
 	public String toString() {
 		return "Cliente [IdCliente=" + idCliente + ",\n NoMembresia=" + NoMembresia + ",\n Nombre=" + Nombre
@@ -684,8 +704,4 @@ public class Cliente implements Serializable
 				+ ",\n tipoMembresia=" + tipoMembresia + ",\n terminalid=" + HorarioOtroClub + ",\n idComplexBand=" + idComplexBand
 				+ ",\n esTitular=" + esTitular + ",]";
 	}
-
-
-
-	
 }

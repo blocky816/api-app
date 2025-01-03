@@ -301,20 +301,20 @@ public class PaseUsuarioService {
 		if (cliente == null) {
 			throw new IllegalArgumentException("Cliente no encontrado: " + idCliente);
 		}
-		logger.info("Cliente encontrado: " + idCliente);
+		//logger.info("Cliente encontrado: " + idCliente);
 
 		Set<Integer> productoAquadome = configuracionSancionService.getCodigoByConcepto("aquadome");
 		if (productoAquadome.isEmpty()) {
 			return Collections.emptyList();
 		}
-		productoAquadome.forEach(codigo -> System.out.println("Producto Aquadome: " + codigo));
+		//productoAquadome.forEach(codigo -> System.out.println("Producto Aquadome: " + codigo));
 
 		List<PaseUsuario> pases = paseUsuarioRepository.findByClienteAndUltimoUsoIsNotNullAndFechaPagoMesActual(cliente, productoAquadome);
-		logger.info("Pases encontrados aquadome: " + pases.size());
+		//logger.info("Pases encontrados aquadome: " + pases.size());
 
 		// Parsear la fecha del día recibido
 		LocalDate fechaConsulta = LocalDate.parse(dia);
-		logger.info("Dia parseado a date: " + dia);
+		//logger.info("Dia parseado a date: " + dia);
 
 		// Verificar si hay pases disponibles y si el último uso es del mismo día
 		boolean activo = pases.stream().anyMatch(pase -> pase.getActivo());
@@ -324,7 +324,7 @@ public class PaseUsuarioService {
 				.anyMatch(pase -> pase.getUltimoUso().toLocalDate().isEqual(fechaConsulta));
 
 		if (ultimoUsoEsDelDia || activo) {
-			logger.info("Pase correcto devolviendo clases aquadome para: " + idCliente);
+			//logger.info("Pase correcto devolviendo clases aquadome para: " + idCliente);
 			return caClaseRepository.getAquadomeClasses(dia);
 		}
 
@@ -341,14 +341,14 @@ public class PaseUsuarioService {
 		if (productoCimeraPlus.isEmpty()) {
 			return false;
 		}
-		productoCimeraPlus.forEach(codigo -> System.out.println("Producto Cimera Plus: " + codigo));
+		//productoCimeraPlus.forEach(codigo -> System.out.println("Producto Cimera Plus: " + codigo));
 
 		List<PaseUsuario> pases = paseUsuarioRepository.findByClienteAndUltimoUsoIsNotNullAndFechaPagoMesActual(cliente, productoCimeraPlus);
-		logger.info("Pases encontrados cimera: " + pases.size());
+		//logger.info("Pases encontrados cimera: " + pases.size());
 
 		// Parsear la fecha del día recibido
 		LocalDate fechaConsulta = LocalDate.now();
-		logger.info("Fecha consulta: " + fechaConsulta);
+		//logger.info("Fecha consulta: " + fechaConsulta);
 
 		boolean activo = pases.stream().anyMatch(pase -> pase.getActivo());
 		boolean ultimoUsoEsDelDia = pases.stream()

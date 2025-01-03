@@ -2735,6 +2735,8 @@ public class Servicios
 						break;
 					case 9:  club = clubService.findById(4);
 						break;
+					default:
+						club = clubService.findById(idCLub);
 				}
 
 				if(club!=null)
@@ -2919,6 +2921,8 @@ public class Servicios
                         break;
                     case 9:  club = clubService.findById(4);
                         break;
+					default:
+						club = clubService.findById(idCLub);
                 }
 				if(club!=null)
 					cliente.setClub(club);
@@ -3053,6 +3057,12 @@ public class Servicios
 				cliente.setIdOdoo(json.getInt("IdOdoo"));
 				if (json.getString("parent_id").isEmpty() || json.getString("parent_id") == null) cliente.setIdTitular(horarioId);
 				else cliente.setIdTitular(Integer.parseInt(json.getString("parent_id")));
+
+				try {
+					cliente.setProfesionalizacion(clienteService.esMenorDeEdad(cliente.getFechaNacimiento()));
+				} catch (Exception e) {
+					logger.info("No se pudo establecer si el cliente {} es mayor de edad", horarioId);
+				}
 				clienteService.save(cliente);
 				List<ParkingUsuario> pu = parkingUsuarioService.findByIdCliente(cliente);
 				if (Objects.nonNull(pu) && !cliente.getTipoCliente().getNombre().toLowerCase().contains("temporal"))
@@ -3070,9 +3080,6 @@ public class Servicios
 							System.out.println("Error al desactivar/activar chips del user: " + horarioId + " => " + e.toString());
 						}
 			}
-
-
-
 		}
 		catch(FileNotFoundException e) {
 			Cliente cliente=clienteService.findById(horarioId);
@@ -7661,18 +7668,18 @@ public class Servicios
 		try {
 			Cliente cliente = clienteService.findById(idCliente);
 			boolean cimeraPasses = paseUsuarioService.getCimeraPlus(idCliente);
-			logger.info("Usuario: " + idCliente + " tiene pases plus cimera? " + cimeraPasses);
+			//logger.info("Usuario: " + idCliente + " tiene pases plus cimera? " + cimeraPasses);
 
 			if (cimeraPasses){
 				cliente.setUltimoUso(LocalDateTime.now());
 				clienteService.save(cliente);
-				logger.info("Cliente: " + idCliente + " ultimo uso: " + cliente.getUltimoUso());
+				//logger.info("Cliente: " + idCliente + " ultimo uso: " + cliente.getUltimoUso());
 			} else {
 				cliente.setUltimoUso(null);
 				clienteService.save(cliente);
 			}
 		} catch (Exception e) {
-			logger.error("No se pudo definir pases de cimera para : " + idCliente);
+			//logger.error("No se pudo definir pases de cimera para : " + idCliente);
 		}
 	}
 }//fin de la clase

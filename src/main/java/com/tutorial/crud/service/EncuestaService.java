@@ -140,6 +140,7 @@ public class EncuestaService {
             case 3: idClubOdoo = 7; break;
             case 5: idClubOdoo = 8; break;
             case 4: idClubOdoo = 9; break;
+            default: idClubOdoo = idClub;
         }
         return idClubOdoo;
     }

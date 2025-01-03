@@ -16,9 +16,7 @@ import java.net.http.HttpResponse;
 import java.sql.SQLOutput;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.time.LocalDateTime;
-import java.time.LocalTime;
-import java.time.ZoneId;
+import java.time.*;
 import java.util.*;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -496,6 +494,38 @@ public class ClienteServiceImpl implements ClienteService {
 		return platinumUsers;
 	}
 
+	public Boolean esMenorDeEdad(Date fechaNacimiento) {
+		Calendar fechaActual = Calendar.getInstance();
+		Calendar fechaNac = Calendar.getInstance();
+		fechaNac.setTime(fechaNacimiento);
+		int edad = fechaActual.get(Calendar.YEAR) - fechaNac.get(Calendar.YEAR);
+
+		if (fechaActual.get(Calendar.MONTH) < fechaNac.get(Calendar.MONTH) || (fechaActual.get(Calendar.MONTH) == fechaNac.get(Calendar.MONTH) && fechaActual.get(Calendar.DAY_OF_MONTH) < fechaNac.get(Calendar.DAY_OF_MONTH))) {
+			edad--;
+		}
+
+		return edad < 18;
+	}
+
+	// Método para calcular la edad
+	public int calcularEdad(Date fechaNacimiento) {
+		if (fechaNacimiento == null) {
+			return 0; // o lanzar excepción, dependiendo de tu lógica
+		}
+
+		// Convertir Date a LocalDate
+		LocalDate fechaNacimientoLocalDate = fechaNacimiento.toInstant()
+				.atZone(ZoneId.systemDefault())
+				.toLocalDate();
+
+		// Obtener la fecha actual
+		LocalDate fechaActual = LocalDate.now();
+
+		// Calcular la edad usando Period
+		Period periodo = Period.between(fechaNacimientoLocalDate, fechaActual);
+		return periodo.getYears(); // Devuelve la edad en años
+	}
+
 
 
 	/*public void sendNewPasswordHash(String userID) {
@@ -526,5 +556,9 @@ public class ClienteServiceImpl implements ClienteService {
 	/*@Override
 	public List<Cliente> findAllByClub(Club club) {
 		return clienteRepository.findAllByClub(club);
+	}*/
+
+	/*public List<Integer> getIdDeportistasByIdCliente(int idCliente) {
+		return clienteRepository.findDependientesIdByTitularId(idCliente);
 	}*/
 }

@@ -64,4 +64,10 @@ public interface ClienteService {
 	public Cliente findByIdOdoo(int OdooId);
 
 	public List<PlatinumUsers> getPlatinumUsersByClub(int club);
+
+	public Boolean esMenorDeEdad(Date fechaNacimiento);
+
+	public int calcularEdad(Date fechaNacimiento);
+
+	//public  List<Integer> getIdDeportistasByIdCliente(int idCliente);
 }
