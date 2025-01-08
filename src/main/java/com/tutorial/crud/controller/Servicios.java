@@ -267,6 +267,9 @@ public class Servicios
 
 	@Autowired
 	private ClienteIntentosFiservRepository clienteIntentosFiservRepository;
+
+	@Autowired
+    DirectDebitService directDebitService;
 	// creating a logger
 	Logger logger= LoggerFactory.getLogger(Servicios.class);
 
@@ -3222,12 +3225,25 @@ public class Servicios
 	}
 	@GetMapping("/cancelarDomiciliacion/{idCliente}")
 	public ResponseEntity<?> cancelarDomiciliacion(@PathVariable("idCliente") int idCliente){
-		JSONObject resp=new JSONObject();
-		Cliente cliente=clienteService.findById(idCliente);
-		cliente.setDomiciliado(false);
-		clienteService.save(cliente);
-		resp.put("respuesta", "el cliente ya no esta domiciliado");
-		return new ResponseEntity<>(resp.toString(), HttpStatus.OK);
+		// JSONObject resp=new JSONObject();
+		// Cliente cliente=clienteService.findById(idCliente);
+		// cliente.setDomiciliado(false);
+		// clienteService.save(cliente);
+		// resp.put("respuesta", "el cliente ya no esta domiciliado");
+		// return new ResponseEntity<>(resp.toString(), HttpStatus.OK);
+		try {
+            logger.info("ancelacion de domiciliacion por: " + idCliente);
+            directDebitService.cancelDirectDebit(
+				idCliente,
+				String.valueOf(idCliente),
+				"Cancelación individual desde App"
+            );
+            logger.info("Cancelacion exitosa del cliente: " + idCliente);
+            return new ResponseEntity<>("{\"respuesta\":\"cancelacion exitosa\"}", HttpStatus.OK);
+        } catch (Exception e) {
+            logger.info("Error al cancelar domiciliacion: " + idCliente + " Error: " + e.getMessage());
+            return new ResponseEntity<>("{\"respuesta\":\"domiciliacion no encontrada\"}", HttpStatus.NOT_FOUND);
+        }
 	}
 
 	@PostMapping("/agregarCliente")
