@@ -19,6 +19,7 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
+import org.springframework.web.filter.CorsFilter;
 
 @Configuration
 @EnableWebSecurity
@@ -61,88 +62,113 @@ public class MainSecurity extends WebSecurityConfigurerAdapter {
     protected void configure(HttpSecurity http) throws Exception {
         http.cors().and().csrf().disable()
                 .authorizeRequests()
-                .antMatchers("/auth/**").permitAll()
-                .antMatchers("/citas/redimirPase").permitAll()
-                .antMatchers("/alpha/recibosMes/**").permitAll()//esto hay que comentarlo
-                .antMatchers("/citas/actualizarPasesRedimidos").permitAll()
-                .antMatchers("/citas/crearHorario").permitAll()
-                .antMatchers("/parking/registrarEvento").permitAll()
-                .antMatchers("/parking/chipsActivos/**").permitAll()
-                .antMatchers("/parking/calcularAmonestaciones").permitAll()
-                .antMatchers("/parking/qrParkingSportsPlaza").permitAll()
-                .antMatchers("/abrir").permitAll()
-                .antMatchers("/citas/obtenerClases").permitAll()
-                .antMatchers("/citas/obtenerUsuariosByClaseApp").permitAll()
-                .antMatchers("/citas/confirmarAsistencia").permitAll()
-                .antMatchers("/citas/confirmarAsistencia").permitAll()
-                .antMatchers("/citas/crearReserva").permitAll()
-                .antMatchers("/citas/cancelarReserva").permitAll()
-                .antMatchers("/alpha/facturacion").permitAll()
-                .antMatchers("/alpha/clienteFactura/**").permitAll()
-                .antMatchers("/alpha/descargarFactura").permitAll()
-                .antMatchers("/rutina/datosBascula").permitAll()
-                .antMatchers("/rutina/ultimoPesajeGeneral/**").permitAll()
-                .antMatchers("/rutina/listaEjercicios").permitAll()
-                .antMatchers("/rutina/obtenerEjercicio/**").permitAll()
-                .antMatchers("/alpha/registrarAcceso").permitAll()
-                .antMatchers("/alpha/aplicarPago").permitAll()
-                .antMatchers("/alpha/idClienteByMembresia/**").permitAll()
-                .antMatchers("/alpha/referencia").permitAll()
-                .antMatchers("/alpha/referenciaDomiciliado").permitAll()
-                .antMatchers("/alpha/guardarReferencia").permitAll()
-                .antMatchers("/alpha/generarArchivoDomiciliacion").permitAll()
-                .antMatchers("/alpha/updateCliente/**").permitAll()
-                .antMatchers("/alpha/clienteByMembresia/**").permitAll()
-                .antMatchers("/alpha/domiciliarCliente").permitAll()
-                .antMatchers("/alpha/getPasswordHash/{customerID}").permitAll()
-                .antMatchers("/rutinas/image/**").permitAll()
-                .antMatchers("/conversaciones/bascula").permitAll()
-                .antMatchers("/parking/getQRbyClub/{idClub}/{idFolio}").permitAll()
-                .antMatchers("/parking/getStatusQRbyClub/{idClub}/{idFolio}").permitAll()
-                .antMatchers("/parking/qrParking").permitAll()
-                .antMatchers("/parking/generarCorte").permitAll()
-                .antMatchers("/parking/getChipInfo/{ chipID }").permitAll()
-                .antMatchers("/formularios/getCustomerPrompt/{customerID}").permitAll()
-                .antMatchers("/formularios/getFoodCalories").permitAll()
-                .antMatchers("/formularios/currentDietByCustomer/{customerID}").permitAll()
-                .antMatchers("/formularios/assignDietForm/{customerID}").permitAll()
-                .antMatchers("/formularios/assignDietForms/").permitAll()
-                .antMatchers("/formularios/assignDietForms/{customerID}").permitAll()
-                .antMatchers("/parking/getQRCostByUser/{userID}").permitAll()
-                .antMatchers("/alpha/activateCustomer/{customerID}/{statusCobranza}").permitAll()
-                .antMatchers("/encuesta/getByCliente/{idCliente}/{idClub}").permitAll()
-                .antMatchers("/encuesta/getQuestionsByCliente/{idCliente}/{idSurvey}").permitAll()
-                .antMatchers("/encuesta/sendRespuestas").permitAll()
-                .antMatchers("/alpha/platinumUsersByClub/{clubID}").permitAll()
-                //.antMatchers("/passes/generate-monthly-passes/{clubID}").permitAll()
-                //.antMatchers("/passes/getByCustomer/{customerID}").permitAll()
-                .antMatchers("/passes/getPassesByMembershipType/{membershipType}").permitAll()
-                .antMatchers("/passes/getMonthlyPasses").permitAll()
-                .antMatchers("/parking/licensePlatesByClub/{clubID}").permitAll()
-                .antMatchers("/directDebit/create").permitAll()
-                .antMatchers("/directDebit/cancel").permitAll()
-                .antMatchers("/odoo/productos/{idCliente}").permitAll()
-                .antMatchers("/odoo/invoice").permitAll()
-                .antMatchers("/odoo/pases/{clienteId}/{idProd}").permitAll()
-                .antMatchers("/odoo/torniquetes/{branchId}").permitAll()
-                .antMatchers("/odoo//torniquete/acceso").permitAll()
-                .antMatchers("/odoo/torniquete/abrir/{idTorniquete}").permitAll()
-                .antMatchers("/citas/clases/aquadome/{idCliente}/{dia}").permitAll()
-                .antMatchers("/openpay/getPedido/{idCliente}").permitAll()
-                .antMatchers("/openpay/generar-referencia/{idCliente}/{vigenciaDias}").permitAll()
-                .antMatchers("/openpayC/enviar-correo").permitAll()
+                .antMatchers(
+                        "/auth/**", 
+                        "/citas/redimirPase",
+                        "/alpha/recibosMes/**",
+                        "/citas/actualizarPasesRedimidos",
+                        "/citas/crearHorario",
+                        "/parking/registrarEvento",
+                        "/parking/chipsActivos/**",
+                        "/parking/calcularAmonestaciones",
+                        "/parking/qrParkingSportsPlaza",
+                        "/abrir",
+                        "/citas/obtenerClases",
+                        "/citas/obtenerUsuariosByClaseApp",
+                        "/citas/confirmarAsistencia",
+                        "/citas/confirmarAsistencia",
+                        "/citas/crearReserva",
+                        "/citas/cancelarReserva",
+                        "/alpha/facturacion",
+                        "/alpha/clienteFactura/**",
+                        "/alpha/descargarFactura",
+                        "/rutina/datosBascula",
+                        "/rutina/ultimoPesajeGeneral/**",
+                        "/rutina/listaEjercicios",
+                        "/rutina/obtenerEjercicio/**",
+                        "/alpha/registrarAcceso",
+                        "/alpha/aplicarPago",
+                        "/alpha/idClienteByMembresia/**",
+                        "/alpha/referencia",
+                        "/alpha/referenciaDomiciliado",
+                        "/alpha/guardarReferencia",
+                        "/alpha/generarArchivoDomiciliacion",
+                        "/alpha/updateCliente/**",
+                        "/alpha/clienteByMembresia/**",
+                        "/alpha/domiciliarCliente",
+                        "/alpha/getPasswordHash/{customerID}",
+                        "/rutinas/image/**",
+                        "/conversaciones/bascula",
+                        "/parking/getQRbyClub/{idClub}/{idFolio}",
+                        "/parking/getStatusQRbyClub/{idClub}/{idFolio}",
+                        "/parking/qrParking",
+                        "/parking/generarCorte",
+                        "/parking/getChipInfo/{ chipID }",
+                        "/formularios/getCustomerPrompt/{customerID}",
+                        "/formularios/getFoodCalories",
+                        "/formularios/currentDietByCustomer/{customerID}",
+                        "/formularios/assignDietForm/{customerID}",
+                        "/formularios/assignDietForms/",
+                        "/formularios/assignDietForms/{customerID}",
+                        "/parking/getQRCostByUser/{userID}",
+                        "/alpha/activateCustomer/{customerID}/{statusCobranza}",
+                        "/encuesta/getByCliente/{idCliente}/{idClub}",
+                        "/encuesta/getQuestionsByCliente/{idCliente}/{idSurvey}",
+                        "/encuesta/sendRespuestas",
+                        "/alpha/platinumUsersByClub/{clubID}",
+                        //"/passes/generate-monthly-passes/{clubID}",
+                        //"/passes/getByCustomer/{customerID}",
+                        "/passes/getPassesByMembershipType/{membershipType}",
+                        "/passes/getMonthlyPasses",
+                        "/parking/licensePlatesByClub/{clubID}",
+                        "/directDebit/create",
+                        "/directDebit/cancel",
+                        "/odoo/productos/{idCliente}",
+                        "/odoo/invoice",
+                        "/odoo/pases/{clienteId}/{idProd}",
+                        "/odoo/torniquetes/{branchId}",
+                        "/odoo//torniquete/acceso",
+                        "/odoo/torniquete/abrir/{idTorniquete}",
+                        "/citas/clases/aquadome/{idCliente}/{dia}",
+                        "/openpay/getPedido/{idCliente}",
+                        "/openpay/generar-referencia/{idCliente}/{vigenciaDias}",
+                        "/openpayC/enviar-correo",
+                        "/deportista/{idCliente}",
+                        "/deportista/evaluaciones",
+                        "/deportista/asistencias"
+                ).permitAll()
                 .anyRequest().authenticated()
                 .and()
                 .exceptionHandling().authenticationEntryPoint(jwtEntryPoint)
                 .and()
                 .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS);
         http.addFilterBefore(jwtTokenFilter(), UsernamePasswordAuthenticationFilter.class);
-        //http.requiresChannel().antMatchers("/secure*").requiresSecure();
     }
     @Bean
     CorsConfigurationSource corsConfigurationSource() {
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
-        source.registerCorsConfiguration("/**", new CorsConfiguration().applyPermitDefaultValues());
+        CorsConfiguration config = new CorsConfiguration();
+        config.applyPermitDefaultValues();
+        config.addAllowedMethod("*");
+        source.registerCorsConfiguration("/**", config);
         return source;
+       /* UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
+        CorsConfiguration config = new CorsConfiguration();
+        config.applyPermitDefaultValues();
+        config.setAllowCredentials(true);
+        config.addAllowedOriginPattern("*");
+        config.addAllowedMethod("POST");
+        config.addAllowedMethod("GET");
+        config.addAllowedMethod("PATCH");
+        source.registerCorsConfiguration("/**", config);
+        return source;*/
+
+        /*UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
+        CorsConfiguration config = new CorsConfiguration();
+        config.addAllowedOrigin("*"); // permitir todos los orígenes
+        config.addAllowedHeader("*"); // permitir todos los encabezados
+        config.addAllowedMethod("*"); // permitir todos los métodos (GET, POST, PUT, etc.)
+        source.registerCorsConfiguration("/**", config); // aplicar la configuración a todas las rutas
+        return source;*/
     }
 }
