@@ -14,5 +14,7 @@ public interface ClienteRepository extends JpaRepository<Cliente, Integer> {
     Cliente findByIdOdoo(int OddoId);
 
     List<Cliente> findAllByClubAndTipoMembresiaAndEstatusCobranza(Club club, TipoMembresia membership, EstatusCobranza collection);
+
+    List<Cliente> findAllByClub(Club club);
 }
 

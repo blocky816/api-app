@@ -476,20 +476,33 @@ public class ClienteServiceImpl implements ClienteService {
 	@Override
 	public List<PlatinumUsers> getPlatinumUsersByClub(int club) {
 		Club clubUsers = clubService.findById(club);
-		TipoMembresia tipoMembresia = tipoMembresiaService.findById(21); // Platinum
-		EstatusCobranza estatusCobranza = estatusCobranzaService.findById(1); // Activos al corriente
+
+		// Verificar si el club no existe (es null)
+		if (clubUsers == null) {
+			return new ArrayList<>();  // Retorna un array vacío si no se encuentra el club
+		}
+
+
+		List<Cliente> clientes = new ArrayList<>();
+		if (clubUsers.getNombre().toLowerCase().contains("cenit")){
+			clientes = clienteRepository.findAllByClub(clubUsers);
+		} else {
+			TipoMembresia tipoMembresia = tipoMembresiaService.findById(21); // Platinum
+			EstatusCobranza estatusCobranza = estatusCobranzaService.findById(1); // Activos al corriente
+			clientes = clienteRepository.findAllByClubAndTipoMembresiaAndEstatusCobranza(clubUsers, tipoMembresia, estatusCobranza);
+		}
 
 		List<PlatinumUsers> platinumUsers = new ArrayList<>();
-		List<Cliente> clientes = clienteRepository.findAllByClubAndTipoMembresiaAndEstatusCobranza(clubUsers, tipoMembresia, estatusCobranza);
 
-		for (Cliente cliente: clientes) {
-			PlatinumUsers platinumUser = new PlatinumUsers();
-			platinumUser.setId(cliente.getIdCliente());
-			platinumUser.setNombre(cliente.getNombreCompleto());
-			platinumUser.setTipo_membresia(cliente.getCategoria().getNombre());
-			platinumUser.setCupones_aplicados(new ArrayList<>());
-			platinumUsers.add(platinumUser);
-		}
+		if (!clientes.isEmpty())
+			for (Cliente cliente: clientes) {
+				PlatinumUsers platinumUser = new PlatinumUsers();
+				platinumUser.setId(cliente.getIdCliente());
+				platinumUser.setNombre(cliente.getNombreCompleto());
+				platinumUser.setTipo_membresia(cliente.getCategoria().getNombre());
+				platinumUser.setCupones_aplicados(new ArrayList<>());
+				platinumUsers.add(platinumUser);
+			}
 
 		return platinumUsers;
 	}
