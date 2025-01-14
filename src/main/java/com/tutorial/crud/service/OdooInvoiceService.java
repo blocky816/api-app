@@ -69,8 +69,7 @@ public class OdooInvoiceService {
             logger.severe("Error mientras se cargaba la factura en Odoo: " + e.getMessage());
             throw new RuntimeException("Error en la comunicación con Odoo", e);
         }
-
-        return "Error en la carga de pases";
+        throw new Exception("Error al cargar los pases");
     }
 
     private int getOdooId(int odooId) {

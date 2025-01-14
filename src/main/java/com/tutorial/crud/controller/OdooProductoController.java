@@ -48,8 +48,7 @@ public class OdooProductoController {
     @PostMapping("/invoice")
     public ResponseEntity<?> createInvoice(@RequestBody InvoiceRequest invoiceRequest) throws Exception{
         String response = odooInvoiceService.sendInvoiceToOdoo(invoiceRequest);
-        return new ResponseEntity<>(response, HttpStatus.CREATED);
-
+        return new ResponseEntity<>(response, HttpStatus.OK);
     }
 
     @GetMapping("/pases/{clienteId}/{idProd}")
