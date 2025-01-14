@@ -50,7 +50,7 @@ public class OdooProductoService {
 
            logger.info("Consulta de productos Odoo para " + idClienteOdoo + ": " + response.statusCode() + " status code");
 
-           if (response.statusCode() != 201) {  // Status code 200 is OK
+           if (response.statusCode() < 200 && response.statusCode() > 299) {  // Status code 200 is OK
                throw new ResourceNotFoundException("Productos no encontrados: " + idClienteOdoo);
            } else {
                //return parseResponse(response.body());

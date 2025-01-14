@@ -137,7 +137,7 @@ public class OdooInvoiceService {
             PaseUsuario paseUsuario = new PaseUsuario();
             paseUsuario.setIdVentaDetalle(product.getId());
             paseUsuario.setCantidad((int) product.getQuantity());
-            paseUsuario.setIdProd((int) product.getProduct_id().get(0)); // ID Producto
+            paseUsuario.setIdProd(Integer.parseInt(product.getProduct_id().get(0).toString())); // ID Producto
             paseUsuario.setCliente(cliente);
             paseUsuario.setConcepto((String) product.getProduct_id().get(1)); // Concepto
             paseUsuario.setDisponibles((int) product.getQuantity());
