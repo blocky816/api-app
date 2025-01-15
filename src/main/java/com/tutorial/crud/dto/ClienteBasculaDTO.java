@@ -20,6 +20,6 @@ public class ClienteBasculaDTO {
 	@JsonProperty("Edad") 
     public int edad;
 
-    @JsonProperty("Edad")
+    @JsonProperty("Sexo")
     public String sexo;
 }
