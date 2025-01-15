@@ -12,4 +12,6 @@ public interface QRParkingRepository extends JpaRepository<QRParking, Long> {
 
     QRParking findByClubAndIdRegistro(String club, String idRegistro);
     List<QRParking> findByClubAndIdUsuarioAndDailyQROutIsNull(String club, int idUsuario);
+
+    List<QRParking> findByClubAndDailyQROutIsNullAndObservacionesStartingWithIgnoreCase(String club, String concepto);
 }

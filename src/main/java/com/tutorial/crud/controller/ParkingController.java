@@ -3172,6 +3172,18 @@ public class ParkingController
 			try	{
 				return new ResponseEntity<>(qrParkingService.generarCorte(qrParkingDTO.getClub(), qrParkingDTO.getIdUsuario()), HttpStatus.OK);
 			} catch(Exception e) {
+				System.out.println("fallo el corte de cortesias!!!");
+				e.getMessage();
+				e.printStackTrace();
+				return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+			}
+		}
+
+		@PostMapping("/generarCorteCortesias")
+		public ResponseEntity<?> generarCorteCortesias(@RequestBody QRParkingDTO qrParkingDTO){
+			try	{
+				return new ResponseEntity<>(qrParkingService.generarCorteCortesias(qrParkingDTO.getClub(), qrParkingDTO.getIdUsuario()), HttpStatus.OK);
+			} catch(Exception e) {
 				System.out.println("fallo el corte!!!");
 				e.getMessage();
 				e.printStackTrace();
