@@ -18,7 +18,9 @@ import org.springframework.web.bind.annotation.*;
 import java.awt.desktop.SystemEventListener;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/conversaciones")
@@ -146,8 +148,32 @@ ConversacionAsesorController {
                 conversacionAsesor.setVisto(true);
                 conversacionAsesorService.save(conversacionAsesor);
             }
-            conversacionAsesorList = conversacionAsesorService.findAllByFolioAndActivoOrderByFechaAsc(cliente.getIdCliente(), true);
-            return new ResponseEntity<>(conversacionAsesorList, HttpStatus.OK);
+            //conversacionAsesorList = conversacionAsesorService.findAllByFolioAndActivoOrderByFechaAsc(cliente.getIdCliente(), true);
+            //return new ResponseEntity<>(conversacionAsesorList, HttpStatus.OK);
+            // Aquí creamos la lista de mapas (cada mapa contiene los datos de la entidad + un campo extra)
+            List<Map<String, Object>> resultList = new ArrayList<>();
+            for (ConversacionAsesor conversacionAsesor : conversacionAsesorList) {
+                // Convertimos cada ConversacionAsesor a un mapa
+                Map<String, Object> map = new HashMap<>();
+                map.put("id", conversacionAsesor.getId());
+                map.put("idCliente", conversacionAsesor.getIdCliente());
+                map.put("cliente", conversacionAsesor.getCliente());
+                map.put("mensaje", conversacionAsesor.getMensaje());
+                map.put("tipo", conversacionAsesor.getTipo());
+                map.put("fecha", conversacionAsesor.getFecha());
+                map.put("activo", conversacionAsesor.getActivo());
+                map.put("bascula", conversacionAsesor.getBascula());
+                map.put("visto", conversacionAsesor.getVisto());
+                map.put("folio", conversacionAsesor.getFolio());
+                map.put("asesor", conversacionAsesor.getAsesor());
+
+                // Campo adicional (esto es lo que agregas extra)
+                map.put("club",cliente.getClub().getNombre()); // Aquí agregas el campo extra
+
+                // Añadimos el mapa a la lista de resultados
+                resultList.add(map);
+            }
+            return new ResponseEntity<>(resultList, HttpStatus.OK);
         }
     }
 

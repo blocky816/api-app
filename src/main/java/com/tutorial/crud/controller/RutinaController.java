@@ -1165,7 +1165,7 @@ public class RutinaController
 		}
 		
 	}
-	@GetMapping("/ultimoPesajeGeneral/{idCliente}")
+	/*@GetMapping("/ultimoPesajeGeneral/{idCliente}")
 	public ResponseEntity<?> ultimoPesajeGeneral(@PathVariable("idCliente") int idCliente)
 	{
 		try {
@@ -1183,7 +1183,7 @@ public class RutinaController
 			aux.sexo = ultimoPesaje.sexo;
 			return new ResponseEntity<>(aux, HttpStatus.OK);
 			
-		}catch(Exception e) {			
+		}catch(Exception e) {
 			ClienteBasculaDTO ultimoPesaje = new ClienteBasculaDTO();
 			Cliente cliente=clienteService.findById(idCliente);
 			long nacimiento=new Date().getTime()-cliente.getFechaNacimiento().getTime();
@@ -1191,9 +1191,58 @@ public class RutinaController
 			ultimoPesaje.edad=yearsOld;
 			if (cliente.getIdSexo() == 1) ultimoPesaje.sexo = "0";
 			if (cliente.getIdSexo() == 2) ultimoPesaje.sexo = "1";
-			return new ResponseEntity<>(ultimoPesaje, HttpStatus.CONFLICT); 
+			return new ResponseEntity<>(ultimoPesaje, HttpStatus.CONFLICT);
 		}
 		
+	}*/
+
+	@GetMapping("/ultimoPesajeGeneral/{idCliente}")
+	public ResponseEntity<?> ultimoPesajeGeneral(@PathVariable("idCliente") int idCliente)
+	{
+		Cliente cliente = clienteService.findById(idCliente);
+		int yearsOld = clienteService.calcularEdad(cliente.getFechaNacimiento());
+
+		try {
+
+			ClienteBascula ultimoPesaje=clienteBasculaService.getUltimoPesaje(idCliente);
+			ClienteBasculaDTO aux = construirClienteBasculaDTO(ultimoPesaje, yearsOld);
+
+			return new ResponseEntity<>(aux, HttpStatus.OK);
+
+		}catch(Exception e) {
+			return new ResponseEntity<>(crearRespuestaPorDefecto(yearsOld, cliente), HttpStatus.CONFLICT);
+		}
+
+	}
+
+	// Método auxiliar para construir el ClienteBasculaDTO
+	private ClienteBasculaDTO construirClienteBasculaDTO(ClienteBascula ultimoPesaje, int yearsOld) {
+		ClienteBasculaDTO dto = new ClienteBasculaDTO();
+		dto.altura = ultimoPesaje.altura;
+		dto.atleta = ultimoPesaje.atleta;
+		dto.nivelActividad = ultimoPesaje.nivelActividad;
+		dto.peso = ultimoPesaje.peso;
+		dto.edad = yearsOld;
+		dto.sexo = ultimoPesaje.sexo;
+		return dto;
+	}
+
+	// Método auxiliar para crear la respuesta por defecto cuando ocurre un error
+	private ClienteBasculaDTO crearRespuestaPorDefecto(int yearsOld, Cliente cliente) {
+		ClienteBasculaDTO respuesta = new ClienteBasculaDTO();
+		respuesta.edad = yearsOld;
+		respuesta.sexo = determinarSexo(cliente);
+		return respuesta;
+	}
+
+	// Método auxiliar para determinar el sexo
+	private String determinarSexo(Cliente cliente) {
+		if (cliente.getIdSexo() == 1) {
+			return "0"; // Masculino
+		} else if (cliente.getIdSexo() == 2) {
+			return "1"; // Femenino
+		}
+		return null; // Caso por defecto
 	}
 	
 	//--------------------------------------------Banda Services----------------------------------------------------------------
