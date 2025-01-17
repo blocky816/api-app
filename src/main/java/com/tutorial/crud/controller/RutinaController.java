@@ -1165,6 +1165,20 @@ public class RutinaController
 		}
 		
 	}
+	@GetMapping("/ultimosPesajes/{idCliente}")
+	public ResponseEntity<?> ultimosPesajes(@PathVariable("idCliente") int idCliente)
+	{
+		var ultimosPesajesList = clienteBasculaService.getUltimosPesajes(idCliente);
+		if (ultimosPesajesList.isEmpty()){
+			List<ClienteBasculaVista> upv = clienteBasculaService.getClienteBasculaDefault(idCliente);
+			return new ResponseEntity<>(upv, HttpStatus.CONFLICT);
+		}
+		else{
+			return new ResponseEntity<>(ultimosPesajesList, HttpStatus.OK);
+		}
+
+	}
+	
 	/*@GetMapping("/ultimoPesajeGeneral/{idCliente}")
 	public ResponseEntity<?> ultimoPesajeGeneral(@PathVariable("idCliente") int idCliente)
 	{

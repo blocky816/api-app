@@ -1,9 +1,16 @@
 package com.tutorial.crud.dto;
 
 import java.io.Serializable;
+import java.text.SimpleDateFormat;
 import java.util.Arrays;
+import java.util.Date;
+import java.util.List;
+import java.util.concurrent.atomic.AtomicInteger;
+import java.util.stream.Collectors;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.tutorial.crud.entity.Cliente;
+import com.tutorial.crud.entity.ClienteBascula;
 
 public class ClienteBasculaVista  implements Serializable{
 	
@@ -84,5 +91,46 @@ public class ClienteBasculaVista  implements Serializable{
 					+ ", nombre=" + nombre + ", foto=" + Arrays.toString(foto) + "]";
 		}
 	    
-	    
+		public static List<ClienteBasculaVista> ObtenerLista(List<ClienteBascula> cbList, Cliente cliente){ 
+			List<ClienteBasculaVista> lista;
+			AtomicInteger indice = new AtomicInteger(0);
+			lista = cbList.stream().map(ultimoPesaje -> {
+				ClienteBasculaVista upv=new ClienteBasculaVista();
+				long nacimiento=new Date().getTime()-cliente.getFechaNacimiento().getTime();
+				int yearsOld=(int) (nacimiento/(365*24 * 60 * 60 * 1000L));
+				upv.adiposidad=ultimoPesaje.adiposidad;
+				upv.agua=ultimoPesaje.agua;
+				upv.altura=ultimoPesaje.altura;
+				upv.atleta=ultimoPesaje.atleta;
+				upv.caloriasDiarias=ultimoPesaje.caloriasDiarias;
+				upv.edadMetabolica=ultimoPesaje.edadMetabolica;
+				upv.edadUsuario=yearsOld;
+
+				SimpleDateFormat formatter = new SimpleDateFormat("yy-MM-dd HH:mm");
+				String fechaTexto = formatter.format(ultimoPesaje.fechaCaptura);
+				upv.fechaCaptura=fechaTexto;
+				if(indice.getAndIncrement()==0) {
+					upv.foto=cliente.getURLFoto().getImagen();
+					upv.nombre=cliente.getNombre()+" "+cliente.getApellidoPaterno()+" "+cliente.getApellidoMaterno();
+				}
+				upv.id=ultimoPesaje.id;
+				upv.idTerminal=ultimoPesaje.idTerminal;
+				upv.idUsuario=ultimoPesaje.idUsuario;
+				upv.iMC=ultimoPesaje.iMC;
+				upv.masaGrasa=ultimoPesaje.masaGrasa;
+				upv.masaMagra=ultimoPesaje.masaMagra;
+				upv.masaOsea=ultimoPesaje.masaOsea;
+				upv.nivelActividad=ultimoPesaje.nivelActividad;
+				upv.peso=ultimoPesaje.peso;
+				if (cliente != null){
+					if (cliente.getIdSexo() == 1) upv.sexo = "0";
+					if (cliente.getIdSexo() == 2) upv.sexo = "1";
+				}
+				else upv.sexo=ultimoPesaje.sexo;
+				upv.tMB=ultimoPesaje.tMB;
+				upv.valoracionFisica=ultimoPesaje.valoracionFisica;
+				return upv;
+			}).collect(Collectors.toList());
+			return lista;
+		}	    
 	}
