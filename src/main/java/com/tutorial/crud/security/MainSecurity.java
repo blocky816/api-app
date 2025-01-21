@@ -135,7 +135,8 @@ public class MainSecurity extends WebSecurityConfigurerAdapter {
                         "/openpayC/enviar-correo",
                         "/deportista/{idCliente}",
                         "/deportista/evaluaciones",
-                        "/deportista/asistencias"
+                        "/deportista/asistencias",
+                        "/asesor/programar_cita"
                 ).permitAll()
                 .anyRequest().authenticated()
                 .and()
