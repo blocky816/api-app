@@ -116,4 +116,24 @@ public class QRParkingService {
         }
         return null;
     }
+
+    public DailyQROut generarCorteQRGeneral(String club, int idUsuario) {
+        List<QRParking> qrParkingList = qrParkingRepository.findByClubAndDailyQROutIsNull(club);
+
+        if (!qrParkingList.isEmpty()) {
+            //System.out.println("La lista no esta vacia");
+            float total = (float) qrParkingList.stream().mapToDouble(l -> l.getCosto()).sum();
+            //System.out.println("Sum => " + total);
+
+            DailyQROut dailyQROut = new DailyQROut();
+            dailyQROut.setClub(club);
+            dailyQROut.setCreatedBy(idUsuario);
+            dailyQROut.setUpdatedBy(idUsuario);
+            dailyQROut.setTotal(total);
+            dailyQROut.setQrParkings(qrParkingList);
+            dailyQROutRepository.save(dailyQROut);
+            return dailyQROut;
+        }
+        return null;
+    }
 }

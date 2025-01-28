@@ -3191,6 +3191,18 @@ public class ParkingController
 			}
 		}
 
+		@PostMapping("/generarCorteQRGeneral")
+		public ResponseEntity<?> generarCorteQRGeneral(@RequestBody QRParkingDTO qrParkingDTO){
+			try	{
+				return new ResponseEntity<>(qrParkingService.generarCorteQRGeneral(qrParkingDTO.getClub(), qrParkingDTO.getIdUsuario()), HttpStatus.OK);
+			} catch(Exception e) {
+				System.out.println("fallo el corte!!!");
+				e.getMessage();
+				e.printStackTrace();
+				return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+			}
+		}
+
 		@GetMapping("/getChipInfo/{chipID}")
 		public ResponseEntity<?> getChipInfo(@PathVariable String chipID) {
 			return new ResponseEntity<>(parkingUsuarioService.getChipInfo(chipID), HttpStatus.OK);
