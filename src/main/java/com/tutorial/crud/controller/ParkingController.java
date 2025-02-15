@@ -1,19 +1,10 @@
 package com.tutorial.crud.controller;
 
-import java.io.IOException;
 import java.io.InputStream;
 import java.math.BigInteger;
-import java.net.URI;
 import java.net.URL;
-import java.net.http.HttpClient;
-import java.net.http.HttpRequest;
-import java.net.http.HttpResponse;
 import java.nio.charset.Charset;
 import java.sql.Connection;
-import java.sql.DriverManager;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
 import java.sql.Timestamp;
 import java.text.Normalizer;
 import java.text.ParseException;
@@ -26,17 +17,11 @@ import com.tutorial.crud.dto.*;
 import com.tutorial.crud.exception.ResourceNotFoundException;
 import com.tutorial.crud.repository.QREstacionamientoCostoRepository;
 import com.tutorial.crud.entity.body2;
-import com.tutorial.crud.repository.QRParkingRepository;
 import org.apache.commons.io.IOUtils;
-import org.apache.tomcat.jni.Local;
 import org.hibernate.Session;
-import org.hibernate.exception.ConstraintViolationException;
-import org.hibernate.loader.collection.OneToManyJoinWalker;
 import org.hibernate.query.Query;
 import org.json.JSONArray;
-import org.json.JSONException;
 import org.json.JSONObject;
-import org.postgresql.util.PSQLException;
 
 import javax.persistence.EntityManager;
 
@@ -261,139 +246,49 @@ public class ParkingController
 
 	private static LocalDateTime timeBefore = LocalDateTime.now().withNano(0);
 	private static LocalDateTime timeNow;
-		
-	/*@GetMapping("/nuevo/{horarioId}")
+
+	@GetMapping("/nuevo/{idUsuario}")
 	@ResponseBody
-	public ResponseEntity<?> nuevo(@PathVariable("horarioId") int horarioId){
-	Connection conn = null;
-	ArrayList<ParkingUsuario> lista = new ArrayList<ParkingUsuario>();
+	public ResponseEntity<?> nuevo(@PathVariable("idUsuario") int idUsuario) {
+		try {
+			List<ParkingUsuario> lista = parkingUsuarioService.obtenerRecienteParkingUsuarios(idUsuario);
 
-	try {
-	    // Carga el driver de oracle
-		DriverManager.registerDriver(new com.microsoft.sqlserver.jdbc.SQLServerDriver());
-		
-	    conn = DriverManager.getConnection(dbURL, userData, passData);
-	    PreparedStatement ps=conn.prepareStatement("EXEC DataFlowAlpha.dbo.sp_Consulta_Pago_Parking ?");
-	    ps.setInt(1, horarioId);
-	  	ResultSet rs =ps.executeQuery();
-	  	while(rs.next()){
-	    	ParkingUsuario to=new ParkingUsuario();
-	  		to.setIdProd(rs.getInt(1));
-	        to.setFechaCaptura(new Date(rs.getLong(2)));
-	        to.setConcepto(rs.getString(3));
-	        to.setIdVentaDetalle(rs.getInt(4));
-	        to.setFechaCaptura(rs.getDate(5));
-	        to.setObservaciones(rs.getString(6));
-	        to.setEstadoCobranza(rs.getString(11));
-	        to.setCorreo(rs.getString(12));
-	        to.setClub(rs.getString(13));
-	        to.setCantidad(rs.getInt(14));
-	        this.update(horarioId);
-	        to.setCliente(clienteService.findById(horarioId));
-	        to.setPk(true);
-	        lista.add(to);
-	  	}
-		ParkingUsuario usuario = null;
-	  	try {
-		  	 usuario=lista.get(lista.size()-1);
-	  	}catch(IndexOutOfBoundsException e) {
-	  		List<ParkingUsuario> parkingUsuario=parkingUsuarioService.findByIdCliente(clienteService.findById(horarioId));
-	  		for(int i=0;i<parkingUsuario.size();i++) {
-	  			if(!parkingUsuario.get(i).isCapturado()) {
-	  				usuario=parkingUsuario.get(i);
-	  				break;
-	  			}
-	  		}
-	  		
-	  	}
-  		JSONObject json=new JSONObject();
-  		int idVentaDetalle = 0;
-  		try {
-  			idVentaDetalle=usuario.getIdVentaDetalle();
-  		}catch(NullPointerException e) {
-  			System.out.println("\u001B[31m"+"Error en la linea 293 Parking Controller no se encontro ningun id de venta a este usuario en el sp "+"\u001B[0m");
-  			json.put("respuesta", "el usuario no tiene un chip pagado");	  		
-	  		return new ResponseEntity<>(json.toString(), HttpStatus.BAD_REQUEST);
-  		}
-	  	if(parkingUsuarioService.getOne(usuario.getIdVentaDetalle()).isPresent() && parkingUsuarioService.getOne(idVentaDetalle).get().isCapturado()) {
-	    	conn.close();
-	  		json.put("respuesta", "el usuario no tiene un chip pagado");
-	  		
-	  	
-	  		
-	  		return new ResponseEntity<>(json.toString(), HttpStatus.BAD_REQUEST);
-	  	}else {
-	  		RegistroTag registroTag= registroTagService.findByIdChip(Long.parseLong(usuario.getObservaciones()));
-		  	System.out.println(usuario.getObservaciones());
-		  	try {
-		  		if(registroTag.isActivo()) {
+			ParkingUsuario usuario = parkingUsuarioService.obtenerParkingUsuarioNoCapturado(idUsuario);
 
-			  		json.put("respuesta", "El chip ingresado ya se encuentra activo");
-			  		
-			  		return new ResponseEntity<>(json.toString(), HttpStatus.BAD_REQUEST);
-		  		}
-		  	}catch(NullPointerException e) {
-			  	System.out.println("\u001B[31m"+"Error en la linea 310 Parking Controller ingresaron un id de chip que no existe en una orden de venta de dataflow: id_chip="+usuario.getObservaciones()+"\u001B[0m");
-		  		json.put("respuesta", "el id de chip "+usuario.getObservaciones()+" no existe"); 		
-		  		
-		  		return new ResponseEntity<>(json.toString(), HttpStatus.BAD_REQUEST);
-		  		
-		  	}
-		  	System.out.println(registroTag);
-	  		usuario.setRegistroTag(registroTag);
-	  		registroTag.setParking(usuario);
-	  		registroTagService.save(registroTag);
-	  		
-	  		ParkingUsuarioDTO vista=new ParkingUsuarioDTO();
-	      	ClienteVista clienteVista=new ClienteVista();
-	      	clienteVista.setClienteTipo(usuario.getCliente().getTipoCliente().getNombre());
-	      	clienteVista.setClub(usuario.getCliente().getClub().getNombre());
-	      	clienteVista.setIdCLiente(usuario.getCliente().getIdCliente());
-	      	clienteVista.setMembresia(usuario.getCliente().getNoMembresia());
-	      	clienteVista.setNombre(usuario.getCliente().getNombre()+" "+usuario.getCliente().getApellidoPaterno()+" "+usuario.getCliente().getApellidoMaterno());
-	      	usuario.setActivo(true);
-	      	usuario.setCapturado(false);
-	      	vista.setCliente(clienteVista);
-	      	vista.setCantidad(usuario.getCantidad());
-	      	vista.setConcepto(usuario.getConcepto());
-	      	vista.setFechaCaptura(usuario.getFechaCaptura());
-	      	vista.setIdProd(usuario.getIdProd());
-	      	vista.setIdVentaDetalle(usuario.getIdVentaDetalle());
-	      	vista.setPk(usuario.isPk());
-	      	vista.setObservaciones(usuario.getObservaciones());
-	      	Calendar calendar =Calendar.getInstance();
-	      	calendar.setTime(usuario.getFechaCaptura());
-	      	calendar.add(Calendar.YEAR, 1);
-	      	vista.setVigencia(calendar.getTime());
-	      	parkingUsuarioService.save(usuario);
-	    	conn.close();
-	    	
-	    	
-			return new ResponseEntity<>(vista, HttpStatus.OK);
-	  	}
-	  	
-	} catch (SQLException ex) {
-	    System.out.println("Error: " + ex.getMessage());
-	    ex.printStackTrace();
-	} finally {
-	    try {
-	    	conn.close();
-	    } catch (SQLException ex) {
-	        System.out.println("Error: " + ex.getMessage());
-	        }
-	    } 
-		return new ResponseEntity<>(null, HttpStatus.BAD_REQUEST);
-	}*/
+			if (usuario == null) {
+				return new ResponseEntity<>(crearRespuestaError("El usuario: " + idUsuario + " no tiene un chip disponible para activación.").toMap(), HttpStatus.NOT_FOUND);
+			}
 
-	@GetMapping("/nuevo/{horarioId}")
+			System.out.println("usuario: " + usuario);
+
+			Optional<Long> idChip = parkingUsuarioService.obtenerIdChip(usuario);
+			if (idChip.isEmpty() || parkingUsuarioService.validarChipActivo(idChip.get())) {
+				return new ResponseEntity<>(crearRespuestaError("ID de chip: " + idChip + " ya esta asignado o no existe en el sistema").toMap(), HttpStatus.BAD_REQUEST);
+			}
+
+			return parkingUsuarioService.generarRespuestaFinal(usuario, idChip.get());
+		} catch (Exception e) {
+			System.out.println("message: " + e.getMessage());
+			e.printStackTrace();
+			return new ResponseEntity<>(crearRespuestaError("Error inesperado: " + e.getMessage()).toMap(), HttpStatus.BAD_REQUEST);
+		}
+	}
+
+	private JSONObject crearRespuestaError(String mensaje) {
+		JSONObject json = new JSONObject();
+		json.put("respuesta", mensaje);
+		return json;
+	}
+
+	/*@GetMapping("/nuevo_old/{horarioId}")
 	@ResponseBody
-	public ResponseEntity<?> nuevo(@PathVariable("horarioId") int horarioId){
+	public ResponseEntity<?> nuevo_old(@PathVariable("horarioId") int horarioId){
 		ArrayList<ParkingUsuario> lista = new ArrayList<ParkingUsuario>();
 
 		try {
 			HttpClient client = HttpClient.newHttpClient();
 			HttpRequest request = HttpRequest.newBuilder()
-					.uri(URI.create("http://192.168.20.107:8000/parking/nuevo/" + horarioId))
+					.uri(URI.create("http://192.168.20.104:8000/parking/nuevo/" + horarioId))
 					.GET()
 					.build();
 
@@ -525,94 +420,8 @@ public class ParkingController
 			//e.printStackTrace();
 		}
 		return new ResponseEntity<>(null, HttpStatus.BAD_REQUEST);
-	}
-	
-	@GetMapping("/nuevoVersion2/{horarioId}")
-	@ResponseBody
-	public ResponseEntity<?> nuevoVersion2(@PathVariable("horarioId") int horarioId){
-	Connection conn = null;
-	ArrayList<ParkingUsuario> lista = new ArrayList<ParkingUsuario>();
-	try {
-	    // Carga el driver de oracle
-		DriverManager.registerDriver(new com.microsoft.sqlserver.jdbc.SQLServerDriver());
-		
-	    conn = DriverManager.getConnection(dbURL, userData, passData);
-	    PreparedStatement ps=conn.prepareStatement("EXEC DataFlowAlpha.dbo.sp_Consulta_Pago_Parking ?");
-	    ps.setInt(1, horarioId);
-	  	ResultSet rs =ps.executeQuery();
-	  	while(rs.next()){
-	    	ParkingUsuario to=new ParkingUsuario();
-	  		to.setIdProd(rs.getInt(1));
-	        to.setFechaCaptura(new Date(rs.getLong(2)));
-	        to.setConcepto(rs.getString(3));
-	        to.setIdVentaDetalle(rs.getInt(4));
-	        to.setFechaCaptura(rs.getDate(5));
-	        to.setObservaciones(rs.getString(6));
-	        to.setEstadoCobranza(rs.getString(11));
-	        to.setCorreo(rs.getString(12));
-	        to.setClub(rs.getString(13));
-	        to.setCantidad(rs.getInt(14));
-	        to.setCliente(clienteService.findById(horarioId));
-	        to.setPk(true);
-	        lista.add(to);
-	  	}
-	  	
-	  	
-	  	ParkingUsuario usuario=lista.get(lista.size()-1);
-	  	if(parkingUsuarioService.getOne(usuario.getIdVentaDetalle()).isPresent() && parkingUsuarioService.getOne(usuario.getIdVentaDetalle()).get().isCapturado()) {
-	    	conn.close();
-	  		JSONObject json=new JSONObject();
-	  		json.put("respuesta", "el usuario no tiene un chip pagado");
-	  		
-	  	
-	  		return new ResponseEntity<>(json.toString(), HttpStatus.BAD_REQUEST);
-	  	}else {
-	  		RegistroTag registroTag= registroTagService.findByIdChip(Long.parseLong(usuario.getObservaciones()));
-	  		usuario.setRegistroTag(registroTag);
-	  		registroTag.setParking(usuario);
-	  		registroTagService.save(registroTag);
-	  		
-	  		ParkingUsuarioDTO vista=new ParkingUsuarioDTO();
-	      	ClienteVista clienteVista=new ClienteVista();
-	      	clienteVista.setClienteTipo(usuario.getCliente().getTipoCliente().getNombre());
-	      	clienteVista.setClub(usuario.getCliente().getClub().getNombre());
-	      	clienteVista.setIdCLiente(usuario.getCliente().getIdCliente());
-	      	clienteVista.setMembresia(usuario.getCliente().getNoMembresia());
-	      	clienteVista.setNombre(usuario.getCliente().getNombre()+" "+usuario.getCliente().getApellidoPaterno()+" "+usuario.getCliente().getApellidoMaterno());
-	      	usuario.setActivo(true);
-	      	usuario.setCapturado(false);
-	      	vista.setCliente(clienteVista);
-	      	vista.setCantidad(usuario.getCantidad());
-	      	vista.setConcepto(usuario.getConcepto());
-	      	vista.setFechaCaptura(usuario.getFechaCaptura());
-	      	vista.setIdProd(usuario.getIdProd());
-	      	vista.setIdVentaDetalle(usuario.getIdVentaDetalle());
-	      	vista.setPk(usuario.isPk());
-	      	vista.setObservaciones(usuario.getObservaciones());
-	      	System.out.println(vista);
-	      	Calendar calendar =Calendar.getInstance();
-	      	calendar.setTime(usuario.getFechaCaptura());
-	      	calendar.add(Calendar.YEAR, 1);
-	      	vista.setVigencia(calendar.getTime());
-	      	parkingUsuarioService.save(usuario);
-	    	conn.close();
-	    	
-	    	
-			return new ResponseEntity<>(vista, HttpStatus.OK);
-	  	}
-	  	
-	} catch (SQLException ex) {
-	    System.out.println("Error: " + ex.getMessage());
-	    ex.printStackTrace();
-	} finally {
-	    try {
-	    	conn.close();
-	    } catch (SQLException ex) {
-	        System.out.println("Error: " + ex.getMessage());
-	        }
-	    } 
-		return new ResponseEntity<>(null, HttpStatus.BAD_REQUEST);
-	}
+	}*/
+
 	
 	@GetMapping("/consultarCliente/{horarioId}")
 	@ResponseBody
@@ -736,10 +545,11 @@ public class ParkingController
 				calendar.set(Calendar.HOUR_OF_DAY, 23);
 				calendar.set(Calendar.MINUTE, 59);
 				calendar.set(Calendar.SECOND, 59);
+				calendar.set(Calendar.MILLISECOND, 0);
 
 				Date lastDayOfYear = calendar.getTime();
 				lista.get(0).obtenerRegistroTag().setFechaFin(lastDayOfYear);
-			} if (customer.getTipoCliente().getNombre().toLowerCase().contains("temporal")) {
+			} else if (customer.getTipoCliente().getNombre().toLowerCase().contains("temporal")) {
 			   // Convertir Date a LocalDateTime y sumar 6 meses en una sola linea
 			   LocalDateTime expirationDate = LocalDateTime.ofInstant(lista.get(0).getFechaCaptura().toInstant(), ZoneId.systemDefault()).plusMonths(6).with(LocalTime.MAX.withNano(0));
 			   // Convertir LocalDateTime a Instant usando la zona horaria del sistema
