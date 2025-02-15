@@ -71,7 +71,7 @@ public class ParkingUsuarioService {
     public List<ParkingUsuario> obtenerRecienteParkingUsuarios(int idUsuario) {
         HttpClient client = HttpClient.newHttpClient();
         HttpRequest request = HttpRequest.newBuilder()
-                .uri(URI.create("http://192.168.20.104:8000/parking/nuevo/" + idUsuario))
+                .uri(URI.create("http://192.168.20.107:8000/parking/nuevo/" + idUsuario))
                 .GET()
                 .build();
 
