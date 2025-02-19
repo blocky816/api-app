@@ -93,13 +93,24 @@ public class ParkingUsuarioService {
                     System.out.println(e.getMessage());
                 }
 
+                String club = jarray.getJSONObject(i).getString("club");
+                String concepto = jarray.getJSONObject(i).getString("concepto").toLowerCase();
+                if (concepto.contains("empleado")) {
+                    if (concepto.contains("cimera"))
+                        club = "CIMERA";
+                    else if (concepto.contains("alpha"))
+                        club = club;
+                    else if (concepto.contains("sp") || concepto.contains("sports plaza"))
+                        club = "Sports Plaza";
+                }
+
+                to.setClub(club);
                 to.setIdProd(jarray.getJSONObject(i).getInt("idProd"));
                 to.setConcepto(jarray.getJSONObject(i).getString("concepto"));
                 to.setIdVentaDetalle(jarray.getJSONObject(i).getInt("idVentaDetalle"));
                 to.setObservaciones(jarray.getJSONObject(i).getString("observaciones"));
                 to.setEstadoCobranza(jarray.getJSONObject(i).getString("estadoCobranza"));
                 to.setCorreo(jarray.getJSONObject(i).getString("correo"));
-                to.setClub(jarray.getJSONObject(i).getString("club"));
                 to.setCantidad(Math.round(jarray.getJSONObject(i).getFloat("cantidad")));
                 to.setCliente(clienteService.findById(idUsuario));
                 to.setPk(true);
