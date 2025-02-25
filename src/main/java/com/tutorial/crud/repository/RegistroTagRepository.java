@@ -28,8 +28,10 @@ public interface RegistroTagRepository extends JpaRepository<RegistroTag, Intege
 	@Query(value = "SELECT new com.tutorial.crud.dto.RegistroTagDTO(r.id, r.idChip, r.parking.idVentaDetalle, r.activo, r.fechaFin, r.club) " +
 			"FROM RegistroTag r " +
 			"WHERE r.parking.idVentaDetalle IS NOT NULL " +
-			"AND (r.club = :clubName OR r.club = 'CIMERA') AND r.fechaFin > (CURRENT_DATE - 365)")
-	List<RegistroTagDTO> getChipsByClub(String clubName);
+			"AND (r.club = :clubName OR r.club = 'CIMERA') AND r.fechaFin > (CURRENT_DATE - 365)" +
+			"AND (:excludeEmpleado = false OR NOT EXISTS (SELECT c FROM Cliente c WHERE c.idCliente = r.parking.cliente.idCliente AND LOWER(c.TipoCliente.nombre) LIKE '%empleado%'))"
+	)
+	List<RegistroTagDTO> getChipsByClub(String clubName, boolean excludeEmpleado);
 
 	@Query(value = "SELECT new com.tutorial.crud.dto.RegistroTagDTO(r.id, r.idChip, r.parking.idVentaDetalle, r.activo, r.fechaFin, r.club) " +
 			"FROM RegistroTag r " +

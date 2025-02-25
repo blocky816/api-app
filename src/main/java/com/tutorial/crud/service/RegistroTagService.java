@@ -64,18 +64,23 @@ public class RegistroTagService {
         String nombre = caseta.getClub().getNombre();
         logger.info("Consultando chips de caseta: " + casetaID + " => " + nombre + " ...");
         List<RegistroTagDTO> registroTagList = new ArrayList<>();
+
+        boolean excludeEmpleado = (casetaID == 3 || casetaID == 4);
         switch (casetaID) {
             case 1:
             case 2:
                 nombre = "Club Alpha 3";
                 registroTagList = registroTagRepository.getChipsByClub3(nombre);
                 break;
-            case 3: // CIMERA
-            case 4: // CIMERA
+            case 3: //CIMERA
+            case 4: //CIMERA
+                nombre = "Futbol City";
+                registroTagList = registroTagRepository.getChipsByClub(nombre, excludeEmpleado);
+                break;
             case 5: // Futbol City
             case 9: // Futbol City
                 nombre = "Futbol City";
-                registroTagList = registroTagRepository.getChipsByClub(nombre);
+                registroTagList = registroTagRepository.getChipsByClub(nombre, false);
                 break;
             case 6:
             case 7:
@@ -84,7 +89,7 @@ public class RegistroTagService {
                 break;
             case 8:
                 nombre = "Sports Plaza";
-                registroTagList = registroTagRepository.getChipsByClub(nombre);
+                registroTagList = registroTagRepository.getChipsByClub(nombre, false);
                 break;
         }
 
