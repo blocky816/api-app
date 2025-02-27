@@ -2403,7 +2403,7 @@ public class ParkingController
 	   	   			PaseUsuario paseUsuario=paseUsuarioService.getOne(body.getIdVentaDetalle()).get();
 	   	   			
 	   	   	       	if(paseUsuario.getDisponibles()<=0) {
-	   	   	       		if(paseUsuario.getIdVentaDetalle()<0) {
+	   	   	       		/*if(paseUsuario.getIdVentaDetalle()<0) {
 							employeeService.saveEmployees();
 			   	   	       	if (employeeService.findByClaveExterna(body.getUsuario()) != null ) {
 								json.put("Respuesta", "QR Empleado acceso correcto");
@@ -2417,7 +2417,7 @@ public class ParkingController
 
 								return new ResponseEntity<String>(json.toString(), HttpStatus.OK);
 							}
-	   	   	       		}
+	   	   	       		}*/
 	   	   	       			
 	   	   	   			json.put("Respuesta", "Este pase ya ha sido consumido antes");
 	   	   	   			
