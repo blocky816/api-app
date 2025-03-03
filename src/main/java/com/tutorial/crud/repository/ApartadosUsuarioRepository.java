@@ -24,6 +24,7 @@ public interface ApartadosUsuarioRepository extends JpaRepository<CAApartadosUsu
             "where rg.id is null and ca.activo = true and cau.activo = true\n" +
             "and cau.created > (CURRENT_TIMESTAMP - INTERVAL '15 DAYS' - INTERVAL '5 HOURS')\n" +
             "and cau.idcliente = :customerId\n" +
+            "and cau.idcliente = rg.id_cliente\n" +
             "and id_horario = :scheduleId\n" +
             "group by id_horario,cau.idcliente having count(*) > 3",
             nativeQuery = true)
