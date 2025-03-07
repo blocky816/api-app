@@ -10,6 +10,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @RestController
@@ -25,7 +26,8 @@ public class DeportistaController {
 
     @GetMapping("/{idCliente}")
     public ResponseEntity<List<DeportistaDTO>> obtenerDeportistas(@PathVariable int idCliente) throws ResourceNotFoundException {
-        return ResponseEntity.ok(deportistaService.obtenerDeportistas(idCliente));
+        //return ResponseEntity.ok(deportistaService.obtenerDeportistas(idCliente));
+        return ResponseEntity.ok(new ArrayList<DeportistaDTO>());
     }
 
     @PostMapping("/evaluaciones")
