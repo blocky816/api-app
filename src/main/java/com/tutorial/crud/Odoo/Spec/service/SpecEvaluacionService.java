@@ -5,9 +5,11 @@ import java.net.URI;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
+import java.text.Normalizer;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -50,27 +52,33 @@ public class SpecEvaluacionService {
 
         info.setEdad(obtenerEdad(Integer.parseInt(evaluacion.getPartner_id().get(0).toString())));
                 
-        var masaMuscular = evaluacion.getLine_evaluation().stream().filter(
-            r -> r.getId_parametro().get(0).getName().equals("Músculo")
-            ).findFirst().get().getValor();
+        Optional<Double> masaMuscular = evaluacion.getLine_evaluation().stream()
+            .filter(r -> normalize(r.getId_parametro().get(0).getName()).equalsIgnoreCase("Musculo"))
+            .map(r -> r.getValor())
+            .findFirst();
 
-        info.setMasaMuscular(masaMuscular);
+        info.setMasaMuscular(masaMuscular.orElse(0.0));
 
-        var masaAdiposa = evaluacion.getLine_evaluation().stream().filter(
-            r -> r.getId_parametro().get(0).getName().equals("Grasa")
-            ).findFirst().get().getValor();
+        var masaAdiposa = evaluacion.getLine_evaluation().stream()
+            .filter( r -> normalize(r.getId_parametro().get(0).getName()).equalsIgnoreCase("Grasa"))
+            .map(r -> r.getValor())
+            .findFirst();
 
-        info.setMasaAdiposa(masaAdiposa);
+        info.setMasaAdiposa(masaAdiposa.orElse(0.0));
 
-        var talla = evaluacion.getLine_evaluation().stream().filter(
-            r -> r.getId_parametro().get(0).getName().equals("Estatura")
-            ).findFirst().get().getValor();
-        info.setTalla(talla);
+        var talla = evaluacion.getLine_evaluation().stream()
+            .filter( r -> normalize(r.getId_parametro().get(0).getName()).equals("Estatura"))
+            .map(r -> r.getValor())
+            .findFirst();
+
+        info.setTalla(talla.orElse(0.0));
 
         var peso = evaluacion.getLine_evaluation().stream().filter(
-            r -> r.getId_parametro().get(0).getName().equals("Peso")
-            ).findFirst().get().getValor();
-        info.setPeso(peso);
+            r -> normalize(r.getId_parametro().get(0).getName()).equals("Peso"))
+            .map(r -> r.getValor())
+            .findFirst();
+
+        info.setPeso(peso.orElse(0.0));
 
         List<ResultadosPruebasSpec> resultados = new ArrayList<>();
         for (var item : evaluacion.getLine_evaluation()) {
@@ -105,4 +113,8 @@ public class SpecEvaluacionService {
 
         return edad;
     }
+    private static String normalize(String input) {
+        return Normalizer.normalize(input, Normalizer.Form.NFD).replaceAll("\\p{M}", "");
+    }
+    
 }
