@@ -141,7 +141,8 @@ public class MainSecurity extends WebSecurityConfigurerAdapter {
                         "/formularios/crear",
                         "/formularios/responder/multiple",
                         "/spec/formulario/responder/{idCliente}",
-                        "/spec/formulario/respuestas/{idCliente}"
+                        "/spec/formulario/respuestas/{idCliente}",
+                        "/spec/evaluacion/{idCliente}"
                 ).permitAll()
                 .anyRequest().authenticated()
                 .and()
