@@ -1,31 +1,26 @@
 package com.tutorial.crud.service;
 
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
+import com.tutorial.crud.Odoo.Spec.entity.RespuestaFormulario;
+import com.tutorial.crud.Odoo.Spec.repository.PreguntaRepository;
+import com.tutorial.crud.Odoo.Spec.repository.RespuestaFormularioRepository;
 import com.tutorial.crud.aopDao.Pregunta;
 import com.tutorial.crud.chatGPT.ChatGPT;
-import com.tutorial.crud.controller.FormularioController;
 import com.tutorial.crud.dto.BodyFormulario;
 import com.tutorial.crud.dto.FormularioDTO;
+import com.tutorial.crud.Odoo.Spec.dto.RespuestaDTO;
 import com.tutorial.crud.entity.*;
-import com.tutorial.crud.repository.AnswerChatGPTRepository;
-import com.tutorial.crud.repository.FormularioRepository;
-import com.tutorial.crud.repository.FormularioRespuestaRepository;
-import org.hibernate.mapping.Formula;
-import org.json.JSONObject;
+import com.tutorial.crud.repository.*;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.text.Normalizer;
-import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 @Service
 @Transactional
@@ -54,6 +49,12 @@ public class FormularioService {
 
     @Autowired
     ClubService clubService;
+
+    @Autowired
+    private PreguntaRepository preguntaRepository;
+
+    @Autowired
+    private RespuestaFormularioRepository respuestaFormularioRepository;
 
     public Integer getLastFormularioId() {
         return formularioRepository.getLastFormularioId();
@@ -254,7 +255,7 @@ public class FormularioService {
             prompt = prompt + iterator.getPregunta() + " " + iterator.getRespuesta() + " ";
         }
 
-        ChatGPT chatGPT = new ChatGPT(answerChatGPTService, answerChatGPTRepository);
+        ChatGPT chatGPT = new ChatGPT(answerChatGPTService, answerChatGPTRepository, this);
         int tries = 0;
         String answerChatGPT = "";
         do {
@@ -350,4 +351,75 @@ public class FormularioService {
             } catch (Exception e) { }
         }
     }*/
+
+    public Formulario crearFormulario(Formulario formulario) {
+        Formulario savedFormulario = formularioRepository.save(formulario);
+
+        // Guardamos las preguntas asociadas (si existen)
+        if (formulario.getPreguntas() != null) {
+            for (com.tutorial.crud.Odoo.Spec.entity.Pregunta pregunta : formulario.getPreguntas()) {
+                pregunta.setFormulario(savedFormulario);  // Relacionamos la pregunta con el formulario
+                preguntaRepository.save(pregunta);
+            }
+        }
+
+        return savedFormulario;
+    }
+
+
+    @Transactional
+    public List<RespuestaFormulario> responderFormularioMultiple(Integer clienteId, List<RespuestaDTO> respuestas) {
+        Cliente cliente = clienteService.findById(clienteId);
+
+        if (cliente == null)
+            throw new RuntimeException("Cliente no encontrado");
+
+        List<String> preguntasTexto = respuestas.stream()
+                .map(RespuestaDTO::getPregunta)
+                .collect(Collectors.toList());
+
+        List<com.tutorial.crud.Odoo.Spec.entity.Pregunta> preguntasExistentes = preguntaRepository.findByDescripcionIn(preguntasTexto);
+
+        Map<String, com.tutorial.crud.Odoo.Spec.entity.Pregunta> preguntaMap = preguntasExistentes.stream()
+                .collect(Collectors.toMap(com.tutorial.crud.Odoo.Spec.entity.Pregunta::getDescripcion, p -> p));
+
+        LocalDateTime fechaRespuesta = LocalDateTime.now().withNano(0);
+
+        respuestaFormularioRepository.desactivarRespuestasActivas(clienteId);
+
+        List<RespuestaFormulario> respuestasGuardadas = respuestas.stream()
+                .map(respuestaDTO -> {
+                    com.tutorial.crud.Odoo.Spec.entity.Pregunta pregunta = preguntaMap.get(respuestaDTO.getPregunta());
+
+                    if (pregunta == null) {
+                        pregunta = new com.tutorial.crud.Odoo.Spec.entity.Pregunta();
+                        pregunta.setDescripcion(respuestaDTO.getPregunta());
+                        pregunta.setActivo(true);
+                        pregunta.setTipo("texto");
+                        preguntaRepository.save(pregunta);
+                        preguntaMap.put(respuestaDTO.getPregunta(), pregunta);
+                    }
+
+                    RespuestaFormulario respuesta = new RespuestaFormulario();
+                    respuesta.setPregunta(pregunta);
+                    respuesta.setCliente(cliente);
+                    respuesta.setRespuesta(respuestaDTO.getRespuesta());
+                    respuesta.setFechaRespuesta(fechaRespuesta);
+                    respuesta.setActivo(true);
+
+                    return respuesta;
+                })
+                .collect(Collectors.toList());
+
+        return respuestaFormularioRepository.saveAll(respuestasGuardadas);
+    }
+
+
+    public List<RespuestaDTO> obtenerRespuestasPorCliente(int idCliente) {
+        List<RespuestaFormulario> respuestas = respuestaFormularioRepository.findByClienteIdClienteAndActivoTrue(idCliente);
+        return respuestas.stream()
+                .map(respuesta -> new RespuestaDTO(respuesta.getId(), respuesta.getPregunta().getId(), respuesta.getPregunta().getDescripcion(),
+                        respuesta.getRespuesta(), respuesta.getCliente().getIdCliente()))
+                .collect(Collectors.toList());
+    }
 }

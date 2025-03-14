@@ -136,7 +136,12 @@ public class MainSecurity extends WebSecurityConfigurerAdapter {
                         "/deportista/{idCliente}",
                         "/deportista/evaluaciones",
                         "/deportista/asistencias",
-                        "/asesor/programar_cita"
+                        "/asesor/programar_cita",
+                        "/rutina/pesajes",
+                        "/formularios/crear",
+                        "/formularios/responder/multiple",
+                        "/spec/formulario/responder/{idCliente}",
+                        "/spec/formulario/respuestas/{idCliente}"
                 ).permitAll()
                 .anyRequest().authenticated()
                 .and()
