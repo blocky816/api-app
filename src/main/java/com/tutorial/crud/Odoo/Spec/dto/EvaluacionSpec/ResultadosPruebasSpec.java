@@ -6,6 +6,7 @@ public class ResultadosPruebasSpec {
     private Double limiteInferior;
     private Double limiteSuperior;
     private String referencia;
+    private String unidad;
     public String getNombre() {
         return nombre;
     }
@@ -35,5 +36,13 @@ public class ResultadosPruebasSpec {
     }
     public void setReferencia(String referencia) {
         this.referencia = referencia;
+    }
+
+    public String getUnidad() {
+        return unidad;
+    }
+
+    public void setUnidad(String unidad) {
+        this.unidad = unidad;
     }
 }

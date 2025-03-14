@@ -87,6 +87,7 @@ public class SpecEvaluacionService {
             resultado.setValor(item.getValor());
             resultado.setLimiteInferior(item.getLimite_inferior());
             resultado.setLimiteSuperior(item.getLimite_superior());
+            resultado.setUnidad(item.getId_parametro().get(0).getUnidad().get(1).toString());
 
             resultados.add(resultado);
 
