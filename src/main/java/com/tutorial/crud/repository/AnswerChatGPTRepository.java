@@ -18,4 +18,7 @@ public interface AnswerChatGPTRepository extends JpaRepository<AnswerChatGPT, In
     List<FormularioRespuesta> findIfExistsDietInCurrentMonth(int customerID, int formFolio);
 
     List<AnswerChatGPT> findByCustomerAndCreatedAtBetweenOrderByCreatedAtDesc(Cliente customer, LocalDateTime startDate, LocalDateTime endDate);
+
+    AnswerChatGPT findFirstByCustomerIdClienteAndIsValidQuestionTrueAndActivoTrueAndCreatedAtBetweenOrderByCreatedAtDesc(Integer idCliente, LocalDateTime startDate, LocalDateTime endDate);
+
 }

@@ -5,14 +5,19 @@ import java.net.URI;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 
+import com.tutorial.crud.Odoo.Spec.dto.ClientePase;
+import com.tutorial.crud.Odoo.Spec.dto.PaseQR;
 import com.tutorial.crud.controller.Servicios;
 import com.tutorial.crud.dto.MovimientoDTO;
 import com.tutorial.crud.entity.CAClase;
 import com.tutorial.crud.entity.Cliente;
 import com.tutorial.crud.entity.PaseUsuario;
+import com.tutorial.crud.Odoo.Spec.entity.PaseHealthStudioConsumido;
+import com.tutorial.crud.exception.ClienteNoEncontradoException;
 import com.tutorial.crud.repository.CAClaseRepository;
 import com.tutorial.crud.repository.PaseUsuarioRepository;
 
+import com.tutorial.crud.Odoo.Spec.repository.PasesHealthStudioConsumidoRepository;
 import org.hibernate.Session;
 import org.hibernate.query.Query;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -26,6 +31,7 @@ import java.time.format.DateTimeFormatter;
 import java.time.temporal.ChronoUnit;
 import java.util.*;
 import java.util.logging.Logger;
+import java.util.stream.Collectors;
 
 import javax.persistence.EntityManager;
 import javax.persistence.TypedQuery;
@@ -37,7 +43,10 @@ public class PaseUsuarioService {
 	private static final Logger logger = Logger.getLogger(PaseUsuarioService.class.getName());
 
     @Autowired
-    PaseUsuarioRepository paseUsuarioRepository;    
+    PaseUsuarioRepository paseUsuarioRepository;
+
+	@Autowired
+	PasesHealthStudioConsumidoRepository pasesHealthStudioConsumidoRepository;
 
 	@Autowired
 	private EntityManager entityManager;
@@ -74,16 +83,41 @@ public class PaseUsuarioService {
 
 	public List<PaseUsuario> getByIdCliente(int usuario) {
 		deactivateExpiredPasses(usuario);
+		deactivateExpiredPassesForUser(usuario);
 		try {
 			servicios.getMovimientos(usuario);
 		} catch (Exception e) {
 			logger.warning("Fallo el consultar movimientos para usuario: " + usuario);
 		}
 		Session currentSession = entityManager.unwrap(Session.class);
-		Query<PaseUsuario> listaPaseUsuario = currentSession.createQuery("FROM PaseUsuario p where (p.cliente.idCliente=:o and p.idProd=1746) or (p.cliente.idCliente=:o and p.disponibles>0) and p.activo=true order by idVentaDetalle", PaseUsuario.class);
+		Query<PaseUsuario> listaPaseUsuario = currentSession.createQuery("" +
+				"FROM PaseUsuario p WHERE " +
+				"((p.cliente.idCliente=:o AND p.idProd=1746) OR " +
+				"(p.cliente.idCliente=:o AND p.disponibles>0)) " +
+				"AND p.activo = true " +
+				"AND lower(p.concepto) NOT LIKE '%placa%' " +
+				"ORDER BY idVentaDetalle", PaseUsuario.class);
 		listaPaseUsuario.setParameter("o",usuario);
 		List<PaseUsuario> results = listaPaseUsuario.getResultList();
 		return results;
+	}
+
+	private void deactivateExpiredPassesForUser(int usuario) {
+		LocalDateTime now = LocalDateTime.now(); // Fecha y hora actuales
+		Session currentSession = entityManager.unwrap(Session.class);
+
+		// Actualizar los pases vencidos del usuario
+		Query query = currentSession.createQuery(
+				"UPDATE PaseUsuario p SET p.activo = false " +
+						"WHERE p.cliente.idCliente = :o " +
+						"AND p.fechaVigencia < :currentDate " +
+						"AND p.activo = true"
+		);
+		query.setParameter("o", usuario);
+		query.setParameter("currentDate", now);
+		int updatedCount = query.executeUpdate();
+
+		logger.info(updatedCount + " pases vencidos desactivados para el usuario: " + usuario);
 	}
 
 	public List<PaseUsuario> getByIdClienteGimnasio(int usuario) {
@@ -217,7 +251,7 @@ public class PaseUsuarioService {
 		// Obtener el cliente por su ID
 		Cliente cliente = clienteService.findById(clienteId);
 		if (cliente == null) {
-			throw new NoSuchElementException("Cliente no encontrado con ID: " + clienteId);
+			throw new ClienteNoEncontradoException("Cliente no encontrado con ID: " + clienteId);
 		}
 
 		// Si el cliente es titular, devolverlo directamente
@@ -228,7 +262,7 @@ public class PaseUsuarioService {
 		// Si es dependiente, buscar el cliente titular
 		Cliente titularCliente = clienteService.findById(cliente.getIdTitular());
 		if (titularCliente == null) {
-			throw new NoSuchElementException("Titular no encontrado con ID: " + cliente.getIdTitular());
+			throw new ClienteNoEncontradoException("Titular no encontrado con ID: " + cliente.getIdTitular());
 		}
 
 		return titularCliente;
@@ -237,7 +271,6 @@ public class PaseUsuarioService {
 	public List<PaseUsuario> activatePasses(int idCliente, List<MovimientoDTO> movimientoDTO){
 		Cliente titular = getTitularCliente(idCliente);
 		List<PaseUsuario> pases = paseUsuarioRepository.findByClienteAndActivoFalseAndPagadoIsNullAndFechaPagoIsNull(titular);
-
 		Map<Long, LocalDateTime> ordenesDeVenta = getIdVentaDetallePagos(movimientoDTO);
 
 		for (PaseUsuario pase : pases) {
@@ -381,6 +414,66 @@ public class PaseUsuarioService {
 		return new HashSet<>(query.getResultList());
 	}
 
+	public List<PaseQR> obtenerPasesQRPorIdVentaDetalle(Integer idCliente, Integer idVentaDetalle) {
+		Cliente cliente = getTitularCliente(idCliente);
+		List<PaseUsuario> pasesDisponibles = paseUsuarioRepository.findByClienteAndIdVentaDetalleAndActivoTrue(cliente, idVentaDetalle);
 
+		// Usar un logger en lugar de System.out.println
+		logger.info("Cliente: " + cliente.getIdCliente() + " Pases disponibles: "  + pasesDisponibles.size());
+
+		return pasesDisponibles.stream()
+				.map(paseUsuario -> crearPaseQR(cliente, paseUsuario))
+				.collect(Collectors.toList());
+	}
+
+	private PaseQR crearPaseQR(Cliente cliente, PaseUsuario paseUsuario) {
+		ClientePase clientePase = new ClientePase();
+		clientePase.setNombre(cliente.getNombreCompleto());
+		clientePase.setFoto(cliente.getURLFoto().getImagen());
+
+		PaseQR paseQR = new PaseQR();
+		paseQR.setCliente(clientePase);
+		paseQR.setDisponibles(paseUsuario.getDisponibles());
+		paseQR.setIdVentaDetalle(paseUsuario.getIdVentaDetalle());
+		paseQR.setConcepto(paseUsuario.getConcepto());
+		paseQR.setFechaVigencia(paseUsuario.getFechaVigencia());
+
+		return paseQR;
+	}
+
+	public Boolean consumirPaseQR(Integer idCliente, Integer idVentaDetalle, String consumidoPor) {
+		Cliente cliente = getTitularCliente(idCliente);
+		List<PaseUsuario> pasesDisponibles = paseUsuarioRepository.findByClienteAndIdVentaDetalleAndActivoTrue(cliente, idVentaDetalle);
+
+		if (!pasesDisponibles.isEmpty()) {
+			PaseUsuario paseUsuario = pasesDisponibles.get(0);
+			return procesarConsumoPase(paseUsuario, consumidoPor);
+		}
+
+		return false;
+	}
+
+
+	private Boolean procesarConsumoPase(PaseUsuario paseUsuario, String consumidoPor) {
+		if (paseUsuario.getDisponibles() > 0) {
+			paseUsuario.setDisponibles(paseUsuario.getDisponibles() - 1);
+			paseUsuario.setConsumido(paseUsuario.getConsumido() + 1);
+
+			if (paseUsuario.getDisponibles() == 0) {
+				paseUsuario.setActivo(false);
+			}
+
+			//Guardamos el registro de pase consumido
+			var paseConsumido = new PaseHealthStudioConsumido();
+			paseConsumido.setPaseUsuario(paseUsuario);
+			paseConsumido.setFechaConsumo(LocalDateTime.now().withNano(0));
+			paseConsumido.setConsumidoPor(consumidoPor);
+			pasesHealthStudioConsumidoRepository.save(paseConsumido);
+
+			paseUsuarioRepository.save(paseUsuario);
+			return true;
+		}
+		return false;
+	}
 
 }

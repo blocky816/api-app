@@ -35,6 +35,10 @@ public class RespuestaFormulario {
 
     private Boolean activo;
 
+    private String peso;
+
+    private String estatura;
+
     // Getters y Setters
 
     public Long getId() {
@@ -85,6 +89,22 @@ public class RespuestaFormulario {
         this.activo = activo;
     }
 
+    public String getPeso() {
+        return peso;
+    }
+
+    public void setPeso(String peso) {
+        this.peso = peso;
+    }
+
+    public String getEstatura() {
+        return estatura;
+    }
+
+    public void setEstatura(String estatura) {
+        this.estatura = estatura;
+    }
+
     @Override
     public String toString() {
         return "RespuestaFormulario{" +
@@ -94,6 +114,8 @@ public class RespuestaFormulario {
                 ", respuesta='" + respuesta + '\'' +
                 ", fechaRespuesta=" + fechaRespuesta +
                 ", activo=" + activo +
+                ", peso='" + peso + '\'' +
+                ", estatura='" + estatura + '\'' +
                 '}';
     }
 }

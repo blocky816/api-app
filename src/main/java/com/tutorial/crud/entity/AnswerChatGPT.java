@@ -24,7 +24,7 @@ public class AnswerChatGPT {
     private LocalDateTime updatedAt;
     @Column(name = "question", length = 5000)
     private String question;
-    @Column(name = "answer", length = 5000)
+    @Column(name = "answer", length = 18000)
     private String answer;
     @Column(name = "is_valid_question")
     private boolean isValidQuestion = false;
@@ -35,6 +35,12 @@ public class AnswerChatGPT {
     @JoinColumn(name = "idcliente")
     @JsonBackReference
     private Cliente customer;
+
+    @Column
+    private Boolean activo;
+
+    @Column(name = "tipo")
+    private String tipo;
 
     public long getId() {
         return id;
@@ -100,6 +106,22 @@ public class AnswerChatGPT {
         this.customer = customer;
     }
 
+    public Boolean getActivo() {
+        return activo;
+    }
+
+    public void setActivo(Boolean activo) {
+        this.activo = activo;
+    }
+
+    public String getTipo() {
+        return tipo;
+    }
+
+    public void setTipo(String tipo) {
+        this.tipo = tipo;
+    }
+
     @Override
     public String toString() {
         return "AnswerChatGPT{" +
@@ -108,7 +130,11 @@ public class AnswerChatGPT {
                 ", updatedAt=" + updatedAt +
                 ", question='" + question + '\'' +
                 ", answer='" + answer + '\'' +
+                ", isValidQuestion=" + isValidQuestion +
+                ", cost=" + cost +
                 ", customer=" + customer +
+                ", activo=" + activo +
+                ", tipo='" + tipo + '\'' +
                 '}';
     }
 }

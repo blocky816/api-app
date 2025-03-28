@@ -4,6 +4,7 @@ import java.util.List;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 public class SpecEvaluacionDto {
@@ -67,6 +68,7 @@ public class SpecEvaluacionDto {
             return List.of();
         }
         ObjectMapper objectMapper = new ObjectMapper();
+        objectMapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
         try {
             return objectMapper.readValue(body, new TypeReference<List<SpecEvaluacionDto>>() {});
         } catch (JsonProcessingException e) {

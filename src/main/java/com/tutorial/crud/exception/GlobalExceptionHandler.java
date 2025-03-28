@@ -55,6 +55,14 @@ public class GlobalExceptionHandler {
         return new ResponseEntity<>(errorDetails, HttpStatus.INTERNAL_SERVER_ERROR);
     }
 
+    // Manejo de excepción cuando el cliente no se encuentra
+    @ExceptionHandler(ChatGPTException.class)
+    public ResponseEntity<?> ChatGPTException(ChatGPTException ex, WebRequest request) {
+        ErrorResponse errorDetails =
+                new ErrorResponse(LocalDateTime.now(), HttpStatus.NOT_FOUND.toString(), ex.getMessage(), request.getDescription(false));
+        return new ResponseEntity<>(errorDetails, HttpStatus.INTERNAL_SERVER_ERROR);
+    }
+
     /**
      * Globle excpetion handler response entity.
      *

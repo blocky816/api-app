@@ -2,6 +2,7 @@ package com.tutorial.crud.entity;
 
 import java.time.LocalDateTime;
 import java.time.ZoneId;
+import java.time.temporal.TemporalAdjusters;
 import java.util.Date;
 import java.util.UUID;
 
@@ -66,7 +67,7 @@ public class PaseUsuario {
 	private Date updated=new Date();
 	
 	@Column(name = "activo")
-	private boolean activo=true;
+	private boolean activo;
 
 	@Column(name = "subgrupo")
 	private String subgrupo;
@@ -240,6 +241,13 @@ public class PaseUsuario {
 		if (concepto != null && concepto.toLowerCase().contains("plus") && fechaPago != null) {
 			// Si el concepto incluye "plus", la vigencia es de 30 días a partir de la fecha de pago
 			fechaVigencia = fechaPago.plusDays(30);
+		} else if (concepto != null && (concepto.toLowerCase().contains("fisio") || concepto.toLowerCase().contains("studio") || concepto.toLowerCase().contains("hidro") || concepto.toLowerCase().contains("spa")) && fechaPago != null) {
+			fechaVigencia = fechaPago.plusMonths(1) // Avanza dos meses
+					.with(TemporalAdjusters.lastDayOfMonth()) // Ajusta al último día del mes
+					.withHour(23) // Establece la hora a 23
+					.withMinute(59) // Establece los minutos a 59
+					.withSecond(59);
+
 		} else if (f_compra != null) {
 			// Para otros pases, establecer la vigencia a partir de la fecha de compra
 			fechaVigencia = convertDateToLocalDateTime(f_compra); // O puedes agregar lógica para definir la vigencia

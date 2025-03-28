@@ -132,7 +132,7 @@ public class ParkingUsuarioService {
         }
         List<ParkingUsuario> parkingUsuario = findByIdCliente(cliente);
         return parkingUsuario.stream()
-                .filter(pu -> !pu.isCapturado())
+                .filter(pu -> !pu.isCapturado() && !pu.getObservaciones().isEmpty())
                 .findFirst()
                 .orElse(null); // Retorna el primer no capturado o null si no hay ninguno
     }

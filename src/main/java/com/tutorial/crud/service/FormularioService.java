@@ -1,6 +1,9 @@
 package com.tutorial.crud.service;
 
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
+import com.tutorial.crud.Odoo.Spec.dto.*;
 import com.tutorial.crud.Odoo.Spec.entity.RespuestaFormulario;
 import com.tutorial.crud.Odoo.Spec.repository.PreguntaRepository;
 import com.tutorial.crud.Odoo.Spec.repository.RespuestaFormularioRepository;
@@ -8,18 +11,20 @@ import com.tutorial.crud.aopDao.Pregunta;
 import com.tutorial.crud.chatGPT.ChatGPT;
 import com.tutorial.crud.dto.BodyFormulario;
 import com.tutorial.crud.dto.FormularioDTO;
-import com.tutorial.crud.Odoo.Spec.dto.RespuestaDTO;
 import com.tutorial.crud.entity.*;
+import com.tutorial.crud.exception.ClienteNoEncontradoException;
 import com.tutorial.crud.repository.*;
+import jdk.jfr.Experimental;
+import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.client.RestTemplate;
 
+import java.text.Normalizer;
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
+import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 @Service
@@ -55,6 +60,9 @@ public class FormularioService {
 
     @Autowired
     private RespuestaFormularioRepository respuestaFormularioRepository;
+
+    @Autowired
+    ChatGPT chatGPT;
 
     public Integer getLastFormularioId() {
         return formularioRepository.getLastFormularioId();
@@ -255,7 +263,7 @@ public class FormularioService {
             prompt = prompt + iterator.getPregunta() + " " + iterator.getRespuesta() + " ";
         }
 
-        ChatGPT chatGPT = new ChatGPT(answerChatGPTService, answerChatGPTRepository, this);
+        //ChatGPT chatGPT = new ChatGPT(answerChatGPTService, answerChatGPTRepository, this);
         int tries = 0;
         String answerChatGPT = "";
         do {
@@ -368,11 +376,15 @@ public class FormularioService {
 
 
     @Transactional
-    public List<RespuestaFormulario> responderFormularioMultiple(Integer clienteId, List<RespuestaDTO> respuestas) {
-        Cliente cliente = clienteService.findById(clienteId);
+    public List<RespuestaFormulario> responderFormularioMultiple(RespuestasRequestDTO formulario) throws ClienteNoEncontradoException {
+        // Obtener el cliente y el formulario desde la solicitud
+        ClienteDTO clienteDTO = formulario.getCliente();
+        List<RespuestaDTO> respuestas = formulario.getFormulario();
+
+        Cliente cliente = clienteService.findById(clienteDTO.getIdCliente());
 
         if (cliente == null)
-            throw new RuntimeException("Cliente no encontrado");
+            throw new ClienteNoEncontradoException("Cliente no encontrado con id: " + clienteDTO.getIdCliente());
 
         List<String> preguntasTexto = respuestas.stream()
                 .map(RespuestaDTO::getPregunta)
@@ -385,7 +397,7 @@ public class FormularioService {
 
         LocalDateTime fechaRespuesta = LocalDateTime.now().withNano(0);
 
-        respuestaFormularioRepository.desactivarRespuestasActivas(clienteId);
+        respuestaFormularioRepository.desactivarRespuestasActivas(cliente.getIdCliente());
 
         List<RespuestaFormulario> respuestasGuardadas = respuestas.stream()
                 .map(respuestaDTO -> {
@@ -406,6 +418,8 @@ public class FormularioService {
                     respuesta.setRespuesta(respuestaDTO.getRespuesta());
                     respuesta.setFechaRespuesta(fechaRespuesta);
                     respuesta.setActivo(true);
+                    respuesta.setPeso(clienteDTO.getPeso());
+                    respuesta.setEstatura(clienteDTO.getEstatura());
 
                     return respuesta;
                 })
@@ -419,7 +433,8 @@ public class FormularioService {
         List<RespuestaFormulario> respuestas = respuestaFormularioRepository.findByClienteIdClienteAndActivoTrue(idCliente);
         return respuestas.stream()
                 .map(respuesta -> new RespuestaDTO(respuesta.getId(), respuesta.getPregunta().getId(), respuesta.getPregunta().getDescripcion(),
-                        respuesta.getRespuesta(), respuesta.getCliente().getIdCliente()))
+                        respuesta.getRespuesta(), respuesta.getCliente().getIdCliente(), respuesta.getPeso(), respuesta.getEstatura()))
                 .collect(Collectors.toList());
     }
+
 }

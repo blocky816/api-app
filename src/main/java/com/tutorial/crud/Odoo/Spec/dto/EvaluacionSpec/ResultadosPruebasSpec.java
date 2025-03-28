@@ -7,6 +7,7 @@ public class ResultadosPruebasSpec {
     private Double limiteSuperior;
     private String referencia;
     private String unidad;
+    private Boolean mostrarEnApp;
     public String getNombre() {
         return nombre;
     }
@@ -44,5 +45,13 @@ public class ResultadosPruebasSpec {
 
     public void setUnidad(String unidad) {
         this.unidad = unidad;
+    }
+
+    public Boolean getMostrarEnApp() {
+        return mostrarEnApp;
+    }
+
+    public void setMostrarEnApp(Boolean mostrarEnApp) {
+        this.mostrarEnApp = mostrarEnApp;
     }
 }

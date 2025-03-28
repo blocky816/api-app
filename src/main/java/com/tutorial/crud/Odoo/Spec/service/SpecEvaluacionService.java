@@ -6,12 +6,13 @@ import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
 import java.text.Normalizer;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
 import com.tutorial.crud.Odoo.Spec.dto.EvaluacionSpec.InformacionDeportistaSpec;
@@ -25,6 +26,34 @@ import com.tutorial.crud.repository.ClienteRepository;
 public class SpecEvaluacionService {
     @Autowired
     ClienteRepository clienteRepository;
+
+    @Value("${odoo.api.url}")
+    String odooApiUrl;
+
+    public ResponseEntity<?> obtenerUsuarioSpec(Integer idCliente){
+        try {
+            var body  = " {\"id_cliente\": " + idCliente + "}";
+            var client = HttpClient.newHttpClient();
+
+            var request = HttpRequest.newBuilder(
+                            URI.create(odooApiUrl + "/ServiciosClubAlpha/api/Spec/Deportista"))
+                    .header("accept", "application/json")
+                    .header("Content-Type", "application/json")
+                    .POST(HttpRequest.BodyPublishers.ofString(body))
+                    .build();
+
+            var response = client.send(request, HttpResponse.BodyHandlers.ofString());
+
+            if(response.body().contains("Internal Server Error")){
+                return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(Map.of("msg", "Ocurrio un error en Odoo"));
+            }
+
+            return ResponseEntity.status(HttpStatus.OK).contentType(MediaType.APPLICATION_JSON).body(response.body());
+        } catch (Exception e) {
+            return new ResponseEntity<>(Map.of("msg", "Error al obtener datos de usuario", "error", e.getMessage()), HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+
+    }
     
     public List<SpecEvaluacionDto> obtenerEvaluacion(Integer idCliente) throws IOException, InterruptedException {
         var body  = " {\"id_cliente\": " + idCliente + "}";
@@ -88,6 +117,7 @@ public class SpecEvaluacionService {
             resultado.setLimiteInferior(item.getLimite_inferior());
             resultado.setLimiteSuperior(item.getLimite_superior());
             resultado.setUnidad(item.getId_parametro().get(0).getUnidad().get(1).toString());
+            resultado.setMostrarEnApp(item.getVisibility_report_app());
 
             resultados.add(resultado);
 

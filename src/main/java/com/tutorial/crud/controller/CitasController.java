@@ -32,6 +32,7 @@ import javax.persistence.EntityManager;
 import javax.persistence.NoResultException;
 import javax.persistence.StoredProcedureQuery;
 
+import com.tutorial.crud.Odoo.Spec.controller.SpecController;
 import com.tutorial.crud.exception.ResourceNotFoundException;
 import com.tutorial.crud.repository.ApartadosRepository;
 import org.apache.log4j.Logger;
@@ -177,6 +178,9 @@ public class CitasController
 	
 	@Autowired
 	FotoServiceImpl fotoService;
+
+	@Autowired
+	SpecController specController;
 	
 
 	
@@ -2843,6 +2847,7 @@ public class CitasController
 			try {
 				cliente = clienteService.findById(idCliente);
 				idTitular = cliente.getIdTitular();
+				specController.cargarPases(String.valueOf(idCliente));
 			} catch (Exception e) {
 				idTitular = idCliente;
 			}
@@ -2878,14 +2883,16 @@ public class CitasController
 						pase.setCantidad(1);
 						//pase.setIdProd(1746);
 					}else {
-						if (concepto != 2503) cantidad = findInt(obj.getString("Concepto"));
+						/*if (concepto != 2503) cantidad = findInt(obj.getString("Concepto"));
 						if (cantidad > 0) {
 							pase.setDisponibles(cantidad);
 							pase.setCantidad(cantidad);
 						} else {
 							pase.setDisponibles(obj.getInt("Cantidad"));
 							pase.setCantidad(obj.getInt("Cantidad"));
-						}
+						}*/
+						pase.setDisponibles(obj.getInt("Cantidad"));
+						pase.setCantidad(obj.getInt("Cantidad"));
 
 						pase.setSubgrupo("QR");
 					}
@@ -2895,7 +2902,7 @@ public class CitasController
 					Date fechaCompra = new Date(TimeUnit.MILLISECONDS.toMillis(obj.getLong("FechaCaptura")));
 
 					pase.setF_compra(fechaCompra);
-					pase.setActivo(true);
+					//pase.setActivo(true);
 					//pase.setCliente(clienteService.findById(idCliente));
 					pase.setCliente(clienteService.findById(idTitular));
 					pase.setCreated(new Date());
@@ -3389,7 +3396,7 @@ public class CitasController
 		//Replace consecutive white spaces with one white space
 		str = str.replaceAll(" +", " ");
 
-		if (str.equals(""))
+		if (str.equals("") || str.contains(" "))
 			return -1;
 		return Integer.parseInt(str);
 	}

@@ -140,9 +140,20 @@ public class MainSecurity extends WebSecurityConfigurerAdapter {
                         "/rutina/pesajes",
                         "/formularios/crear",
                         "/formularios/responder/multiple",
-                        "/spec/formulario/responder/{idCliente}",
+                        "/spec/formulario/responder",
                         "/spec/formulario/respuestas/{idCliente}",
-                        "/spec/evaluacion/{idCliente}"
+                        "/spec/evaluacion/{idCliente}",
+                        "/spec/guia/{idCliente}",
+                        "/spec/guia/getPrompt/{idCliente}",
+                        "/spec/guia/{clienteId}/dieta-valida",
+                        "/spec/guia/actualDelMes/{idCliente}",
+                        "/spec/{idCliente}/guia",
+                        "/spec/cargar-pases/{idCLiente}",
+                        "/spec/{idCliente}/{idProducto}/paseQR",
+                        "/spec/{idCliente}/{idProducto}/{consumidoPor}/paseQR",
+                        "/health-studio/consumos",
+                        "/health-studio/paseQR/{idCliente}",
+                        "/spec/usuario/{idCliente}"
                 ).permitAll()
                 .anyRequest().authenticated()
                 .and()
