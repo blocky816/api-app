@@ -164,8 +164,8 @@ public class SpecController {
             specFacturaService.procesarFacturas(facturas);
             return ResponseEntity.ok("Pases cargados correctamente para: " + idCliente);
         }catch (Exception e) {
-            System.out.println(e.getMessage());
-            e.printStackTrace();
+            //System.out.println(e.getMessage());
+            //e.printStackTrace();
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(Map.of("msg", "Error al cargar los pases"));
         }
     }
