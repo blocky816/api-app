@@ -32,9 +32,27 @@ public class PaseHealthStudioConsumidoService {
     private Servicios servicios;
 
     public PaginacionDTO getConsumosPaged(LocalDateTime startDate, LocalDateTime endDate, int page, int size) {
-        long totalRecords = repository.countConsumosByFecha(startDate, endDate, "studio", "fisio", "hidro", "spa");
+        long totalRecords = repository.countConsumosByFecha(
+                startDate,
+                endDate,
+                "studio",
+                "fisio",
+                "hidro",
+                "spa",
+                "psico",
+                "fisia");
+
         Pageable pageable = PageRequest.of(page, size);
-        List<PaseReporteDTO> registros = repository.findConsumosByFechaPaged(startDate, endDate, "studio", "fisio", "hidro", "spa", pageable);
+        List<PaseReporteDTO> registros = repository.findConsumosByFechaPaged(
+                startDate,
+                endDate,
+                "studio",
+                "fisio",
+                "hidro",
+                "spa",
+                "psico",
+                "fisia",
+                pageable);
 
         // Calcular el número total de páginas
         int totalPages = (int) Math.ceil((double) totalRecords / size);
@@ -42,27 +60,23 @@ public class PaseHealthStudioConsumidoService {
         return new PaginacionDTO(registros, totalPages, totalRecords);
     }
 
-    /*public List<PaseReporteDTO> obtenerConsumosPorFecha(LocalDateTime startDate, LocalDateTime endDate) throws InvalidDateTimeException {
-        if (startDate == null || endDate == null)
-            throw new InvalidDateTimeException("Las fechas de inicio y fin son obligatorias.");
-
-        if (startDate.isAfter(endDate))
-            throw new InvalidDateTimeException("La fecha de inicio no puede ser posterior a la fecha de fin.");
-
-        return repository.findConsumosByFecha(startDate, endDate);
-    }*/
-
     public PaseHealthStudioDTO obtenerPasesQR(Integer idCLiente) {
-        String[] productosHealthStudio = {"%studio%", "%fisio%", "%hidro%", "%spa%"};
+        String[] productosHealthStudio = {"%studio%", "%fisio%", "%hidro%", "%spa%", "%psico%", "%fisia%"};
         Cliente cliente = clienteService.findById(idCLiente);
         try {
             servicios.getMovimientos(idCLiente);
         } catch (Exception e) {
             System.out.println("Fallo el consultar movimientos para usuario: " + idCLiente);
         }
-        //List<PaseUsuario> paseUsuario = paseUsuarioRepository.findByClienteAndIdProdInAndActivoTrue(cliente, productosHealthStudio);
-        //List<PaseUsuario> paseUsuario = paseUsuarioRepository.findByClienteAndConceptoContainingKeywordsNative(cliente.getIdCliente(), productosHealthStudio);
-        List<PaseUsuario> paseUsuario = paseUsuarioRepository.findByClienteAndConceptoUsingDynamicKeywords(cliente.getIdCliente(), "%studio%", "%fisio%", "%hidro%", "%spa%");
+
+        List<PaseUsuario> paseUsuario = paseUsuarioRepository.findByClienteAndConceptoUsingDynamicKeywords(
+                cliente.getIdCliente(),
+                "%studio%",
+                "%fisio%",
+                "%hidro%",
+                "%spa%",
+                "%psico%",
+                "%fisia%");
 
         if (!paseUsuario.isEmpty()){
             PaseHealthStudioDTO pases = new PaseHealthStudioDTO();
