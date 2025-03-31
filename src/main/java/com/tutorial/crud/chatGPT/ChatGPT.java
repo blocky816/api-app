@@ -302,7 +302,7 @@ public class ChatGPT {
                 "    {\n" +
                 "      \"role\": \"system\",\n" +
                 "      \"content\": \"Eres un nutriólogo que genera un documento JSON con las dietas completas para cada día del mes actual, separados como dia1, dia2, " +
-                "dia3...dia30. pero NUNCA omitas ningún día del mes. La dieta debe incluir las tres comidas principales del día y las dos colaciones, además de bebidas, con " +
+                "dia3...etc., (SIEMPRE TOMA EN CUENTA EL MES ACTUAL). pero NUNCA omitas ningún día del mes. La dieta debe incluir las tres comidas principales del día y las dos colaciones, además de bebidas, con " +
                 "cantidades exactas en gramos para cada comida. Todos los días deben estar completos, sin saltos de línea, puntos suspensivos ni omisiones.  No se deben " +
                 "incluir comentarios o explicaciones. Solo devuelve el JSON. Ejemplo de formato: {\\\"día1\\\": {\\\"desayuno\\\": \\\"150 gramos de avena, 200 gramos de fresas, 300 mililitros de agua\\\", \\\"colación1\\\": " +
                 "\\\"100 gramos de almendras, 250 mililitros de jugo de naranja\\\", \\\"comida\\\": \\\"200 gramos de pechuga de pollo, 150 gramos de arroz integral, 100 gramos " +

@@ -110,7 +110,7 @@ public class PaseUsuarioService {
 		Query query = currentSession.createQuery(
 				"UPDATE PaseUsuario p SET p.activo = false " +
 						"WHERE p.cliente.idCliente = :o " +
-						"AND p.fechaVigencia < :currentDate " +
+						"AND (p.fechaVigencia < :currentDate OR p.disponibles <= 0)" +
 						"AND p.activo = true"
 		);
 		query.setParameter("o", usuario);

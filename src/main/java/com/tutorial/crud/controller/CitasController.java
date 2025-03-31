@@ -16,6 +16,8 @@ import java.sql.SQLException;
 import java.sql.Timestamp;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.time.Period;
 import java.time.ZoneId;
 import java.util.ArrayList;
@@ -2868,7 +2870,6 @@ public class CitasController
 				PaseUsuario paseExists = paseUsuarioService.findByIdVentaDetalle(obj.getInt("VentaDetalle"));
 
 				if (paseExists == null){
-					//System.out.println("El idVentaDetalle: " + obj.getInt("VentaDetalle") + " es nuevo");
 					int concepto = obj.getInt("IDProdServ");
 					PaseUsuario pase = new PaseUsuario();
 
@@ -2909,6 +2910,23 @@ public class CitasController
 					pase.setUpdated(new Date());
 					pase.setUpdatedBy(String.valueOf(idCliente));
 					pase.setCreatedBy(String.valueOf(idCliente));
+
+					String fechaVigencia = obj.getString("vigencia_qr");
+
+					if (fechaVigencia != null && !fechaVigencia.isEmpty()) {
+						pase.setPagado(true);
+						pase.setActivo(true);
+						pase.setFechaPago(fechaCompra.toInstant().atZone(ZoneId.systemDefault()).toLocalDateTime());
+						// Convertimos la fecha a LocalDate
+						LocalDate fechaLocal = LocalDate.parse(fechaVigencia);
+
+						// Agregamos la hora 23:59:59 para convertir a LocalDateTime
+						LocalDateTime fechaVigenciaLocalDateTime = fechaLocal.atTime(23, 59, 59);
+
+						// Establecemos la fecha de vigencia
+						pase.setFechaVigencia(fechaVigenciaLocalDateTime);
+					}
+
 					paseUsuarioService.save(pase);
 					listaReporte.add(pase);
 				} else {

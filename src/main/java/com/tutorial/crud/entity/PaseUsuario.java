@@ -250,7 +250,11 @@ public class PaseUsuario {
 
 		} else if (f_compra != null) {
 			// Para otros pases, establecer la vigencia a partir de la fecha de compra
-			fechaVigencia = convertDateToLocalDateTime(f_compra); // O puedes agregar lógica para definir la vigencia
+			fechaVigencia = convertDateToLocalDateTime(f_compra)
+					.plusMonths(1)
+					.withHour(23)
+					.withMinute(59)
+					.withSecond(59);
 		} else {
 			fechaVigencia = null; // o alguna lógica alternativa
 		}

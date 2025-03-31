@@ -3,6 +3,7 @@ package com.tutorial.crud.Odoo.Spec.service;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.exc.MismatchedInputException;
 import com.tutorial.crud.Odoo.Spec.dto.ClienteRequest;
 import com.tutorial.crud.Odoo.Spec.dto.SpecFacturaLinea;
 import com.tutorial.crud.Odoo.Spec.dto.SpecFacturaResponse;
@@ -67,7 +68,7 @@ public class SpecFacturaService {
             ResponseEntity<String> responseEntity = makeRequest(entity);
             return processResponse(responseEntity.getBody());
         } catch (HttpClientException | JsonProcessingException e) {
-            logger.error("Error al obtener las facturas: {}", e.getMessage(), e);
+            logger.info("No hay facturas SPEC para: {} mensaje: {}", idCliente, e.getMessage());
             return Collections.emptyList();  // Retorna una lista vacía en caso de error
         }
     }
@@ -102,7 +103,6 @@ public class SpecFacturaService {
      * @throws HttpClientException Si hay un error en la solicitud HTTP
      */
     private ResponseEntity<String> makeRequest(HttpEntity<ClienteRequest> entity) throws HttpClientException {
-        System.out.println("FACTURA_API_URL" + FACTURA_API_URL);
         return restTemplate.exchange(
                 FACTURA_API_URL,
                 HttpMethod.POST,
@@ -233,7 +233,6 @@ public class SpecFacturaService {
                 .withMinute(59)
                 .withSecond(59)
                 .withNano(0);*/
-        System.out.println("Vigencia recibida de odoo: " + vigenciaQR);
         LocalDate vigenciaFecha = LocalDate.parse(vigenciaQR); // Parseamos la fecha sin hora
         LocalDateTime vigenciaQRFOrmateada = vigenciaFecha.atTime(23, 59, 59); // Añadimos la hora
         return vigenciaQRFOrmateada;

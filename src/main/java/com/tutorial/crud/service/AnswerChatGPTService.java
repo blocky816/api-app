@@ -165,6 +165,7 @@ public class AnswerChatGPTService {
         answerChatGPT.setValidQuestion(valido);
         answerChatGPT.setActivo(valido);
         answerChatGPT.setAnswer(valido ? cleanedJsonString : respuesta);
+        answerChatGPT.setTipo("SPEC");
         answerChatGPTRepository.save(answerChatGPT);
         return answerChatGPT;
     }

@@ -60,7 +60,7 @@ public class SpecEvaluacionService {
         var client = HttpClient.newHttpClient();
         
         var request = HttpRequest.newBuilder(
-                        URI.create("http://192.168.20.104:8000/ServiciosClubAlpha/api/Spec/Descarga/Evaluaciones"))
+                        URI.create(odooApiUrl + "/ServiciosClubAlpha/api/Spec/Descarga/Evaluaciones"))
                     .header("accept", "application/json")
                     .header("Content-Type", "application/json")
                     .POST(HttpRequest.BodyPublishers.ofString(body))
