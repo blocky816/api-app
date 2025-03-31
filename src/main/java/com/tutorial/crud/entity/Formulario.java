@@ -1,7 +1,11 @@
 package com.tutorial.crud.entity;
 
+import com.fasterxml.jackson.annotation.JsonManagedReference;
+import com.tutorial.crud.Odoo.Spec.entity.Pregunta;
+
 import javax.persistence.*;
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Entity
 @Table(name="formularios")
@@ -32,6 +36,10 @@ public class Formulario {
 
     @Column(name = "folio")
     private int folio;
+
+    @OneToMany(mappedBy = "formulario", cascade = CascadeType.ALL)
+    @JsonManagedReference
+    private List<Pregunta> preguntas;
 
     @Column(name = "created")
     private LocalDateTime created = LocalDateTime.now().withNano(0);
@@ -69,6 +77,14 @@ public class Formulario {
     public LocalDateTime getCreated() { return created; }
 
     public void setCreated(LocalDateTime created) { this.created = created; }
+
+    public List<Pregunta> getPreguntas() {
+        return preguntas;
+    }
+
+    public void setPreguntas(List<Pregunta> preguntas) {
+        this.preguntas = preguntas;
+    }
 
     @Override
     public String toString() {
