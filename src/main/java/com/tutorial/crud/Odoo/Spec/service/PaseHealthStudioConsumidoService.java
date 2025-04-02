@@ -7,6 +7,7 @@ import com.tutorial.crud.Odoo.Spec.repository.PasesHealthStudioConsumidoReposito
 import com.tutorial.crud.controller.Servicios;
 import com.tutorial.crud.entity.Cliente;
 import com.tutorial.crud.entity.PaseUsuario;
+import com.tutorial.crud.exception.ClienteNoEncontradoException;
 import com.tutorial.crud.repository.PaseUsuarioRepository;
 import com.tutorial.crud.service.ClienteService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -62,7 +63,7 @@ public class PaseHealthStudioConsumidoService {
 
     public PaseHealthStudioDTO obtenerPasesQR(Integer idCLiente) {
         String[] productosHealthStudio = {"%studio%", "%fisio%", "%hidro%", "%spa%", "%psico%", "%fisia%"};
-        Cliente cliente = clienteService.findById(idCLiente);
+        Cliente cliente = obtenerClienteTitular(idCLiente);
         try {
             servicios.getMovimientos(idCLiente);
         } catch (Exception e) {
@@ -93,5 +94,16 @@ public class PaseHealthStudioConsumidoService {
         }
 
         return null;
+    }
+
+    public Cliente obtenerClienteTitular(int idCliente) {
+        try {
+            Cliente cliente = clienteService.findById(idCliente);
+            return (cliente.getIdCliente() == cliente.getIdTitular())
+                    ? cliente
+                    : clienteService.findById(cliente.getIdTitular());
+        } catch (Exception e) {
+            throw new ClienteNoEncontradoException("No se encontro el cliente con id: " + idCliente);
+        }
     }
 }
