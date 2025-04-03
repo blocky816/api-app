@@ -61,17 +61,24 @@ public class PaseHealthStudioConsumidoService {
         return new PaginacionDTO(registros, totalPages, totalRecords);
     }
 
-    public PaseHealthStudioDTO obtenerPasesQR(Integer idCLiente) {
+    public PaseHealthStudioDTO obtenerPasesQR(Integer idCliente) {
         String[] productosHealthStudio = {"%studio%", "%fisio%", "%hidro%", "%spa%", "%psico%", "%fisia%"};
-        Cliente cliente = obtenerClienteTitular(idCLiente);
+        Cliente cliente = clienteService.findById(idCliente);
+
+        if (cliente == null) {
+            throw new ClienteNoEncontradoException("Cliente con ID " + idCliente + " no encontrado.");
+        }
+
+        int idTitular = cliente.getIdTitular();
+
         try {
-            servicios.getMovimientos(idCLiente);
+            servicios.getMovimientos(idTitular);
         } catch (Exception e) {
-            System.out.println("Fallo el consultar movimientos para usuario: " + idCLiente);
+            System.out.println("Fallo el consultar movimientos para titular: " + idTitular);
         }
 
         List<PaseUsuario> paseUsuario = paseUsuarioRepository.findByClienteAndConceptoUsingDynamicKeywords(
-                cliente.getIdCliente(),
+                idTitular,
                 "%studio%",
                 "%fisio%",
                 "%hidro%",
@@ -94,16 +101,5 @@ public class PaseHealthStudioConsumidoService {
         }
 
         return null;
-    }
-
-    public Cliente obtenerClienteTitular(int idCliente) {
-        try {
-            Cliente cliente = clienteService.findById(idCliente);
-            return (cliente.getIdCliente() == cliente.getIdTitular())
-                    ? cliente
-                    : clienteService.findById(cliente.getIdTitular());
-        } catch (Exception e) {
-            throw new ClienteNoEncontradoException("No se encontro el cliente con id: " + idCliente);
-        }
     }
 }

@@ -5,6 +5,7 @@ import com.tutorial.crud.entity.AnswerChatGPT;
 import com.tutorial.crud.entity.Cliente;
 import com.tutorial.crud.entity.ClienteBascula;
 import com.tutorial.crud.entity.FormularioRespuesta;
+import com.tutorial.crud.exception.ChatGPTException;
 import com.tutorial.crud.exception.ClienteNoEncontradoException;
 import com.tutorial.crud.exception.ResourceNotFoundException;
 import com.tutorial.crud.repository.AnswerChatGPTRepository;
@@ -13,6 +14,7 @@ import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -29,8 +31,6 @@ import static com.tutorial.crud.service.FormularioService.calcularAniosDate;
 public class AnswerChatGPTService {
 
     private static final Logger logger = LoggerFactory.getLogger(AnswerChatGPTService.class);
-    private static final int MAX_RETRIES = 3; // Límite de reintentos
-    private static final int RETRY_DELAY_MS = 1000; // Retardo entre intentos
 
     @Autowired
     AnswerChatGPTRepository answerChatGPTRepository;
@@ -43,12 +43,11 @@ public class AnswerChatGPTService {
     @Autowired
     ChatGPT chatGPT;
 
-    private LocalDateTime[] getStartAndEndDateOfCurrentMonth() {
-        LocalDate today = LocalDate.now();
-        LocalDateTime startDate = LocalDateTime.of(today.minusDays(today.getDayOfMonth() - 1), LocalTime.MIN);
-        LocalDateTime endDate = LocalDateTime.of(today.plusDays(today.lengthOfMonth() - today.getDayOfMonth()), LocalTime.MAX.withSecond(0).withNano(0));
-        return new LocalDateTime[] { startDate, endDate };
-    }
+    @Value("${chatgpt.retries}")
+    private int MAX_RETRIES;
+
+    @Value("${chatgpt.retry-delay-ms}")
+    private int RETRY_DELAY_MS;
 
     public AnswerChatGPT save(AnswerChatGPT answerChatGPT) {
         return answerChatGPTRepository.save(answerChatGPT);
@@ -91,82 +90,91 @@ public class AnswerChatGPTService {
         return planAlimenticioActual.get().getAnswer();
     }
 
-    public boolean verificarGuiaAlimenticiaValida(Integer clienteId) {
+    public boolean verificarGuiaGeneradaEsteMes(Integer clienteId) {
+
+        Cliente cliente = obtenerCliente(clienteId);
         LocalDateTime[] dateRange = getStartAndEndDateOfCurrentMonth();
         LocalDateTime startDate = dateRange[0];
         LocalDateTime endDate = dateRange[1];
 
         Optional<AnswerChatGPT> guiaDelMes = Optional.ofNullable(
                 answerChatGPTRepository.findFirstByCustomerIdClienteAndIsValidQuestionTrueAndActivoTrueAndCreatedAtBetweenOrderByCreatedAtDesc(
-                        clienteId, startDate, endDate
+                        cliente.getIdCliente(), startDate, endDate
                 )
         );
 
         return guiaDelMes.isPresent();
     }
 
-    public String verificarGuiaAlimenticiaMensual(Integer idCliente) throws ClienteNoEncontradoException {
-
+    private Cliente obtenerCliente(Integer idCliente) {
         Cliente cliente = clienteService.findById(idCliente);
-        if (cliente == null)
+        if (cliente == null) {
             throw new ClienteNoEncontradoException("Cliente no encontrado con id: " + idCliente);
+        }
+        return cliente;
+    }
 
-        boolean existeGuiaMensual = verificarGuiaAlimenticiaValida(idCliente);
-
-        return existeGuiaMensual ? "La guía alimenticia ya está generada para el cliente con id: " + idCliente : generarGuiaAlimenticia(idCliente);
+    private LocalDateTime[] getStartAndEndDateOfCurrentMonth() {
+        LocalDate today = LocalDate.now();
+        LocalDateTime startDate = LocalDateTime.of(today.minusDays(today.getDayOfMonth() - 1), LocalTime.MIN);
+        LocalDateTime endDate = LocalDateTime.of(today.plusDays(today.lengthOfMonth() - today.getDayOfMonth()), LocalTime.MAX.withSecond(0).withNano(0));
+        return new LocalDateTime[] { startDate, endDate };
     }
 
     @Transactional
     public String generarGuiaAlimenticia(Integer idCliente) {
-        String prompt = chatGPT.getPrompt(idCliente);
-
-        // Intentos de generación con un método dedicado
-        return generarGuiaConReintentos(idCliente, prompt);
+        try {
+            String prompt = chatGPT.getPrompt(idCliente);
+            return intentarGenerarGuiaConReintentos(idCliente, prompt);
+        } catch (Exception e) {
+            throw new ChatGPTException("Error al generar la guía alimenticia: " + e.getMessage());
+        }
     }
 
-    private String generarGuiaConReintentos(Integer idCliente, String prompt) {
-        int retries = 0;
-        boolean validDietFound = false;
-        AnswerChatGPT answerChatGPT = new AnswerChatGPT();
-        while (retries < MAX_RETRIES && !validDietFound) {
+
+    private String intentarGenerarGuiaConReintentos(Integer idCliente, String prompt) {
+        for (int intentos = 0; intentos < MAX_RETRIES; intentos++) {
             try {
                 JSONObject jsonObject = new JSONObject(prompt);
-                String pregunta = jsonObject.getJSONArray("messages").getJSONObject(1).getString("content");
                 String respuesta = chatGPT.generarGuiaSPEC(prompt);
-                answerChatGPT = procesarRespuesta(pregunta, respuesta, idCliente);
-                if (answerChatGPT.isValidQuestion()) {
-                    validDietFound = true;
-                }
-                retries++;
-                Thread.sleep(RETRY_DELAY_MS); // Retardo entre reintentos
+                String pregunta = jsonObject.getJSONArray("messages").getJSONObject(1).getString("content");
+                return procesarRespuesta(idCliente, pregunta, respuesta);
             } catch (Exception e) {
-                retries++;
-                logger.error("Error al generar dieta, reintentando... " + e.getMessage());
-                try {
-                    Thread.sleep(RETRY_DELAY_MS); // Retardo entre intentos
-                } catch (InterruptedException ie) {
-                    Thread.currentThread().interrupt();
+                if (intentos == MAX_RETRIES - 1) {
+                    throw new ChatGPTException("No se pudo generar una dieta válida después de 3 intentos.");
                 }
+                logger.error("Error en intento " + (intentos + 1) + " de generar guía, reintentando...", e);
+                esperarAntesDeReintentar();
             }
         }
-        if (!validDietFound) {
-            throw new RuntimeException("No se pudo generar una dieta válida después de 3 intentos.");
-        }
-        return answerChatGPT.getAnswer();
+        throw new ChatGPTException("Reintentos agotados, no se pudo generar la guía.");
     }
 
-    private AnswerChatGPT procesarRespuesta(String prompt, String respuesta, Integer idCliente) {
-        AnswerChatGPT answerChatGPT = new AnswerChatGPT();
-        answerChatGPT.setCustomer(clienteService.findById(idCliente));
-        answerChatGPT.setQuestion(prompt);
-        String respuestaFinal = chatGPT.isValidDiet(respuesta);
-        String cleanedJsonString = respuestaFinal.replaceAll("\\s+", " ").trim();
-        boolean valido = !respuestaFinal.isEmpty();
-        answerChatGPT.setValidQuestion(valido);
-        answerChatGPT.setActivo(valido);
-        answerChatGPT.setAnswer(valido ? cleanedJsonString : respuesta);
-        answerChatGPT.setTipo("SPEC");
-        answerChatGPTRepository.save(answerChatGPT);
-        return answerChatGPT;
+    private void esperarAntesDeReintentar() {
+        try {
+            Thread.sleep(RETRY_DELAY_MS);
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+        }
+    }
+
+    private String procesarRespuesta(Integer idCliente, String pregunta, String respuesta) {
+        AnswerChatGPT answer = new AnswerChatGPT();
+        String respuestaValida = chatGPT.isValidDiet(respuesta);
+        boolean esRespuestaValida = esRespuestaValida(respuestaValida);
+        String cleanedJsonString = respuestaValida.replaceAll("\\s+", " ").trim();
+
+        answer.setCustomer(clienteService.findById(idCliente));
+        answer.setQuestion(pregunta);
+        answer.setAnswer(esRespuestaValida ? cleanedJsonString : respuesta);
+        answer.setValidQuestion(esRespuestaValida);
+        answer.setActivo(esRespuestaValida);
+        answer.setTipo("SPEC");
+        answerChatGPTRepository.save(answer);
+        return respuesta;
+    }
+
+    private boolean esRespuestaValida(String respuesta) {
+        return respuesta != null && !respuesta.trim().isEmpty();
     }
 }

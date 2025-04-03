@@ -12,6 +12,7 @@ import com.tutorial.crud.Odoo.Spec.dto.SpecFacturaResponse;
 import com.tutorial.crud.Odoo.Spec.entity.RespuestaFormulario;
 import com.tutorial.crud.Odoo.Spec.service.SpecFacturaService;
 import com.tutorial.crud.chatGPT.ChatGPT;
+import com.tutorial.crud.entity.Cliente;
 import com.tutorial.crud.exception.ClienteNoEncontradoException;
 import com.tutorial.crud.exception.ResourceNotFoundException;
 import com.tutorial.crud.service.AnswerChatGPTService;
@@ -137,12 +138,12 @@ public class SpecController {
     @GetMapping("/guia/{clienteId}/dieta-valida")
     public ResponseEntity<Boolean> existeGuiaAlimenticioMensual(@PathVariable Integer clienteId) {
 
-        Boolean dietaValida = answerChatGPTService.verificarGuiaAlimenticiaValida(clienteId);
+        Boolean dietaValida = answerChatGPTService.verificarGuiaGeneradaEsteMes(clienteId);
 
         return ResponseEntity.ok(dietaValida);
     }
 
-    @PostMapping("/{idCliente}/guia")
+    /*@PostMapping("/{idCliente}/guia")
     public ResponseEntity<?> verificarGuiaAlimenticiaMensual(@PathVariable Integer idCliente) throws ClienteNoEncontradoException {
 
         String guiaAlimenticia = answerChatGPTService.verificarGuiaAlimenticiaMensual(idCliente);
@@ -154,7 +155,23 @@ public class SpecController {
             // Si la respuesta indica que se generó la guía, devolvemos un 201 Created
             return ResponseEntity.status(HttpStatus.CREATED).body("Guía alimenticia generada con éxito.");
         }
+    }*/
+
+    @PostMapping("/{idCliente}/guia")
+    public ResponseEntity<?> obtenerGuiaAlimenticia(@PathVariable Integer idCliente) {
+
+        boolean guiaGenerada = answerChatGPTService.verificarGuiaGeneradaEsteMes(idCliente);
+
+        if (guiaGenerada) {
+            return ResponseEntity.ok("La guía alimenticia ya está generada.");
+        }
+
+        String guiaGeneradaMensaje = answerChatGPTService.generarGuiaAlimenticia(idCliente);
+
+        return ResponseEntity.status(HttpStatus.CREATED).body(guiaGeneradaMensaje);
     }
+
+
     /*=================================================== PASES QRS MENSUALES ============================================================*/
 
     @GetMapping("/cargar-pases/{idCliente}")

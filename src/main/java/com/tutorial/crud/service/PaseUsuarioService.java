@@ -110,7 +110,8 @@ public class PaseUsuarioService {
 		Query query = currentSession.createQuery(
 				"UPDATE PaseUsuario p SET p.activo = false " +
 						"WHERE p.cliente.idCliente = :o " +
-						"AND (p.fechaVigencia < :currentDate OR p.disponibles <= 0)" +
+						"AND ((p.fechaVigencia is NULL AND p.created < date_trunc('month', current_date)) " +
+						"OR (p.fechaVigencia < :currentDate OR p.disponibles <= 0)) " +
 						"AND p.activo = true"
 		);
 		query.setParameter("o", usuario);
@@ -415,19 +416,21 @@ public class PaseUsuarioService {
 	}
 
 	public List<PaseQR> obtenerPasesQRPorIdVentaDetalle(Integer idCliente, Integer idVentaDetalle) {
-		Cliente cliente = getTitularCliente(idCliente);
-		List<PaseUsuario> pasesDisponibles = paseUsuarioRepository.findByClienteAndIdVentaDetalleAndActivoTrue(cliente, idVentaDetalle);
+		Cliente clienteTitular = getTitularCliente(idCliente);
 
-		// Usar un logger en lugar de System.out.println
-		logger.info("Cliente: " + cliente.getIdCliente() + " Pases disponibles: "  + pasesDisponibles.size());
+		List<PaseUsuario> pasesDisponibles = paseUsuarioRepository.findByClienteAndIdVentaDetalleAndActivoTrue(clienteTitular, idVentaDetalle);
+
+		logger.info("Cliente titular: " + clienteTitular.getIdTitular() + " Pases disponibles: "  + pasesDisponibles.size());
 
 		return pasesDisponibles.stream()
-				.map(paseUsuario -> crearPaseQR(cliente, paseUsuario))
+				.map(paseUsuario -> crearPaseQR(idCliente, paseUsuario))
 				.collect(Collectors.toList());
 	}
 
-	private PaseQR crearPaseQR(Cliente cliente, PaseUsuario paseUsuario) {
+	private PaseQR crearPaseQR(Integer idCliente, PaseUsuario paseUsuario) {
 		ClientePase clientePase = new ClientePase();
+		Cliente cliente = clienteService.findById(idCliente);
+
 		clientePase.setNombre(cliente.getNombreCompleto());
 		clientePase.setFoto(cliente.getURLFoto().getImagen());
 

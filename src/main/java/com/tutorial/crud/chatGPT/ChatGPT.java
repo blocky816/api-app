@@ -9,6 +9,7 @@ import com.networknt.schema.ValidationMessage;
 import com.tutorial.crud.Odoo.Spec.dto.RespuestaDTO;
 import com.tutorial.crud.entity.AnswerChatGPT;
 import com.tutorial.crud.entity.Cliente;
+import com.tutorial.crud.exception.ChatGPTException;
 import com.tutorial.crud.exception.ClienteNoEncontradoException;
 import com.tutorial.crud.repository.AnswerChatGPTRepository;
 import com.tutorial.crud.service.AnswerChatGPTService;
@@ -41,21 +42,12 @@ import static com.tutorial.crud.service.FormularioService.calcularAniosDate;
 
 @Service
 public class ChatGPT {
+
     private static final Logger logger = LoggerFactory.getLogger(ChatGPT.class);
-    private final String URL_OPENAI = "https://api.openai.com/v1/chat/completions";
+
     private static final String ATHLETE_PROGRAM = "estoy en un programa de atletas de alto rendimiento.";
-    private static final String MODEL = "gpt-4o";
-    private static final int MAX_TOKENS = 14717;
-    private static final double TEMPERATURE = 0.8; // valor original 1.36
-    private static final double TOP_P = 0.85; // valor original 0.92
 
     private static final DecimalFormat DECIMAL_FORMAT = new DecimalFormat("#.##");
-
-
-
-    //private AnswerChatGPTService answerChatGPTService;
-    //private AnswerChatGPTRepository answerChatGPTRepository;
-    //private FormularioService formularioService;
 
     @Autowired
     ObjectMapper objectMapper;
@@ -72,52 +64,37 @@ public class ChatGPT {
     @Autowired
     AnswerChatGPTService answerChatGPTService;
 
-    /*@Autowired
-    public ChatGPT(AnswerChatGPTService answerChatGPTService, AnswerChatGPTRepository answerChatGPTRepository, FormularioService formularioService) {
-        this.answerChatGPTService = answerChatGPTService;
-        this.answerChatGPTRepository = answerChatGPTRepository;
-        this.formularioService = formularioService;
-    }*/
-
     @Value("${my.property.s}")
     String s;
+
+    @Value("${chatgpt.api-url}")
+    private String URL_OPENAI;
+
+    @Value("${chatgpt.api-key}")
+    private String API_KEY;
+
+    @Value("${chatgpt.model}")
+    private String MODEL;
+
+    @Value("${chatgpt.temperature}")
+    private double TEMPERATURE;
+
+    @Value("${chatgpt.max-tokens}")
+    private int MAX_TOKENS;
+
+    @Value("${chatgpt.top-p}")
+    private double TOP_P;
+
+
     public String sendPrompt(String customerPrompt, Cliente customer) {
-        /*String question = "{\n" +
-                "  \"model\": \"gpt-3.5-turbo\",\n" +
-                "  \"messages\": [\n" +
-                "    {\n" +
-                "      \"role\": \"system\",\n" +
-                "      \"content\": \"Eres una maquina que sólo genera documentos json sin abreviar para dietas de una semana completa con los datos que se te dan, las dietas incluyen bebidas y están pensadas para gente que vive en el estado de Puebla en el país México. Todos los campos del json deben estar llenos y sin abreviar. El formato es:\\n{\\n  \\\"lunes\\\": {\\n    \\\"desayuno\\\": \\\"\\\",\\n    \\\"colación1\\\": \\\"\\\",\\n    \\\"comida\\\": \\\"\\\",\\n    \\\"colación2\\\": \\\"\\\",\\n    \\\"cena\\\": \\\"\\\"\\n  }\\n}\\n\"\n" +
-                "    },\n" +
-                "    {\n" +
-                "      \"role\": \"user\",\n" +
-                "      \"content\": \"" + customerPrompt + "\"" +
-                "    }\n" +
-                "  ],\n" +
-                "  \"temperature\": 1.45,\n" +
-                "  \"max_tokens\": 3600,\n" +
-                "  \"top_p\": 0.86,\n" +
-                "  \"frequency_penalty\": 0.13,\n" +
-                "  \"presence_penalty\": 1.59\n" +
-                "}";*/
-        //LocalDate today = LocalDate.now();
-        //LocalDateTime startDate = LocalDateTime.of(today.minusDays(today.getDayOfMonth() - 1), LocalTime.MIN);
-        //System.out.println("StartDate => " + startDate);
-        //LocalDateTime endDate = LocalDateTime.of(today.plusDays(today.lengthOfMonth() - today.getDayOfMonth()), LocalTime.MAX.withSecond(0).withNano(0));
-        //System.out.println("endDate => " + endDate);
-        //List<AnswerChatGPT> answerChatGPTList = answerChatGPTService.getDietInCurrentMonth(customer, startDate, endDate);
-        //System.out.println("List de dietas del mes: " + answerChatGPTList);
+
         LocalDate today = LocalDate.now();
         LocalDateTime startDate = LocalDateTime.of(today.minusDays(today.getDayOfMonth() - 1), LocalTime.MIN);
         LocalDateTime endDate = LocalDateTime.of(today.plusDays(today.lengthOfMonth() - today.getDayOfMonth()), LocalTime.MAX.withSecond(0).withNano(0));
-        //List<AnswerChatGPT> answerChatGPTList = <answerChatGPTService.getDietInCurrentMonth(customer.getIdCliente(), startDate, endDate);
         List<AnswerChatGPT> answerChatGPTList = answerChatGPTRepository.findByCustomerAndCreatedAtBetweenOrderByCreatedAtDesc(customer, startDate, endDate);
 
-        //String question = "{\n \"model\": \"gpt-4\",\n \"messages\": [\n {\n \"role\": \"system\",\n \"content\": \"Eres una maquina que sólo genera documentos json sin abreviar para dietas de una semana completa con los datos que se te dan, las dietas incluyen bebidas y están pensadas para gente que vive en el estado de Puebla en el país México. Todos los campos del json deben estar llenos y sin abreviar. El formato es:\\n{\\n  \\\"lunes\\\": {\\n    \\\"desayuno\\\": \\\"\\\",\\n    \\\"colación1\\\": \\\"\\\",\\n    \\\"comida\\\": \\\"\\\",\\n    \\\"colación2\\\": \\\"\\\",\\n    \\\"cena\\\": \\\"\\\"\\n  }\\n}\\n\"\n },\n {\n \"role\": \"user\",\n \"content\": \"" + customerPrompt + "\" }\n ],\n \"temperature\": 1.45,\n \"max_tokens\": 3600,\n \"top_p\": 0.86,\n \"frequency_penalty\": 0.13,\n \"presence_penalty\": 1.59\n }";
-        //String question = "{\n \"model\": \"gpt-4\",\n \"messages\": [\n {\n \"role\": \"system\",\n \"content\": \"Eres una maquina que sólo genera documentos json sin abreviar para dietas con porciones en gramos de una semana completa con los datos que se te dan, las dietas incluyen bebidas y están pensadas para gente que vive en el estado de Puebla en el país México. Todos los campos del json deben estar llenos y sin abreviar. El formato es:\\n{\\n  \\\"lunes\\\": {\\n    \\\"desayuno\\\": \\\"\\\",\\n    \\\"colación1\\\": \\\"\\\",\\n    \\\"comida\\\": \\\"\\\",\\n    \\\"colación2\\\": \\\"\\\",\\n    \\\"cena\\\": \\\"\\\"\\n  }\\n}\\n\"\n },\n {\n \"role\": \"user\",\n \"content\": \"" + customerPrompt + "\" }\n ],\n \"temperature\": 1.78,\n \"max_tokens\": 4095,\n \"top_p\": 0.86,\n \"frequency_penalty\": 0.2,\n \"presence_penalty\": 1.01\n }";
         String question = "{\n \"model\": \"gpt-4\",\n \"messages\": [\n {\n \"role\": \"system\",\n \"content\": \"Eres una maquina que sólo genera documentos json sin abreviar para dietas con porciones en gramos de una semana completa con los datos que se te dan, las dietas incluyen bebidas y están pensadas para gente que vive en el estado de Puebla en el país México. Todos los campos del json deben estar llenos incluidas y sin abreviar. NUNCA te saltes comidas ni días. El formato es:\\n{\\n  \\\"lunes\\\": {\\n    \\\"desayuno\\\": \\\"\\\",\\n    \\\"colación1\\\": \\\"\\\",\\n    \\\"comida\\\": \\\"\\\",\\n    \\\"colación2\\\": \\\"\\\",\\n    \\\"cena\\\": \\\"\\\"\\n  }\\n}\\n\"\n },\n {\n \"role\": \"user\",\n \"content\": \"" + customerPrompt + "\" }\n ],\n \"temperature\": 1.78,\n \"max_tokens\": 4095,\n \"top_p\": 0.86,\n \"frequency_penalty\": 0.2,\n \"presence_penalty\": 1.01\n }";
 
-        //System.out.println("Body a enviar => " + question);
         HttpClient client = HttpClient.newHttpClient();
         HttpRequest request = HttpRequest.newBuilder()
                 .uri(URI.create(URL_OPENAI))
@@ -147,9 +124,9 @@ public class ChatGPT {
             }
             float cost = 0;
             if (today.getDayOfMonth() > 7 || !answerChatGPTList.isEmpty()) {
-                //int responseStatus = chargeDiet(customer);
+                int responseStatus = chargeDiet(customer);
                 //System.out.println("Response de cargar orden de venta: " + response);
-                //if (responseStatus == 200) cost = 20;
+                if (responseStatus == 200) cost = 20;
             }
             answerChatGPT.setCost(cost);
         } catch (Exception e) {
@@ -242,6 +219,9 @@ public class ChatGPT {
         return false;
     }
 
+
+    /**********************************************************[GUIAS ALIMENTICIAS SPEC]*****************************************************************************/
+
     public String getPrompt(int idCliente) {
         Cliente cliente = obtenerCliente(idCliente);
         String gender = cliente.getSexo().toLowerCase();
@@ -262,6 +242,7 @@ public class ChatGPT {
         List<RespuestaDTO> respuestas = formularioService.obtenerRespuestasPorCliente(idCliente);
 
         if (respuestas.isEmpty()) {
+            //throw new ChatGPTException("El cliente " + idCliente + " no tiene información alimentaria.");
             return "";
         }
 
@@ -295,14 +276,15 @@ public class ChatGPT {
     private String construirJsonRequest(String customerPrompt) {
         String temperatureFormatted = DECIMAL_FORMAT.format(TEMPERATURE);
         String topPFormatted = DECIMAL_FORMAT.format(TOP_P);
+        int dias = obtenerDiasMesActual();
 
         return String.format("{\n" +
                 "  \"model\": \"%s\",\n" +
                 "  \"messages\": [\n" +
                 "    {\n" +
                 "      \"role\": \"system\",\n" +
-                "      \"content\": \"Eres un nutriólogo que genera un documento JSON con las dietas completas para cada día del mes actual, separados como dia1, dia2, " +
-                "dia3...etc., (SIEMPRE TOMA EN CUENTA EL MES ACTUAL). pero NUNCA omitas ningún día del mes. La dieta debe incluir las tres comidas principales del día y las dos colaciones, además de bebidas, con " +
+                "      \"content\": \"Eres un nutriólogo que genera un documento JSON con las dietas completas para %d días, separados como dia1, dia2, " +
+                "dia3...etc., pero NUNCA omitas ningún día de los que te indico. La dieta debe incluir las tres comidas principales del día y las dos colaciones, además de bebidas, con " +
                 "cantidades exactas en gramos para cada comida. Todos los días deben estar completos, sin saltos de línea, puntos suspensivos ni omisiones.  No se deben " +
                 "incluir comentarios o explicaciones. Solo devuelve el JSON. Ejemplo de formato: {\\\"día1\\\": {\\\"desayuno\\\": \\\"150 gramos de avena, 200 gramos de fresas, 300 mililitros de agua\\\", \\\"colación1\\\": " +
                 "\\\"100 gramos de almendras, 250 mililitros de jugo de naranja\\\", \\\"comida\\\": \\\"200 gramos de pechuga de pollo, 150 gramos de arroz integral, 100 gramos " +
@@ -319,7 +301,11 @@ public class ChatGPT {
                 "  \"max_tokens\": %d,\n" +
                 "  \"top_p\": %s,\n" +
                 "  \"store\": false\n" +
-                "}", MODEL, customerPrompt, temperatureFormatted, MAX_TOKENS, topPFormatted);
+                "}", MODEL, dias, customerPrompt, temperatureFormatted, MAX_TOKENS, topPFormatted);
+    }
+
+    private int obtenerDiasMesActual () {
+        return LocalDate.now().lengthOfMonth();
     }
 
     public String generarGuiaSPEC(String prompt) throws RuntimeException {
@@ -330,7 +316,7 @@ public class ChatGPT {
             HttpRequest request = HttpRequest.newBuilder()
                     .uri(URI.create(URL_OPENAI))
                     .header("Content-Type", "application/json")
-                    .header("Authorization", "Bearer " + "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")
+                    .header("Authorization", "Bearer " + API_KEY)
                     .POST(HttpRequest.BodyPublishers.ofString(prompt))
                     .build();
 
@@ -365,12 +351,6 @@ public class ChatGPT {
             }
 
             return "";
-
-            /*String estructuraFinal = validarEstructura(response);
-            if (!estructuraFinal.isEmpty())
-                return estructuraFinal;
-            else
-                return "";*/
         }catch (Exception e) {
             System.out.println(e.getMessage());
             e.printStackTrace();
@@ -456,6 +436,71 @@ public class ChatGPT {
         Pattern pattern = Pattern.compile("\\p{InCombiningDiacriticalMarks}+");
         return pattern.matcher(nfd).replaceAll("");
     }
+
+    /*********************** CHATGPT SOLUCION 2 ************************************************************/
+
+    // Método principal para generar la guía
+    /*public String generarGuiaSPEC(String prompt) {
+        HttpRequest request = construirSolicitudAPI(prompt);
+
+        try {
+            HttpResponse<String> response = enviarSolicitudAPI(request);
+            if (response.statusCode() != 200) {
+                throw new RuntimeException("Error en la API, código de respuesta: " + response.statusCode());
+            }
+            return extraerContenidoDeRespuesta(response.body());
+        } catch (IOException | InterruptedException e) {
+            throw new RuntimeException("Error al conectar con la API de ChatGPT: " + e.getMessage(), e);
+        }
+    }
+
+    // Construye la solicitud HTTP para la API de OpenAI
+    private HttpRequest construirSolicitudAPI(String prompt) {
+        return HttpRequest.newBuilder()
+                .uri(URI.create(URL_OPENAI))
+                .header("Content-Type", "application/json")
+                .header("Authorization", "Bearer " + API_KEY)
+                .POST(HttpRequest.BodyPublishers.ofString(generarCuerpoJSON(prompt)))
+                .build();
+    }
+
+    // Método para enviar la solicitud HTTP y obtener la respuesta
+    private HttpResponse<String> enviarSolicitudAPI(HttpRequest request) throws IOException, InterruptedException {
+        return HttpClient.newHttpClient().send(request, HttpResponse.BodyHandlers.ofString());
+    }
+
+    // Genera el cuerpo del JSON para el prompt
+    private String generarCuerpoJSON(String prompt) {
+        return "{ \"model\": \"gpt-3.5-turbo\", \"messages\": [{\"role\": \"user\", \"content\": \"" + prompt + "\"}]}";
+    }
+
+    // Extrae el contenido de la respuesta de la API
+    private String extraerContenidoDeRespuesta(String responseBody) {
+        JSONObject jsonResponse = new JSONObject(responseBody);
+        return jsonResponse.getJSONArray("choices")
+                .getJSONObject(0)
+                .getJSONObject("message")
+                .getString("content");
+    }
+
+    // Método para construir el prompt con los datos del cliente
+    public String construirPromptCliente(Integer idCliente) {
+        Cliente cliente = clienteService.findById(idCliente);
+        if (cliente == null) {
+            throw new RuntimeException("Cliente no encontrado con id: " + idCliente);
+        }
+
+        // Obtener los datos del cliente y construir el prompt
+        String genero = cliente.getSexo().toLowerCase();
+        int edad = calcularEdad(cliente.getFechaNacimiento());
+
+        return String.format("Genera una dieta adecuada para un %d años %s con estos datos: ...", edad, genero);
+    }
+
+    // Método para calcular la edad de un cliente a partir de su fecha de nacimiento
+    private int calcularEdad(LocalDate fechaNacimiento) {
+        return Period.between(fechaNacimiento, LocalDate.now()).getYears();
+    }*/
 
 }
 
