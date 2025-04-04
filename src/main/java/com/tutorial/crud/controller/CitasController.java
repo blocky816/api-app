@@ -35,6 +35,7 @@ import javax.persistence.NoResultException;
 import javax.persistence.StoredProcedureQuery;
 
 import com.tutorial.crud.Odoo.Spec.controller.SpecController;
+import com.tutorial.crud.exception.ClienteNoEncontradoException;
 import com.tutorial.crud.exception.ResourceNotFoundException;
 import com.tutorial.crud.repository.ApartadosRepository;
 import org.apache.log4j.Logger;
@@ -2846,17 +2847,18 @@ public class CitasController
 			Cliente cliente;
 			int idTitular;
 			int cantidad = 0;
-			try {
-				cliente = clienteService.findById(idCliente);
-				idTitular = cliente.getIdTitular();
-				specController.cargarPases(String.valueOf(idCliente));
-			} catch (Exception e) {
-				idTitular = idCliente;
-			}
 
-			//System.out.println("ID del titular en citas/obtenerPase => " + idTitular);
+			specController.cargarPases(String.valueOf(idCliente));
+
+			cliente = clienteService.findById(idCliente);
+
+			if (cliente == null)
+				throw new ClienteNoEncontradoException("El cliente con ID: " + idCliente + " no existe.");
+
+			idTitular = cliente.getIdTitular();
+
 			String body2 = "{\n"
-					+ "\"IdCliente\":"+idCliente+",\n"
+					+ "\"IdCliente\":"+ idTitular +",\n"
 					+ "\"Token\":\"77D5BDD4-1FEE-4A47-86A0-1E7D19EE1C74\"\n"
 					+ "}";
 			configuracion o = configuracionService.findByServiceName("getPasesById").get();
