@@ -12,7 +12,7 @@ import java.time.LocalDateTime;
 @Table(name = "answers_chatgpt")
 public class AnswerChatGPT {
     @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private long id;
     @CreationTimestamp
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")

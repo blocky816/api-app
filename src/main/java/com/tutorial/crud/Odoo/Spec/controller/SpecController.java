@@ -72,6 +72,9 @@ public class SpecController {
 
         List<RespuestaFormulario> respuestasGuardadas = formularioService.responderFormularioMultiple(formulario);
 
+        // Guia Alimenticia Asincrona
+        answerChatGPTService.generarGuiaAlimenticiaAsync(formulario.getCliente().getIdCliente());
+
         return ResponseEntity.status(HttpStatus.CREATED).build();
     }
 
@@ -142,20 +145,6 @@ public class SpecController {
 
         return ResponseEntity.ok(dietaValida);
     }
-
-    /*@PostMapping("/{idCliente}/guia")
-    public ResponseEntity<?> verificarGuiaAlimenticiaMensual(@PathVariable Integer idCliente) throws ClienteNoEncontradoException {
-
-        String guiaAlimenticia = answerChatGPTService.verificarGuiaAlimenticiaMensual(idCliente);
-
-        if (guiaAlimenticia.contains("La guía alimenticia ya está generada")) {
-            // Si la respuesta indica que ya existe una guía generada, devolvemos un 200 OK
-            return ResponseEntity.ok(guiaAlimenticia);
-        } else {
-            // Si la respuesta indica que se generó la guía, devolvemos un 201 Created
-            return ResponseEntity.status(HttpStatus.CREATED).body("Guía alimenticia generada con éxito.");
-        }
-    }*/
 
     @PostMapping("/{idCliente}/guia")
     public ResponseEntity<?> obtenerGuiaAlimenticia(@PathVariable Integer idCliente) {

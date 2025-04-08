@@ -46,11 +46,11 @@ public class FormularioService {
     @Autowired
     ClienteBasculaService clienteBasculaService;
 
-    @Autowired
-    AnswerChatGPTService answerChatGPTService;
+    //@Autowired
+    //AnswerChatGPTService answerChatGPTService;
 
-    @Autowired
-    AnswerChatGPTRepository answerChatGPTRepository;
+    //@Autowired
+    //AnswerChatGPTRepository answerChatGPTRepository;
 
     @Autowired
     ClubService clubService;
