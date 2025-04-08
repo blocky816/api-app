@@ -153,7 +153,7 @@ public class MainSecurity extends WebSecurityConfigurerAdapter {
                         "/spec/{idCliente}/{idProducto}/{consumidoPor}/paseQR",
                         "/health-studio/consumos",
                         "/health-studio/paseQR/{idCliente}",
-                        "/spec/usuario/{idCliente}"
+                        "/notificaciones/onesignal/registrar-subscripcion/{externalId}"
                 ).permitAll()
                 .anyRequest().authenticated()
                 .and()
