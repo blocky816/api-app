@@ -11,7 +11,7 @@ public class LineEvaluation {
     public double limite_superior;
     public double valor;
     public boolean indice;
-    public Boolean visibility_report_app;
+    public Boolean mostrarEnApp;
     public int getId_line_evaluation() {
         return id_line_evaluation;
     }
@@ -56,10 +56,10 @@ public class LineEvaluation {
     }
 
     public Boolean getVisibility_report_app() {
-        return visibility_report_app;
+        return mostrarEnApp;
     }
 
-    public void setVisibility_report_app(Boolean visibility_report_app) {
-        this.visibility_report_app = visibility_report_app;
+    public void setVisibility_report_app(Boolean mostrarEnApp) {
+        this.mostrarEnApp = mostrarEnApp;
     }
 }
