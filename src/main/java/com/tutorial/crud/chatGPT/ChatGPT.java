@@ -30,6 +30,7 @@ import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
 import java.text.DecimalFormat;
+import java.text.DecimalFormatSymbols;
 import java.text.Normalizer;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -48,7 +49,7 @@ public class ChatGPT {
 
     private static final String ATHLETE_PROGRAM = "estoy en un programa de atletas de alto rendimiento.";
 
-    private static final DecimalFormat DECIMAL_FORMAT = new DecimalFormat("#.##");
+    private static final DecimalFormat DECIMAL_FORMAT = new DecimalFormat("#.##", new DecimalFormatSymbols(Locale.US));
 
     @Autowired
     ObjectMapper objectMapper;
@@ -158,7 +159,7 @@ public class ChatGPT {
 
         int statusCode = 500;
         try {
-            URL url = new URL("http://192.168.20.104:8000/ServiciosClubAlpha/api/OrdenDeVenta/Registra");
+            URL url = new URL("http://192.168.20.107:8000/ServiciosClubAlpha/api/OrdenDeVenta/Registra");
             String postData = body2;
             HttpURLConnection conn = (HttpURLConnection) url.openConnection();
             conn.setRequestMethod("POST");
@@ -222,223 +223,6 @@ public class ChatGPT {
 
 
     /**********************************************************[GUIAS ALIMENTICIAS SPEC]*****************************************************************************/
-
-    /*public String getPrompt(int idCliente) {
-        Cliente cliente = obtenerCliente(idCliente);
-        String gender = cliente.getSexo().toLowerCase();
-        int age = calcularAniosDate(cliente.getFechaNacimiento());
-        String customerPrompt = generarPromptConRespuestas(idCliente, gender, age);
-        return construirJsonRequest(customerPrompt);
-    }
-
-    private Cliente obtenerCliente(int idCliente) {
-        Cliente cliente = clienteService.findById(idCliente);
-        if (cliente == null) {
-            throw new ClienteNoEncontradoException("Cliente no encontrado");
-        }
-        return cliente;
-    }
-
-    public String generarPromptConRespuestas(int idCliente, String gender, int age) {
-        List<RespuestaDTO> respuestas = formularioService.obtenerRespuestasPorCliente(idCliente);
-
-        if (respuestas.isEmpty()) {
-            //throw new ChatGPTException("El cliente " + idCliente + " no tiene información alimentaria.");
-            return "";
-        }
-
-        String peso = respuestas.get(0).getPeso();
-        String estatura = respuestas.get(0).getEstatura();
-
-        StringBuilder respuestasConcatenadas = new StringBuilder();
-        respuestas.forEach(respuesta -> {
-            String pregunta = escapeJson(respuesta.getPregunta());
-            String respuestaStr = escapeJson(respuesta.getRespuesta());
-            if (!respuestaStr.isEmpty()) {
-                respuestasConcatenadas.append("- Pregunta: ").append(pregunta)
-                        .append(" Respuesta: ").append(respuestaStr);
-            }
-        });
-
-        String initial = String.format("Soy %s de %d años de edad, mido %s, peso %s, y %s",
-                gender, age, estatura, peso, ATHLETE_PROGRAM);
-
-        if (respuestasConcatenadas.length() > 0) {
-            respuestasConcatenadas.insert(0, " Recientemente conteste el siguiente cuestionario sobre salud: ");
-        }
-
-        return initial + respuestasConcatenadas.toString();
-    }
-
-    private String escapeJson(String input) {
-        return input.replace("\"", "\\\"");
-    }
-
-    private String construirJsonRequest(String customerPrompt) {
-        String temperatureFormatted = DECIMAL_FORMAT.format(TEMPERATURE);
-        String topPFormatted = DECIMAL_FORMAT.format(TOP_P);
-        int dias = obtenerDiasMesActual();
-
-        return String.format("{\n" +
-                "  \"model\": \"%s\",\n" +
-                "  \"messages\": [\n" +
-                "    {\n" +
-                "      \"role\": \"system\",\n" +
-                "      \"content\": \"Eres un nutriólogo que genera un documento JSON con las dietas completas para %d días, separados como dia1, dia2, " +
-                "dia3...etc., pero NUNCA omitas ningún día de los que te indico. La dieta debe incluir las tres comidas principales del día y las dos colaciones, además de bebidas, con " +
-                "cantidades exactas en gramos para cada comida. Todos los días deben estar completos, sin saltos de línea, puntos suspensivos ni omisiones.  No se deben " +
-                "incluir comentarios o explicaciones. Solo devuelve el JSON. Ejemplo de formato: {\\\"día1\\\": {\\\"desayuno\\\": \\\"150 gramos de avena, 200 gramos de fresas, 300 mililitros de agua\\\", \\\"colación1\\\": " +
-                "\\\"100 gramos de almendras, 250 mililitros de jugo de naranja\\\", \\\"comida\\\": \\\"200 gramos de pechuga de pollo, 150 gramos de arroz integral, 100 gramos " +
-                "de verduras mixtas, 300 mililitros de agua\\\", \\\"colación2\\\": \\\"150 gramos de yogur natural sin lactosa, 50 gramos de nueces\\\", \\\"cena\\\": " +
-                "\\\"150 gramos de pescado a la plancha, 100 gramos de brócoli al vapor, 300 mililitros de agua\\\"}, \\\"día2\\\": {\\\"desayuno\\\": \\\"...\\\", \\\"colación1\\\": " +
-                "\\\"...\\\", \\\"comida\\\": \\\"...\\\", \\\"colación2\\\": \\\"...\\\", \\\"cena\\\": \\\"...\\\"}, ...}\" \n" +
-                "    },\n" +
-                "    {\n" +
-                "      \"role\": \"user\",\n" +
-                "      \"content\": \"%s\"\n" +
-                "    }\n" +
-                "  ],\n" +
-                "  \"temperature\": %s,\n" +
-                "  \"max_tokens\": %d,\n" +
-                "  \"top_p\": %s,\n" +
-                "  \"store\": false\n" +
-                "}", MODEL, dias, customerPrompt, temperatureFormatted, MAX_TOKENS, topPFormatted);
-    }
-
-    private int obtenerDiasMesActual () {
-        return LocalDate.now().lengthOfMonth();
-    }
-
-    public String generarGuiaSPEC(String prompt) throws RuntimeException {
-
-        try {
-            HttpClient client = HttpClient.newHttpClient();
-
-            HttpRequest request = HttpRequest.newBuilder()
-                    .uri(URI.create(URL_OPENAI))
-                    .header("Content-Type", "application/json")
-                    .header("Authorization", "Bearer " + API_KEY)
-                    .POST(HttpRequest.BodyPublishers.ofString(prompt))
-                    .build();
-
-            HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
-
-            if (response.statusCode() == 200) {
-                return response.body();
-            } else {
-                logger.error("Error al obtener la guía alimenticia: {} - {}", response.statusCode(), response.body());
-                throw new RuntimeException("Error en la respuesta de la API: " + response.statusCode() + " " + response.body());
-            }
-        } catch (Exception e) {
-            logger.error("Error en la solicitud a la API de ChatGPT: {}", e.getMessage());
-            throw new RuntimeException("Error al contactar con la API de ChatGPT.");
-        }
-    }
-
-
-    public String isValidDiet(String guiaSpec) {
-        try {
-            String response = obtenerContenido(guiaSpec);
-
-            String regex = "\\{.*\\}";
-            Pattern pattern = Pattern.compile(regex, Pattern.DOTALL);
-            Matcher matcher = pattern.matcher(response);
-            if (matcher.find()) {
-                // Extraer el JSON
-                String json = matcher.group();
-                String estructuraFinal = validarEstructura(json);
-                if (!estructuraFinal.isEmpty())
-                    return estructuraFinal;
-            }
-
-            return "";
-        }catch (Exception e) {
-            System.out.println(e.getMessage());
-            e.printStackTrace();
-            return "";
-        }
-    }
-
-    public String obtenerContenido(String responseGPT) {
-        // Realizar la llamada GET a la API de GPT
-        JSONObject response = new JSONObject(responseGPT);
-
-        // Extraer el contenido de la respuesta
-        if (response != null && response.getJSONArray("choices") != null && !response.getJSONArray("choices").isEmpty()) {
-            // Extraemos el contenido del mensaje
-            String contentString = response.getJSONArray("choices").getJSONObject(0).getJSONObject("message").getString("content");
-
-            return contentString;
-        }
-
-        return "No se encontró contenido";
-    }
-
-    // Método principal para validar la estructura
-    public String validarEstructura(String contentString) {
-        try {
-            // Convertir el contenido a un JsonNode para validar sin deserializar completamente
-            JsonNode rootNode = objectMapper.readTree(contentString);
-
-            // Verificar que sea un objeto
-            if (!rootNode.isObject()) {
-                return "";
-            }
-
-            // Normalizar las claves esperadas (sin acentos)
-            String desayuno = quitarAcentos("desayuno");
-            String colacion1 = quitarAcentos("colación1");
-            String comida = quitarAcentos("comida");
-            String colacion2 = quitarAcentos("colación2");
-            String cena = quitarAcentos("cena");
-
-            // Iterar sobre los días del mapa
-            Iterator<Map.Entry<String, JsonNode>> fields = rootNode.fields();
-            while (fields.hasNext()) {
-                Map.Entry<String, JsonNode> field = fields.next();
-                JsonNode diaNode = field.getValue();
-
-                // Iterar sobre las claves del día y normalizarlas para la comparación
-                Iterator<String> fieldNames = diaNode.fieldNames();
-                boolean tieneTodasLasComidas = true;
-
-                while (fieldNames.hasNext()) {
-                    String key = fieldNames.next();
-                    // Normalizar las claves del JSON (sin acentos)
-                    String keySinAcentos = quitarAcentos(key);
-
-                    // Verificar si alguna comida falta
-                    if (!keySinAcentos.equals(desayuno) && !keySinAcentos.equals(colacion1) &&
-                            !keySinAcentos.equals(comida) && !keySinAcentos.equals(colacion2) &&
-                            !keySinAcentos.equals(cena)) {
-                        tieneTodasLasComidas = false;
-                        break;
-                    }
-                }
-
-                // Si falta alguna comida
-                if (!tieneTodasLasComidas) {
-                    return "";
-                    //return "Faltan algunas comidas para el " + field.getKey();
-                }
-            }
-
-            return contentString;
-        } catch (Exception e) {
-            e.printStackTrace();
-            //return "Error al validar la estructura: " + e.getMessage();
-            return "";
-        }
-    }
-
-    // Método para normalizar la cadena y eliminar los acentos
-    public static String quitarAcentos(String cadena) {
-        String nfd = Normalizer.normalize(cadena, Normalizer.Form.NFD);
-        Pattern pattern = Pattern.compile("\\p{InCombiningDiacriticalMarks}+");
-        return pattern.matcher(nfd).replaceAll("");
-    }*/
-
-    /*********************** CHATGPT SOLUCION 2 ************************************************************/
 
     public String getPrompt(int idCliente) {
         Cliente cliente = obtenerCliente(idCliente);
