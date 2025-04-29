@@ -81,7 +81,12 @@ public class SpecEvaluacionService {
 
         info.setEdad(obtenerEdad(Integer.parseInt(evaluacion.getPartner_id().get(0).toString())));
 
-        info.setDeporte(evaluacion.getDeporte_id().get(1).toString());
+        if (evaluacion.getDeporte_id().size() > 1) {
+            info.setDeporte(evaluacion.getDeporte_id().get(1).toString());
+        } else {
+            info.setDeporte("");
+        }
+
         info.setFechaEvaluacion(evaluacion.getFecha_de_evaluacion_contestado());
                 
         Optional<Double> masaMuscular = evaluacion.getLine_evaluation().stream()
