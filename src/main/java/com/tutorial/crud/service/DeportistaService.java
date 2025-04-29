@@ -5,6 +5,8 @@ import com.tutorial.crud.dto.DeportistaDTO;
 import com.tutorial.crud.dto.EvaluacionRequest;
 import com.tutorial.crud.entity.Cliente;
 import com.tutorial.crud.exception.ResourceNotFoundException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.ParameterizedTypeReference;
@@ -12,10 +14,15 @@ import org.springframework.http.*;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
+import java.text.Normalizer;
 import java.util.List;
+import java.util.Optional;
 
 @Service
 public class DeportistaService {
+
+    private static final Logger log = LoggerFactory.getLogger(DeportistaService.class);
+
     private final RestTemplate restTemplate;
     private final String baseUrl;
 
@@ -42,7 +49,7 @@ public class DeportistaService {
             deportistas.forEach(this::procesarDeportista);
             return deportistas;
         } catch (Exception ex) {
-            ex.printStackTrace();
+            //ex.printStackTrace();
             throw new ResourceNotFoundException("No se encontró un historico para el deportista");
         }
     }
@@ -117,5 +124,59 @@ public class DeportistaService {
         } else {
             deportista.setImagen(null);
         }
+    }
+
+    public String obtenerEvaluacionSpec(int idCliente) throws ResourceNotFoundException{
+        log.info("Buscando evaluación SPEC para cliente ID: {}", idCliente);
+        List<DeportistaDTO> deportistas = obtenerDeportistas(idCliente);
+
+        Optional<DeportistaDTO> deportistaOpt = deportistas.stream()
+                .filter(d -> contienePalabraClaveNormalizada(d.getGrupo_deportista()))
+                .findFirst();
+
+        if (deportistaOpt.isEmpty()) {
+            log.info("No se encontraron deportes 'SPEC' o 'Preparación Física' para cliente ID: {}", idCliente);
+            throw new ResourceNotFoundException("No se encontró un deporte 'SPEC' o 'Preparación Física' para el cliente: " + idCliente);
+        }
+
+        DeportistaDTO deportista = deportistaOpt.get();
+        log.info("Deportista filtrado para evaluación SPEC: ID {} - Deporte '{}'", deportista.getId_deportista(), deportista.getNombre_deporte());
+
+        EvaluacionRequest request = new EvaluacionRequest(deportista.getId_deportista(), deportista.getDeporte_id());
+
+        ResponseEntity<String> response = getEvaluacionesSpec(request);
+        log.info("Respuesta recibida de evaluación SPEC para deportista ID: {} - {}", deportista.getId_deportista(), truncarMensaje(response.getBody(), 50));
+        return response.getBody();
+    }
+
+    private boolean contienePalabraClaveNormalizada(String texto) {
+        if (texto == null) return false;
+        String normalizado = Normalizer.normalize(texto, Normalizer.Form.NFD)
+                .replaceAll("[\\p{InCombiningDiacriticalMarks}]", "")
+                .toLowerCase();
+        return normalizado.contains("spec") || normalizado.contains("preparacion fisica");
+    }
+
+    public ResponseEntity<String> getEvaluacionesSpec(EvaluacionRequest request) {
+        String url = String.format("%s/ServiciosClubAlpha/api/spec/list/evaluaciones/deportista", baseUrl);
+        log.info("Haciendo POST a {}", url);
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.APPLICATION_JSON);
+
+        HttpEntity<EvaluacionRequest> entity = new HttpEntity<>(request, headers);
+        ResponseEntity<String> response = restTemplate.exchange(
+                url,
+                HttpMethod.POST,
+                entity,
+                new ParameterizedTypeReference<>() {}
+        );
+        return response;
+    }
+
+    private String truncarMensaje(String mensaje, int maxLength) {
+        if (mensaje.length() > maxLength) {
+            return mensaje.substring(0, maxLength) + "... [Truncado]";
+        }
+        return mensaje;
     }
 }

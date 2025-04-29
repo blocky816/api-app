@@ -26,8 +26,8 @@ public class DeportistaController {
 
     @GetMapping("/{idCliente}")
     public ResponseEntity<List<DeportistaDTO>> obtenerDeportistas(@PathVariable int idCliente) throws ResourceNotFoundException {
-        //return ResponseEntity.ok(deportistaService.obtenerDeportistas(idCliente));
-        return ResponseEntity.ok(new ArrayList<DeportistaDTO>());
+        return ResponseEntity.ok(deportistaService.obtenerDeportistas(idCliente));
+        //return ResponseEntity.ok(new ArrayList<DeportistaDTO>());
     }
 
     @PostMapping("/evaluaciones")
@@ -57,6 +57,18 @@ public class DeportistaController {
             return ResponseEntity.ok(cliente);
         } else {
             return ResponseEntity.notFound().build();
+        }
+    }
+
+    @GetMapping("/{idCliente}/evaluaciones/spec")
+    public ResponseEntity<?> obtenerEvaluacionDeportistaSpec(@PathVariable int idCliente) {
+        try {
+            //ResponseEntity<String> response = deportistaService.getEvaluacionesDeportista(request);
+            //return response;
+            String resultado = deportistaService.obtenerEvaluacionSpec(idCliente);
+            return ResponseEntity.ok(resultado);
+        } catch (ResourceNotFoundException e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
         }
     }
 }

@@ -136,6 +136,7 @@ public class MainSecurity extends WebSecurityConfigurerAdapter {
                         "/deportista/{idCliente}",
                         "/deportista/evaluaciones",
                         "/deportista/asistencias",
+                        "/deportista/{idCliente}/evaluaciones/spec",
                         "/asesor/programar_cita",
                         "/rutina/pesajes",
                         "/formularios/crear",
@@ -151,6 +152,7 @@ public class MainSecurity extends WebSecurityConfigurerAdapter {
                         "/spec/cargar-pases/{idCLiente}",
                         "/spec/{idCliente}/{idProducto}/paseQR",
                         "/spec/{idCliente}/{idProducto}/{consumidoPor}/paseQR",
+                        "/spec/{idCliente}/pasesQR/vigentes",
                         "/health-studio/consumos",
                         "/health-studio/paseQR/{idCliente}",
                         "/notificaciones/onesignal/registrar-subscripcion/{externalId}"

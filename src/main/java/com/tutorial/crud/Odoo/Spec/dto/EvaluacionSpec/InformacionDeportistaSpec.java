@@ -8,6 +8,7 @@ public class InformacionDeportistaSpec {
         private String deporte;
         private Double masaAdiposa;
         private Double masaMuscular;
+        private String fechaEvaluacion;
         public String getNombre() {
             return nombre;
         }
@@ -50,4 +51,6 @@ public class InformacionDeportistaSpec {
         public void setMasaMuscular(Double masaMuscular) {
             this.masaMuscular = masaMuscular;
         }
-    }
+        public String getFechaEvaluacion() { return fechaEvaluacion; }
+        public void setFechaEvaluacion(String fechaEvaluacion) { this.fechaEvaluacion = fechaEvaluacion; }
+}

@@ -13,6 +13,8 @@ public class SpecEvaluacionDto {
     public List<Object> partner_id;
     public String id_cliente;
     public String state;
+    public String fecha_de_evaluacion_contestado;
+    public List<Object> deporte_id;
     public List<LineEvaluation> line_evaluation;
 
     public Integer getId_evaluacion() {
@@ -61,6 +63,22 @@ public class SpecEvaluacionDto {
 
     public void setLine_evaluation(List<LineEvaluation> line_evaluation) {
         this.line_evaluation = line_evaluation;
+    }
+
+    public String getFecha_de_evaluacion_contestado() {
+        return fecha_de_evaluacion_contestado;
+    }
+
+    public void setFecha_de_evaluacion_contestado(String fecha_de_evaluacion_contestado) {
+        this.fecha_de_evaluacion_contestado = fecha_de_evaluacion_contestado;
+    }
+
+    public List<Object> getDeporte_id() {
+        return deporte_id;
+    }
+
+    public void setDeporte_id(List<Object> deporte_id) {
+        this.deporte_id = deporte_id;
     }
 
     public static List<SpecEvaluacionDto> getList(String body) {

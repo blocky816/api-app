@@ -80,6 +80,9 @@ public class SpecEvaluacionService {
         info.setNombre(evaluacion.getPartner_id().get(1).toString());
 
         info.setEdad(obtenerEdad(Integer.parseInt(evaluacion.getPartner_id().get(0).toString())));
+
+        info.setDeporte(evaluacion.getDeporte_id().get(1).toString());
+        info.setFechaEvaluacion(evaluacion.getFecha_de_evaluacion_contestado());
                 
         Optional<Double> masaMuscular = evaluacion.getLine_evaluation().stream()
             .filter(r -> normalize(r.getId_parametro().get(0).getName()).equalsIgnoreCase("Musculo"))
