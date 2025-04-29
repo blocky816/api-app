@@ -7,6 +7,7 @@ import java.net.http.HttpRequest;
 
 import com.tutorial.crud.Odoo.Spec.dto.ClientePase;
 import com.tutorial.crud.Odoo.Spec.dto.PaseQR;
+import com.tutorial.crud.Odoo.Spec.dto.PaseUsuarioSpecVigenteDTO;
 import com.tutorial.crud.controller.Servicios;
 import com.tutorial.crud.dto.MovimientoDTO;
 import com.tutorial.crud.entity.CAClase;
@@ -479,4 +480,22 @@ public class PaseUsuarioService {
 		return false;
 	}
 
+	public List<PaseUsuarioSpecVigenteDTO> getSpecPasesVigentesByClienteId(int idCliente) {
+		logger.info("Obteniendo pases tipo spec para cliente ID: " + idCliente);
+
+		try {
+			List<PaseUsuarioSpecVigenteDTO> pases = paseUsuarioRepository.findSpecPasesVigentesByClienteId(idCliente);
+
+			if (pases.isEmpty()) {
+				logger.warning("No se encontraron pases spec para cliente con ID: " + idCliente);
+			} else {
+				logger.info("Se encontraron " + pases.size() + " pases spec para el cliente: " + idCliente);
+			}
+
+			return pases;
+		} catch (Exception e) {
+			logger.warning("Error al obtener los pases spec para el cliente: " + idCliente);
+			throw new RuntimeException("Error interno al obtener pases spec vigentes para el cliente: " + idCliente);
+		}
+	}
 }

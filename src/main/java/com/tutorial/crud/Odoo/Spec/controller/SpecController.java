@@ -5,10 +5,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
-import com.tutorial.crud.Odoo.Spec.dto.PaseQR;
-import com.tutorial.crud.Odoo.Spec.dto.RespuestaDTO;
-import com.tutorial.crud.Odoo.Spec.dto.RespuestasRequestDTO;
-import com.tutorial.crud.Odoo.Spec.dto.SpecFacturaResponse;
+import com.tutorial.crud.Odoo.Spec.dto.*;
 import com.tutorial.crud.Odoo.Spec.entity.RespuestaFormulario;
 import com.tutorial.crud.Odoo.Spec.service.SpecFacturaService;
 import com.tutorial.crud.chatGPT.ChatGPT;
@@ -190,5 +187,11 @@ public class SpecController {
         Boolean fueConsumido = paseUsuarioService.consumirPaseQR(idCliente, idVentaDetalle, consumidoPor);
 
         return ResponseEntity.ok(fueConsumido);
+    }
+
+    @GetMapping("/{idCliente}/pasesQR/vigentes")
+    public ResponseEntity<List<PaseUsuarioSpecVigenteDTO>> getSpecPasesByCliente(@PathVariable int idCliente) {
+        List<PaseUsuarioSpecVigenteDTO> pases = paseUsuarioService.getSpecPasesVigentesByClienteId(idCliente);
+        return ResponseEntity.ok(pases);
     }
 }

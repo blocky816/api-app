@@ -2,6 +2,7 @@ package com.tutorial.crud.repository;
 
 import com.tutorial.crud.Odoo.Spec.dto.PaseHealthStudioDTO;
 import com.tutorial.crud.Odoo.Spec.dto.PaseReporteDTO;
+import com.tutorial.crud.Odoo.Spec.dto.PaseUsuarioSpecVigenteDTO;
 import com.tutorial.crud.entity.CAClase;
 import com.tutorial.crud.entity.Cliente;
 import com.tutorial.crud.entity.PaseUsuario;
@@ -63,4 +64,28 @@ public interface PaseUsuarioRepository extends JpaRepository<PaseUsuario, Intege
 			@Param("keyword5") String keyword5,
 			@Param("keyword6") String keyword6);
 
+	/*@Query("SELECT new com.tutorial.crud.Odoo.Spec.dto.PaseUsuarioSpecVigenteDTO(p.concepto, p.fechaVigencia, p.cantidad, p.disponibles, p.activo) "+
+        "FROM PaseUsuario p " +
+        "WHERE p.cliente.id = :idCliente " +
+		"AND p.fechaVigencia > CURRENT_TIMESTAMP " +
+        "AND ( " +
+            "LOWER(p.concepto) LIKE LOWER('%studio%') OR " +
+            "LOWER(p.concepto) LIKE LOWER('%fisio%') OR " +
+            "LOWER(p.concepto) LIKE LOWER('%hidro%') OR " +
+            "LOWER(p.concepto) LIKE LOWER('%spa%') OR " +
+            "LOWER(p.concepto) LIKE LOWER('%psico%') OR " +
+            "LOWER(p.concepto) LIKE LOWER('%fisia%') " +
+          ")"
+    )
+	List<PaseUsuarioSpecVigenteDTO> findSpecPasesVigentesByClienteId(@Param("idCliente") int idCliente);*/
+	@Query("SELECT new com.tutorial.crud.Odoo.Spec.dto.PaseUsuarioSpecVigenteDTO(p.concepto, p.fechaVigencia, p.cantidad, p.disponibles, p.activo) "+
+			"FROM PaseUsuario p " +
+			"WHERE p.cliente.id = :idCliente " +
+			"AND p.fechaVigencia > CURRENT_TIMESTAMP " +
+			"AND ( " +
+			"LOWER(FUNCTION('unaccent', p.concepto)) LIKE LOWER(FUNCTION('unaccent', '%Sesión Grupal Psicológica%')) OR " +
+			"LOWER(FUNCTION('unaccent', p.concepto)) LIKE LOWER(FUNCTION('unaccent', '%Sesión Fisiatría Básica SPEC%')) " +
+			")"
+	)
+	List<PaseUsuarioSpecVigenteDTO> findSpecPasesVigentesByClienteId(@Param("idCliente") int idCliente);
 }
