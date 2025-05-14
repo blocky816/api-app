@@ -4,6 +4,8 @@ public class EvaluacionRequest {
     private int deportista_id;
     private int deporte_id;
 
+    public EvaluacionRequest() {}
+
     public EvaluacionRequest(int deportista_id, int deporte_id) {
         this.deportista_id = deportista_id;
         this.deporte_id = deporte_id;
