@@ -41,7 +41,9 @@ public class PaseHealthStudioConsumidoService {
                 "hidro",
                 "spa",
                 "psico",
-                "fisia");
+                "fisia",
+                "%recovery%",
+                "%inmersión%");
 
         Pageable pageable = PageRequest.of(page, size);
         List<PaseReporteDTO> registros = repository.findConsumosByFechaPaged(
@@ -53,6 +55,8 @@ public class PaseHealthStudioConsumidoService {
                 "spa",
                 "psico",
                 "fisia",
+                "%recovery%",
+                "%inmersión%",
                 pageable);
 
         // Calcular el número total de páginas
@@ -84,7 +88,9 @@ public class PaseHealthStudioConsumidoService {
                 "%hidro%",
                 "%spa%",
                 "%psico%",
-                "%fisia%");
+                "%fisia%",
+                "%recovery%",
+                "%inmersión%");
 
         if (!paseUsuario.isEmpty()){
             PaseHealthStudioDTO pases = new PaseHealthStudioDTO();

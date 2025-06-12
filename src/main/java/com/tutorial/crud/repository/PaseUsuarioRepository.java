@@ -52,7 +52,8 @@ public interface PaseUsuarioRepository extends JpaRepository<PaseUsuario, Intege
 	@Query(value = "SELECT * FROM pase_usuario p WHERE p.idcliente = :clienteId AND p.activo = TRUE AND " +
 			"(LOWER(p.concepto) LIKE :keyword1 OR LOWER(p.concepto) LIKE :keyword2 OR " +
 			"LOWER(p.concepto) LIKE :keyword3 OR LOWER(p.concepto) LIKE :keyword4 OR " +
-			"LOWER(p.concepto) LIKE :keyword5 OR LOWER(p.concepto) LIKE :keyword6) " +
+			"LOWER(p.concepto) LIKE :keyword5 OR LOWER(p.concepto) LIKE :keyword6 OR " +
+			"LOWER(p.concepto) LIKE :keyword7 OR LOWER(FUNCTION('unaccent', p.concepto)) LIKE LOWER(FUNCTION('unaccent', :keyword8)) ) " +
 			"ORDER BY p.concepto",
 			nativeQuery = true)
 	List<PaseUsuario> findByClienteAndConceptoUsingDynamicKeywords(
@@ -62,22 +63,11 @@ public interface PaseUsuarioRepository extends JpaRepository<PaseUsuario, Intege
 			@Param("keyword3") String keyword3,
 			@Param("keyword4") String keyword4,
 			@Param("keyword5") String keyword5,
-			@Param("keyword6") String keyword6);
+			@Param("keyword6") String keyword6,
+			@Param("keyword7") String keyword7,
+			@Param("keyword8") String keyword8);
 
-	/*@Query("SELECT new com.tutorial.crud.Odoo.Spec.dto.PaseUsuarioSpecVigenteDTO(p.concepto, p.fechaVigencia, p.cantidad, p.disponibles, p.activo) "+
-        "FROM PaseUsuario p " +
-        "WHERE p.cliente.id = :idCliente " +
-		"AND p.fechaVigencia > CURRENT_TIMESTAMP " +
-        "AND ( " +
-            "LOWER(p.concepto) LIKE LOWER('%studio%') OR " +
-            "LOWER(p.concepto) LIKE LOWER('%fisio%') OR " +
-            "LOWER(p.concepto) LIKE LOWER('%hidro%') OR " +
-            "LOWER(p.concepto) LIKE LOWER('%spa%') OR " +
-            "LOWER(p.concepto) LIKE LOWER('%psico%') OR " +
-            "LOWER(p.concepto) LIKE LOWER('%fisia%') " +
-          ")"
-    )
-	List<PaseUsuarioSpecVigenteDTO> findSpecPasesVigentesByClienteId(@Param("idCliente") int idCliente);*/
+
 	@Query("SELECT new com.tutorial.crud.Odoo.Spec.dto.PaseUsuarioSpecVigenteDTO(p.concepto, p.fechaVigencia, p.cantidad, p.disponibles, p.activo) "+
 			"FROM PaseUsuario p " +
 			"WHERE p.cliente.id = :idCliente " +
