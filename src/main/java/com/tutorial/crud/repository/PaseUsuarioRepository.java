@@ -53,7 +53,7 @@ public interface PaseUsuarioRepository extends JpaRepository<PaseUsuario, Intege
 			"(LOWER(p.concepto) LIKE :keyword1 OR LOWER(p.concepto) LIKE :keyword2 OR " +
 			"LOWER(p.concepto) LIKE :keyword3 OR LOWER(p.concepto) LIKE :keyword4 OR " +
 			"LOWER(p.concepto) LIKE :keyword5 OR LOWER(p.concepto) LIKE :keyword6 OR " +
-			"LOWER(p.concepto) LIKE :keyword7 OR LOWER(FUNCTION('unaccent', p.concepto)) LIKE LOWER(FUNCTION('unaccent', :keyword8)) ) " +
+			"LOWER(p.concepto) LIKE :keyword7 OR LOWER(unaccent(p.concepto)) LIKE LOWER(unaccent(:keyword8)) ) " +
 			"ORDER BY p.concepto",
 			nativeQuery = true)
 	List<PaseUsuario> findByClienteAndConceptoUsingDynamicKeywords(
