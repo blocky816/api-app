@@ -102,25 +102,21 @@ public class ChatGPT {
                 .uri(URI.create(URL_OPENAI))
                 .POST(HttpRequest.BodyPublishers.ofString(question))
                 .header("Content-Type", "application/json")
-                //.header("Authorization", "Bearer " + "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")
-                .header("Authorization", "Bearer " + "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") // nuevo token para chat gpt-4
+                .header("Authorization", "Bearer " + API_KEY) // nuevo token para chat gpt-4
                 .build();
 
         AnswerChatGPT answerChatGPT = new AnswerChatGPT();
         HttpResponse<String> response;
         try {
              response = client.send(request, HttpResponse.BodyHandlers.ofString());
-            //System.out.println("REspuesta de CHATGTP => " + response.body());
-            //return response.body();
-            //System.out.println("REspuesta de CHATGTP.java => " + response.body());
+
             String content = new JSONObject(response.body()).getJSONArray("choices").getJSONObject(0).getJSONObject("message").getString("content").toString();
-            //String breakfast = new JSONObject(content).getJSONObject("lunes").getString("desayuno");
+
             answerChatGPT.setCustomer(customer);
             answerChatGPT.setQuestion(question);
             answerChatGPT.setAnswer(response.body());
             answerChatGPT.setValidQuestion(true);
 
-            //if (breakfast.equals("")) {
             if (!isValidDietJSON(content, customer)) {
                 throw new RuntimeException("Respuesta Chat Vacia");
             }
@@ -132,13 +128,12 @@ public class ChatGPT {
             }
             answerChatGPT.setCost(cost);
         } catch (Exception e) {
-            //System.out.println(e.getMessage());
             answerChatGPT.setValidQuestion(false);
             answerChatGPTService.save(answerChatGPT);
             return "";
         }
         answerChatGPTService.save(answerChatGPT);
-        //System.out.println("Guarde la respuesta de chatGPT: " + new java.sql.Date(new Date().getTime()));
+
         return response.body();
     }
 
@@ -171,13 +166,6 @@ public class ChatGPT {
             }
             statusCode = conn.getResponseCode();
 
-           /* if (statusCode == 200) {
-               // toalla.setSancion("SI");
-            }else {
-                //toalla.setSancion("NO");
-            }
-            //toallaService.save(toalla);
-            conn.disconnect();*/
 
         } catch (Exception e) {
             System.out.println("Error al cargar dieta en odoo cliente: " + holder + " => "+ e.getMessage());
@@ -212,11 +200,9 @@ public class ChatGPT {
                 return errors.isEmpty();
             } catch (IOException e) {
                 System.out.println("Errorr al cargar model/schema.json");
-                //e.printStackTrace();
             }
         } catch (Exception e) {
             System.out.println("Exception de Json Proccesing => " +  e.getMessage());
-            //e.printStackTrace();
         }
         return false;
     }
