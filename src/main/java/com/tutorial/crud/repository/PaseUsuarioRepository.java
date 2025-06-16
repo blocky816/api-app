@@ -74,6 +74,8 @@ public interface PaseUsuarioRepository extends JpaRepository<PaseUsuario, Intege
 			"AND p.fechaVigencia > CURRENT_TIMESTAMP " +
 			"AND ( " +
 			"LOWER(FUNCTION('unaccent', p.concepto)) LIKE LOWER(FUNCTION('unaccent', '%Sesión Grupal Psicológica%')) OR " +
+			"LOWER(FUNCTION('unaccent', p.concepto)) LIKE LOWER(FUNCTION('unaccent', '%Recovery%')) OR " +
+			"LOWER(FUNCTION('unaccent', p.concepto)) LIKE LOWER(FUNCTION('unaccent', '%Terapia de inmersión en frío%')) OR " +
 			"LOWER(FUNCTION('unaccent', p.concepto)) LIKE LOWER(FUNCTION('unaccent', '%Sesión Fisiatría Básica SPEC%')) " +
 			")"
 	)
